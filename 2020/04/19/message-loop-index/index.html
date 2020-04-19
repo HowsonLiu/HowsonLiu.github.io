@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="duilib,chrome," />
 
 
 
@@ -79,14 +79,18 @@
 
 
 
-<meta name="description" content="Qt Duilib">
-<meta property="og:type" content="website">
-<meta property="og:title" content="HowsonLiu">
-<meta property="og:url" content="http://yoursite.com/archives/2020/index.html">
+<meta name="description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分 MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法  Run 启动消息循环 Quit 结束消息循环 ScheduleWork 处理任务 ScheduleDelayedWork 处理延时任务  MessagePump主要充当CPU跟Me">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nbase 消息循环">
+<meta property="og:url" content="http://yoursite.com/2020/04/19/message-loop-index/index.html">
 <meta property="og:site_name" content="HowsonLiu">
-<meta property="og:description" content="Qt Duilib">
+<meta property="og:description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分 MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法  Run 启动消息循环 Quit 结束消息循环 ScheduleWork 处理任务 ScheduleDelayedWork 处理延时任务  MessagePump主要充当CPU跟Me">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-04-19T07:10:22.000Z">
+<meta property="article:modified_time" content="2020-04-19T07:36:44.365Z">
 <meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="duilib">
+<meta property="article:tag" content="chrome">
 <meta name="twitter:card" content="summary">
 
 
@@ -117,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2020/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/04/19/message-loop-index/"/>
 
 
 
 
 
-  <title>Archive | HowsonLiu</title>
+  <title>nbase 消息循环 | HowsonLiu</title>
   
 
 
@@ -142,7 +146,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -216,259 +220,164 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/message-loop-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">nbase 消息循环</h1>
         
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-19T15:10:22+08:00">
+                2020-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-        
-        Um..! 6 posts in total. Keep on posting.
-      </span>
 
-      
-
-        
-        
-        
-
-        
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2020">2020</h1>
-          </div>
-        
-        
+            
+          
 
-        
+          
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/19/message-loop-index/" itemprop="url">
-              
-                <span itemprop="name">nbase 消息循环</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-19T15:10:22+08:00"
-              content="2020-04-19" >
-          04-19
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+        </div>
+      </header>
+    
 
-
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/19/lazyeraser/" itemprop="url">
-              
-                <span itemprop="name">lazyeraser</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-19T14:07:12+08:00"
-              content="2020-04-19" >
-          04-19
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/16/thread-local/" itemprop="url">
-              
-                <span itemprop="name">thread_local</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-16T22:43:30+08:00"
-              content="2020-04-16" >
-          04-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+      
+        <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分</p>
+<h1 id="MessagePump"><a href="#MessagePump" class="headerlink" title="MessagePump"></a>MessagePump</h1><p>消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类<br>它主要提供几个方法</p>
+<ul>
+<li>Run 启动消息循环</li>
+<li>Quit 结束消息循环</li>
+<li>ScheduleWork 处理任务</li>
+<li>ScheduleDelayedWork 处理延时任务</li>
+</ul>
+<p><code>MessagePump</code>主要充当CPU跟<code>MessageLoop</code>间中间人的角色。<code>MessageLoop</code>不用操心啥时候有时间片啥时候开始啥时候停止，而<code>MessagePump</code>也不用操心要执行什么任务</p>
+<h1 id="MessageLoop"><a href="#MessageLoop" class="headerlink" title="MessageLoop"></a>MessageLoop</h1><p>消息循环。主要维护任务队列，提供接口供外界提交任务，提供任务给<code>MessagePump</code>执行。<br>简单的消息循环一定要提供几个方法</p>
+<ul>
+<li>DoWork 处理普通任务</li>
+<li>DoDelayedWork 处理延时任务</li>
+<li>DoIdleWork 处理空闲任务</li>
+</ul>
+<p><code>nbase</code>库将任务分成这三种类型</p>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/14/lazyinstance/" itemprop="url">
-              
-                <span itemprop="name">lazyinstance</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-14T22:18:59+08:00"
-              content="2020-04-14" >
-          04-14
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/13/weakcallback/" itemprop="url">
-              
-                <span itemprop="name">weakcallback</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-13T22:45:31+08:00"
-              content="2020-04-13" >
-          04-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/04/12/hello-world/" itemprop="url">
-              
-                <span itemprop="name">Hello World</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-04-12T16:22:56+08:00"
-              content="2020-04-12" >
-          04-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/duilib/" rel="tag"># duilib</a>
+          
+            <a href="/tags/chrome/" rel="tag"># chrome</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/19/lazyeraser/" rel="next" title="lazyeraser">
+                <i class="fa fa-chevron-left"></i> lazyeraser
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -476,6 +385,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -496,8 +409,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -548,6 +470,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MessagePump"><span class="nav-number">1.</span> <span class="nav-text">MessagePump</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MessageLoop"><span class="nav-number">2.</span> <span class="nav-text">MessageLoop</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -681,6 +619,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

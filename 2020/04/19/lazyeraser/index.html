@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="duilib,chrome," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="谷歌nbase库提供了一种集合元素删除的方法，名为LazyEraser。 优点C++容器类一般都是调用erase方法删除元素，但是erase会导致迭代器失效。LazyEraser延迟了删除元素的时机，一次删除，提高了效率，控制了删除的时机 抽象基类123456789101112class LazyEraser&amp;#123;public:	LazyEraser() : lazy_erase_(0) &amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lazyeraser">
+<meta property="og:url" content="http://yoursite.com/2020/04/19/lazyeraser/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="谷歌nbase库提供了一种集合元素删除的方法，名为LazyEraser。 优点C++容器类一般都是调用erase方法删除元素，但是erase会导致迭代器失效。LazyEraser延迟了删除元素的时机，一次删除，提高了效率，控制了删除的时机 抽象基类123456789101112class LazyEraser&amp;#123;public:	LazyEraser() : lazy_erase_(0) &amp;">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-04-19T06:07:12.000Z">
+<meta property="article:modified_time" content="2020-04-19T07:36:46.277Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="duilib">
+<meta property="article:tag" content="chrome">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/04/19/lazyeraser/"/>
+
+
+
+
+
+  <title>lazyeraser | HowsonLiu</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HowsonLiu</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/lazyeraser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">lazyeraser</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-19T14:07:12+08:00">
+                2020-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>谷歌<code>nbase</code>库提供了一种集合元素删除的方法，名为<code>LazyEraser</code>。</p>
+<h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>C++容器类一般都是调用<code>erase</code>方法删除元素，但是<code>erase</code>会导致迭代器失效。<code>LazyEraser</code>延迟了删除元素的时机，一次删除，提高了效率，控制了删除的时机</p>
+<h1 id="抽象基类"><a href="#抽象基类" class="headerlink" title="抽象基类"></a>抽象基类</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	LazyEraser() : lazy_erase_(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">	<span class="comment">/* <span class="doctag">NOTE:</span> calling 'ApplyLasyErase' increases the reference count, calling 'ReleaseLasyErase' decreases the reference count */</span></span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">AquireLazyErase</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> ++lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">ReleaseLazyErase</span><span class="params">()</span> </span>&#123; assert(lazy_erase_ &gt; <span class="number">0</span>); <span class="keyword">return</span> --lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Compact</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="keyword">int</span> lazy_erase_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>基类<code>LazyEraser</code>维护了一个引用计数。定义了抽象方法<code>Compact</code>，用于主动删除元素</p>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p><code>nbase</code>库里记录观察者的列表类<code>ObserverList</code>就是使用<code>LazyEraser</code>的一个例子</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> ObserverType&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ObserverList</span> :</span> <span class="keyword">public</span> LazyEraser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">AddObserver</span><span class="params">(ObserverType *observer)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		assert(observer);</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">std</span>::<span class="built_in">find</span>(observers_.<span class="built_in">begin</span>(), observers_.<span class="built_in">end</span>(), observer) == observers_.<span class="built_in">end</span>())</span><br><span class="line">			observers_.push_back(observer);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">	<span class="function">ObserverType* <span class="title">GetObserver</span><span class="params">(<span class="keyword">size_t</span> index)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (index &gt;= GetObserverCount())</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		<span class="keyword">return</span> observers_[index];</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">size_t</span> <span class="title">GetObserverCount</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> observers_.<span class="built_in">size</span>(); &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;ObserverType *&gt; observers_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>本质上<code>ObserverList</code>属于<code>std::vector</code>，在插入、取值、计数等方面与<code>std::vector</code>表现一致，区别在于删除方面。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RemoveObserver</span><span class="params">(ObserverType *observer)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">typename</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;ObserverType *&gt;::iterator pos = <span class="built_in">std</span>::<span class="built_in">find</span>(observers_.<span class="built_in">begin</span>(), observers_.<span class="built_in">end</span>(), observer);</span><br><span class="line">	<span class="keyword">if</span> (pos == observers_.<span class="built_in">end</span>())</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="comment">/* this method may be called within a traversal of the list */</span></span><br><span class="line">	<span class="keyword">if</span> (lazy_erase_ &gt; <span class="number">0</span>)    <span class="comment">// 关键</span></span><br><span class="line">		*pos = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		observers_.erase(pos);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用<code>RemoveObserver</code>删除时如果此时引用计数不为0，那么容器不会调用<code>std::vector::erase</code>函数，只是仅仅将该地址置空。也就是说它并不会立即回收删除对象在容器里对应的内存（所以对应的迭代器还能正常使用），等到调用<code>Compact</code>函数，才会正常释放内存</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Compact</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (lazy_erase_ &gt; <span class="number">0</span> || observers_.empty())</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	ObserverType **src = &amp;observers_[<span class="number">0</span>];</span><br><span class="line">	ObserverType **target = src;</span><br><span class="line">	ObserverType **<span class="built_in">end</span> = src + observers_.<span class="built_in">size</span>();</span><br><span class="line">		<span class="comment">/* fast compacting algorithm */</span></span><br><span class="line">	<span class="keyword">while</span> (src &lt; <span class="built_in">end</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (*src != <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (target != src)</span><br><span class="line">				*target = *src;</span><br><span class="line">			target++;</span><br><span class="line">		&#125;</span><br><span class="line">		src++;</span><br><span class="line">	&#125;</span><br><span class="line">		observers_.resize(target - &amp;observers_[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="改进"><a href="#改进" class="headerlink" title="改进"></a>改进</h1><p>如果当引用计数为0的时候忘了调用<code>Compact</code>，那么岂不是会造成内存泄漏？这部分内存得等到析构的时候才能正常释放？<br>谷歌考虑到这种情况，使用<code>RAII</code>机制新增了<code>AutoLazyEraser</code>类</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AutoLazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	AutoLazyEraser(LazyEraser* lazy_eraser) : ptr_(lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">			ptr_-&gt;AquireLazyErase();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	AutoLazyEraser(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="keyword">operator</span>=(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~AutoLazyEraser()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (ptr_-&gt;ReleaseLazyErase() &lt; <span class="number">1</span>)</span><br><span class="line">				ptr_-&gt;Compact();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	LazyEraser *ptr_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>AutoLazyEraser</code>类在析构时会自动调用一次<code>Compact</code>，这样就不怕泄露了</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/duilib/" rel="tag"># duilib</a>
+          
+            <a href="/tags/chrome/" rel="tag"># chrome</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/16/thread-local/" rel="next" title="thread_local">
+                <i class="fa fa-chevron-left"></i> thread_local
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/19/message-loop-index/" rel="prev" title="nbase 消息循环">
+                nbase 消息循环 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">HowsonLiu</p>
+              <p class="site-description motion-element" itemprop="description">Qt Duilib</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#优点"><span class="nav-number">1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#抽象基类"><span class="nav-number">2.</span> <span class="nav-text">抽象基类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#例子"><span class="nav-number">3.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#改进"><span class="nav-number">4.</span> <span class="nav-text">改进</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
