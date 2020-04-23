@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="duilib,chrome," />
+  <meta name="keywords" content="chrome,duilib," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分 MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法  Run 启动消息循环 Quit 结束消息循环 ScheduleWork 处理任务 ScheduleDelayedWork 处理延时任务  MessagePump主要充当CPU跟Me">
+<meta name="description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分nbase将消息循环按照功能拆分成及部分  MessagePump 控制消息循环的开始跟停止 MessageLoop 消息循环中的消息队列实现MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法 Run 启动消息循环 Quit 结束消息循">
 <meta property="og:type" content="article">
 <meta property="og:title" content="nbase 消息循环">
 <meta property="og:url" content="http://yoursite.com/2020/04/19/message-loop-index/index.html">
 <meta property="og:site_name" content="HowsonLiu">
-<meta property="og:description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分 MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法  Run 启动消息循环 Quit 结束消息循环 ScheduleWork 处理任务 ScheduleDelayedWork 处理延时任务  MessagePump主要充当CPU跟Me">
+<meta property="og:description" content="消息循环是nbase库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分nbase将消息循环按照功能拆分成及部分  MessagePump 控制消息循环的开始跟停止 MessageLoop 消息循环中的消息队列实现MessagePump消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类它主要提供几个方法 Run 启动消息循环 Quit 结束消息循">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-04-19T07:10:22.000Z">
-<meta property="article:modified_time" content="2020-04-19T07:36:44.365Z">
+<meta property="article:modified_time" content="2020-04-22T13:43:53.940Z">
 <meta property="article:author" content="HowsonLiu">
-<meta property="article:tag" content="duilib">
 <meta property="article:tag" content="chrome">
+<meta property="article:tag" content="duilib">
 <meta name="twitter:card" content="summary">
 
 
@@ -305,9 +305,10 @@
       
 
       
-        <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分</p>
-<h1 id="MessagePump"><a href="#MessagePump" class="headerlink" title="MessagePump"></a>MessagePump</h1><p>消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类<br>它主要提供几个方法</p>
+        <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分<br><code>nbase</code>将消息循环按照功能拆分成及部分</p>
 <ul>
+<li><code>MessagePump</code> 控制消息循环的开始跟停止</li>
+<li><code>MessageLoop</code> 消息循环中的消息队列实现<h1 id="MessagePump"><a href="#MessagePump" class="headerlink" title="MessagePump"></a>MessagePump</h1>消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类<br>它主要提供几个方法</li>
 <li>Run 启动消息循环</li>
 <li>Quit 结束消息循环</li>
 <li>ScheduleWork 处理任务</li>
@@ -338,9 +339,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/duilib/" rel="tag"># duilib</a>
-          
             <a href="/tags/chrome/" rel="tag"># chrome</a>
+          
+            <a href="/tags/duilib/" rel="tag"># duilib</a>
           
         </div>
       
@@ -508,13 +509,21 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
 
   
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
 </div>
 
 
