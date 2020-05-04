@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="duilib,VC," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="主要讨论duilib库检查标准xml语法的方法以及细节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网易duilib中的xml解析（一）CMarkup">
+<meta property="og:url" content="http://yoursite.com/2020/05/04/duilib-xml-1/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="主要讨论duilib库检查标准xml语法的方法以及细节">
+<meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-05-04T15:16:29.000Z">
+<meta property="article:modified_time" content="2020-05-04T15:58:05.507Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="duilib">
+<meta property="article:tag" content="VC">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/04/duilib-xml-1/"/>
+
+
+
+
+
+  <title>网易duilib中的xml解析（一）CMarkup | HowsonLiu</title>
+  
+
+
+
+
+
+
+
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/src/mouse_effect_explosion.js"></script>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HowsonLiu</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/04/duilib-xml-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">网易duilib中的xml解析（一）CMarkup</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-04T23:16:29+08:00">
+                2020-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/duilib/" itemprop="url" rel="index">
+                    <span itemprop="name">duilib</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  主要讨论duilib库检查标准xml语法的方法以及细节
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><p>xml树由<code>CMarkup</code>表达</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UILIB_API</span> <span class="title">CMarkup</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CMarkup(LPCTSTR pstrXML = <span class="literal">NULL</span>);</span><br><span class="line">    ~CMarkup();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    LPTSTR m_pstrXML;                   <span class="comment">// xml原字符串</span></span><br><span class="line">    XMLELEMENT* m_pElements;            <span class="comment">// xml节点数组</span></span><br><span class="line">    ULONG m_nElements;                  <span class="comment">// 当前xml节点数量</span></span><br><span class="line">    ULONG m_nReservedElements;          <span class="comment">// 容器最大xml节点数量</span></span><br><span class="line">    TCHAR m_szErrorMsg[<span class="number">100</span>];            <span class="comment">// 错误信息</span></span><br><span class="line">    TCHAR m_szErrorXML[<span class="number">50</span>];             <span class="comment">// 错误所在位置</span></span><br><span class="line">    <span class="keyword">bool</span> m_bPreserveWhitespace;         <span class="comment">// 是否保留空格</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>xml节点在整个xml树中的关系由<code>XMLELEMENT</code>表达</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tagXMLELEMENT</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    ULONG iStart;       <span class="comment">// 节点起始下标</span></span><br><span class="line">    ULONG iChild;       <span class="comment">// 首个子节点起始下标</span></span><br><span class="line">    ULONG iNext;        <span class="comment">// 下一个兄弟节点起始下标</span></span><br><span class="line">    ULONG iParent;      <span class="comment">// 父节点起始下标</span></span><br><span class="line">    ULONG iData;        <span class="comment">// 节点内数据项起始下标</span></span><br><span class="line">&#125; XMLELEMENT;</span><br></pre></td></tr></table></figure>
+<p>xml节点的完整信息由<code>CMarkupNode</code>表达</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UILIB_API</span> <span class="title">CMarkupNode</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">CMarkup</span>;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMarkupNode();</span><br><span class="line">    CMarkupNode(CMarkup* pOwner, <span class="keyword">int</span> iPos);</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">IsValid</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// xml位置信息</span></span><br><span class="line">    <span class="function">CMarkupNode <span class="title">GetParent</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">CMarkupNode <span class="title">GetSibling</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">CMarkupNode <span class="title">GetChild</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">CMarkupNode <span class="title">GetChild</span><span class="params">(LPCTSTR pstrName)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">HasSiblings</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">HasChildren</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// xml属性信息</span></span><br><span class="line">    <span class="function">LPCTSTR <span class="title">GetName</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function">LPCTSTR <span class="title">GetValue</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">HasAttributes</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">HasAttribute</span><span class="params">(LPCTSTR pstrName)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">GetAttributeCount</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">LPCTSTR <span class="title">GetAttributeName</span><span class="params">(<span class="keyword">int</span> iIndex)</span></span>;</span><br><span class="line">    <span class="function">LPCTSTR <span class="title">GetAttributeValue</span><span class="params">(<span class="keyword">int</span> iIndex)</span></span>;</span><br><span class="line">    <span class="function">LPCTSTR <span class="title">GetAttributeValue</span><span class="params">(LPCTSTR pstrName)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">GetAttributeValue</span><span class="params">(<span class="keyword">int</span> iIndex, LPTSTR pstrValue, SIZE_T cchMax)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">GetAttributeValue</span><span class="params">(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T cchMax)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到</p>
+<ul>
+<li>虽然xml在语法上面有树形结构，但duilib没有使用树形的数据结构表示，而是使用顺序结构表示（<code>XMLELEMENT* m_pElements</code>）</li>
+<li>xml节点有两种表达：轻量级的<code>tagXMLELEMENT</code>仅仅提供位置信息，给<code>CMarkup</code>用于快速遍历；重量级的<code>CMarkupNode</code>提供全部信息，给外部使用</li>
+<li><code>CMarkup</code>与<code>CMarkupNode</code>都不会开辟额外的内存空间拷贝节点信息。结构的描述都以索引的形式去描述，索引对应的地址是一个由<code>CMarkup</code>维护的原xml字符串</li>
+</ul>
+<h1 id="无关语义忽略"><a href="#无关语义忽略" class="headerlink" title="无关语义忽略"></a>无关语义忽略</h1><p><code>CMarkup</code>解析时只检查树格式是否正确，因此它使用以下函数跳过其他信息</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> CMarkup::_SkipWhitespace(LPCTSTR&amp; pstr) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>( *pstr &gt; _T(<span class="string">'\0'</span>) &amp;&amp; *pstr &lt;= _T(<span class="string">' '</span>) ) pstr = ::CharNext(pstr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> CMarkup::_SkipWhitespace(LPTSTR&amp; pstr) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>( *pstr &gt; _T(<span class="string">'\0'</span>) &amp;&amp; *pstr &lt;= _T(<span class="string">' '</span>) ) pstr = ::CharNext(pstr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> CMarkup::_SkipIdentifier(LPCTSTR&amp; pstr) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 属性只能用英文，所以这样处理没有问题</span></span><br><span class="line">    <span class="keyword">while</span>( *pstr != _T(<span class="string">'\0'</span>) &amp;&amp; (*pstr == _T(<span class="string">'_'</span>) || *pstr == _T(<span class="string">':'</span>) || _istalnum(*pstr)) ) pstr = ::CharNext(pstr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> CMarkup::_SkipIdentifier(LPTSTR&amp; pstr) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 属性只能用英文，所以这样处理没有问题</span></span><br><span class="line">    <span class="keyword">while</span>( *pstr != _T(<span class="string">'\0'</span>) &amp;&amp; (*pstr == _T(<span class="string">'_'</span>) || *pstr == _T(<span class="string">':'</span>) || _istalnum(*pstr)) ) pstr = ::CharNext(pstr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>_SkipWhitespace</code>跳过所有不可视的字符</p>
+<p><code>_SkipIdentifier</code>跳过节点类型，包括命名空间，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;f:table&gt;</span><br><span class="line">   &lt;f:name&gt;African Coffee Table&lt;&#x2F;f:name&gt;</span><br><span class="line">   &lt;f:width&gt;80&lt;&#x2F;f:width&gt;</span><br><span class="line">   &lt;f:length&gt;120&lt;&#x2F;f:length&gt;</span><br><span class="line">&lt;&#x2F;f:table&gt;</span><br></pre></td></tr></table></figure>
+<p>但在duilib上面不存在这种写法。这种写法能绕过这层，但在上层<strong>WindowBuilder</strong>会报错</p>
+<h1 id="xml树形解析"><a href="#xml树形解析" class="headerlink" title="xml树形解析"></a>xml树形解析</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> CMarkup::_Parse(LPTSTR&amp; pstrText, ULONG iParent)</span><br><span class="line">&#123;</span><br><span class="line">    _SkipWhitespace(pstrText);</span><br><span class="line">    ULONG iPrevious = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>( ; ; ) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 空串仅在第一层有效，否则属于结束异常</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">'\0'</span>) &amp;&amp; iParent &lt;= <span class="number">1</span> ) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查起始 &lt;</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText != _T(<span class="string">'&lt;'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Expected start tag"</span>), pstrText);</span><br><span class="line">        <span class="keyword">if</span>( pstrText[<span class="number">1</span>] == _T(<span class="string">'/'</span>) ) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        *pstrText++ = _T(<span class="string">'\0'</span>);</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 跳过注释</span></span><br><span class="line">        <span class="comment">// &lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line">        <span class="comment">// &lt;!--comoent--&gt;</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">'!'</span>) || *pstrText == _T(<span class="string">'?'</span>) ) &#123;</span><br><span class="line">            TCHAR ch = *pstrText;</span><br><span class="line">            <span class="keyword">if</span>( *pstrText == _T(<span class="string">'!'</span>) ) ch = _T(<span class="string">'-'</span>);</span><br><span class="line">            <span class="keyword">while</span>( *pstrText != _T(<span class="string">'\0'</span>) &amp;&amp; !(*pstrText == ch &amp;&amp; *(pstrText + <span class="number">1</span>) == _T(<span class="string">'&gt;'</span>)) ) pstrText = ::CharNext(pstrText);</span><br><span class="line">            <span class="keyword">if</span>( *pstrText != _T(<span class="string">'\0'</span>) ) pstrText += <span class="number">2</span>;</span><br><span class="line">            _SkipWhitespace(pstrText);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记录节点</span></span><br><span class="line">        XMLELEMENT* pEl = _ReserveElement();</span><br><span class="line">        ULONG iPos = pEl - m_pElements;</span><br><span class="line">        pEl-&gt;iStart = pstrText - m_pstrXML;     <span class="comment">// 起始&lt;的下标</span></span><br><span class="line">        pEl-&gt;iParent = iParent;                 <span class="comment">// 父节点的下标</span></span><br><span class="line">        pEl-&gt;iNext = pEl-&gt;iChild = <span class="number">0</span>;           <span class="comment">// 子节点、弟弟节点</span></span><br><span class="line">        <span class="keyword">if</span>( iPrevious != <span class="number">0</span> ) m_pElements[iPrevious].iNext = iPos;       <span class="comment">// 哥哥节点填写此节点为弟弟节点</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>( iParent &gt; <span class="number">0</span> ) m_pElements[iParent].iChild = iPos;      <span class="comment">// 父节点填写此节点为子节点</span></span><br><span class="line">        iPrevious = iPos;</span><br><span class="line">        <span class="comment">// 暂时记录节点类型字符串，给后面判断结尾使用</span></span><br><span class="line">        LPCTSTR pstrName = pstrText;        <span class="comment">// 类型字符串首</span></span><br><span class="line">        _SkipIdentifier(pstrText);</span><br><span class="line">        LPTSTR pstrNameEnd = pstrText;      <span class="comment">// 类型字符串尾</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">'\0'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Error parsing element name"</span>), pstrText);</span><br><span class="line">        <span class="comment">// 检查节点属性</span></span><br><span class="line">        <span class="keyword">if</span>( !_ParseAttributes(pstrText) ) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line">        <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'/'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'&gt;'</span>) )      <span class="comment">// 单个标签  即&lt;Control/&gt;</span></span><br><span class="line">        &#123;</span><br><span class="line">            pEl-&gt;iData = pstrText - m_pstrXML;</span><br><span class="line">            *pstrText = _T(<span class="string">'\0'</span>);</span><br><span class="line">            pstrText += <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>    <span class="comment">// 一对标签 即&lt;Control&gt;&lt;/Control&gt;</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>( *pstrText != _T(<span class="string">'&gt;'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Expected start-tag closing"</span>), pstrText);</span><br><span class="line">            <span class="comment">// 记录属性起始下标</span></span><br><span class="line">            pEl-&gt;iData = ++pstrText - m_pstrXML;</span><br><span class="line">            LPTSTR pstrDest = pstrText;</span><br><span class="line">            <span class="comment">// 解析数据</span></span><br><span class="line">            <span class="comment">// &lt;Box&gt;123&lt;/Box&gt;中的123</span></span><br><span class="line">            <span class="keyword">if</span>( !_ParseData(pstrText, pstrDest, _T(<span class="string">'&lt;'</span>)) ) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            <span class="comment">// 检查标签头之后的数据</span></span><br><span class="line">            <span class="keyword">if</span>( *pstrText == _T(<span class="string">'\0'</span>) &amp;&amp; iParent &lt;= <span class="number">1</span> ) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span>( *pstrText != _T(<span class="string">'&lt;'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Expected end-tag start"</span>), pstrText);</span><br><span class="line">            <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'&lt;'</span>) &amp;&amp; pstrText[<span class="number">1</span>] != _T(<span class="string">'/'</span>) ) </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>( !_Parse(pstrText, iPos) ) <span class="keyword">return</span> <span class="literal">false</span>;     <span class="comment">// 遍历子节点</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 检查标签对属性是否匹配 如&lt;Box&gt;&lt;/Control&gt;</span></span><br><span class="line">            <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'&lt;'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'/'</span>) ) </span><br><span class="line">            &#123;</span><br><span class="line">                *pstrDest = _T(<span class="string">'\0'</span>);</span><br><span class="line">                *pstrText = _T(<span class="string">'\0'</span>);</span><br><span class="line">                pstrText += <span class="number">2</span>;</span><br><span class="line">                _SkipWhitespace(pstrText);</span><br><span class="line">                SIZE_T cchName = pstrNameEnd - pstrName;</span><br><span class="line">                <span class="keyword">if</span>( _tcsncmp(pstrText, pstrName, cchName) != <span class="number">0</span> ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Unmatched closing tag"</span>), pstrText);</span><br><span class="line">                pstrText += cchName;</span><br><span class="line">                _SkipWhitespace(pstrText);</span><br><span class="line">                <span class="keyword">if</span>( *pstrText++ != _T(<span class="string">'&gt;'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Unmatched closing tag"</span>), pstrText);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        *pstrNameEnd = _T(<span class="string">'\0'</span>);</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解析xml树形用的是<code>_Parse</code>，使用<strong>深度优先</strong>的<strong>递归</strong>遍历</p>
+<p>它接受两个输入：<code>pstrText</code>xml字符串，<code>iParent</code>父节点索引</p>
+<p>它的输出是<code>XMLELEMENT</code>数组<code>m_pElements</code>，数组从上而下依次对应xml字符串从上而下遍历得到的xml节点</p>
+<h1 id="xml转义字符解析"><a href="#xml转义字符解析" class="headerlink" title="xml转义字符解析"></a>xml转义字符解析</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> CMarkup::_ParseMetaChar(LPTSTR&amp; pstrText, LPTSTR&amp; pstrDest)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'a'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'m'</span>) &amp;&amp; pstrText[<span class="number">2</span>] == _T(<span class="string">'p'</span>) &amp;&amp; pstrText[<span class="number">3</span>] == _T(<span class="string">';'</span>) ) &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'&amp;'</span>);</span><br><span class="line">        pstrText += <span class="number">4</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'l'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'t'</span>) &amp;&amp; pstrText[<span class="number">2</span>] == _T(<span class="string">';'</span>) ) &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'&lt;'</span>);</span><br><span class="line">        pstrText += <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'g'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'t'</span>) &amp;&amp; pstrText[<span class="number">2</span>] == _T(<span class="string">';'</span>) ) &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'&gt;'</span>);</span><br><span class="line">        pstrText += <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'q'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'u'</span>) &amp;&amp; pstrText[<span class="number">2</span>] == _T(<span class="string">'o'</span>) &amp;&amp; pstrText[<span class="number">3</span>] == _T(<span class="string">'t'</span>) &amp;&amp; pstrText[<span class="number">4</span>] == _T(<span class="string">';'</span>) ) &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'\"'</span>);</span><br><span class="line">        pstrText += <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>( pstrText[<span class="number">0</span>] == _T(<span class="string">'a'</span>) &amp;&amp; pstrText[<span class="number">1</span>] == _T(<span class="string">'p'</span>) &amp;&amp; pstrText[<span class="number">2</span>] == _T(<span class="string">'o'</span>) &amp;&amp; pstrText[<span class="number">3</span>] == _T(<span class="string">'s'</span>) &amp;&amp; pstrText[<span class="number">4</span>] == _T(<span class="string">';'</span>) ) &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'\''</span>);</span><br><span class="line">        pstrText += <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        *pstrDest++ = _T(<span class="string">'&amp;'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>pstrText</code>作为输入，<code>pstrDest</code>作为转义后的输出</p>
+<p>支持的转义表如下</p>
+<table>
+<thead>
+<tr>
+<th align="center">原字符串</th>
+<th align="center">转义后字符串</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>&amp;amp;</code></td>
+<td align="center">&amp;</td>
+</tr>
+<tr>
+<td align="center"><code>&amp;lt;</code></td>
+<td align="center">&lt;</td>
+</tr>
+<tr>
+<td align="center"><code>&amp;gt;</code></td>
+<td align="center">&gt;</td>
+</tr>
+<tr>
+<td align="center"><code>&amp;quot;</code></td>
+<td align="center">“</td>
+</tr>
+<tr>
+<td align="center"><code>&amp;apos;</code></td>
+<td align="center">‘</td>
+</tr>
+</tbody></table>
+<h1 id="xml数据解析"><a href="#xml数据解析" class="headerlink" title="xml数据解析"></a>xml数据解析</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> CMarkup::_ParseData(LPTSTR&amp; pstrText, LPTSTR&amp; pstrDest, <span class="keyword">char</span> cEnd)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>( *pstrText != _T(<span class="string">'\0'</span>) &amp;&amp; *pstrText != cEnd ) &#123;</span><br><span class="line">        <span class="comment">// 解析转义字符</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">'&amp;'</span>) ) &#123;</span><br><span class="line">            <span class="keyword">while</span>( *pstrText == _T(<span class="string">'&amp;'</span>) ) &#123;</span><br><span class="line">            	_ParseMetaChar(++pstrText, pstrDest);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (*pstrText == cEnd)</span><br><span class="line">            	<span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 压缩空格</span></span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">' '</span>) ) &#123;</span><br><span class="line">            *pstrDest++ = *pstrText++;</span><br><span class="line">            <span class="keyword">if</span>( !m_bPreserveWhitespace ) _SkipWhitespace(pstrText);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            LPTSTR pstrTemp = ::CharNext(pstrText);</span><br><span class="line">            <span class="keyword">while</span>( pstrText &lt; pstrTemp) &#123;</span><br><span class="line">                *pstrDest++ = *pstrText++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Make sure that MapAttributes() works correctly when it parses</span></span><br><span class="line">    <span class="comment">// over a value that has been transformed.</span></span><br><span class="line">    LPTSTR pstrFill = pstrDest + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>( pstrFill &lt; pstrText ) *pstrFill++ = _T(<span class="string">' '</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>_ParseData</code>主要用来转义字符串以及压缩空格</p>
+<p><code>pstrText</code>是原字符串，<code>pstrDest</code>是转义输出位置，<code>cEnd</code>是停止字符串。<code>cEnd</code>在本例中取两个值：” 以及 &lt; ，依次处理<strong>属性值转义</strong><code>&lt;Class name=&quot;font_title&quot; value=&quot;font=&amp;quot;2&amp;quot;&quot; /&gt;</code>和<strong>数据值转义</strong><code>&lt;Box&gt;&amp;quot&lt;/Box&gt;</code>两种情况（<em>第二种情况duilib不做处理</em>）</p>
+<h1 id="xml属性解析"><a href="#xml属性解析" class="headerlink" title="xml属性解析"></a>xml属性解析</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> CMarkup::_ParseAttributes(LPTSTR&amp; pstrText)</span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">if</span>( *pstrText == _T(<span class="string">'&gt;'</span>) ) <span class="keyword">return</span> <span class="literal">true</span>;     <span class="comment">// 空属性</span></span><br><span class="line">    *pstrText++ = _T(<span class="string">'\0'</span>);</span><br><span class="line">    _SkipWhitespace(pstrText);</span><br><span class="line">    <span class="keyword">while</span>( *pstrText != _T(<span class="string">'\0'</span>) &amp;&amp; *pstrText != _T(<span class="string">'&gt;'</span>) &amp;&amp; *pstrText != _T(<span class="string">'/'</span>) ) &#123;</span><br><span class="line">        _SkipIdentifier(pstrText);</span><br><span class="line">        LPTSTR pstrIdentifierEnd = pstrText;</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line">        <span class="keyword">if</span>( *pstrText != _T(<span class="string">'='</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Error while parsing attributes"</span>), pstrText);</span><br><span class="line">        *pstrText++ = _T(<span class="string">' '</span>);</span><br><span class="line">        *pstrIdentifierEnd = _T(<span class="string">'\0'</span>);</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line">        <span class="keyword">if</span>( *pstrText++ != _T(<span class="string">'\"'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Expected attribute value"</span>), pstrText);</span><br><span class="line">        LPTSTR pstrDest = pstrText;</span><br><span class="line">        <span class="keyword">if</span>( !_ParseData(pstrText, pstrDest, _T(<span class="string">'\"'</span>)) ) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span>( *pstrText == _T(<span class="string">'\0'</span>) ) <span class="keyword">return</span> _Failed(_T(<span class="string">"Error while parsing attribute string"</span>), pstrText);</span><br><span class="line">        *pstrDest = _T(<span class="string">'\0'</span>);</span><br><span class="line">        <span class="keyword">if</span>( pstrText != pstrDest ) *pstrText = _T(<span class="string">' '</span>);</span><br><span class="line">        pstrText++;</span><br><span class="line">        _SkipWhitespace(pstrText);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>CMarkup::_ParseAttributes</code>用来检查属性格式是否正确以及转义属性值，真正要取属性键值对需要借助<code>CMarkupNode</code>的相关函数</p>
+<p><code>CMarkupNode</code>提取键值对的函数如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UILIB_API</span> <span class="title">CMarkupNode</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMarkupNode();</span><br><span class="line">    CMarkupNode(CMarkup* pOwner, <span class="keyword">int</span> iPos);</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">void</span> _MapAttributes();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> &#123; MAX_XML_ATTRIBUTES = <span class="number">64</span> &#125;;</span><br><span class="line">    <span class="comment">// 属性对表示</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        ULONG iName;</span><br><span class="line">        ULONG iValue;</span><br><span class="line">    &#125; XMLATTRIBUTE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> m_iPos;</span><br><span class="line">    <span class="keyword">int</span> m_nAttributes;</span><br><span class="line">    XMLATTRIBUTE m_aAttributes[MAX_XML_ATTRIBUTES];</span><br><span class="line">    CMarkup* m_pOwner;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> CMarkupNode::_MapAttributes()</span><br><span class="line">&#123;</span><br><span class="line">    m_nAttributes = <span class="number">0</span>;</span><br><span class="line">    LPCTSTR pstr = m_pOwner-&gt;m_pstrXML + m_pOwner-&gt;m_pElements[m_iPos].iStart;</span><br><span class="line">    LPCTSTR pstrEnd = m_pOwner-&gt;m_pstrXML + m_pOwner-&gt;m_pElements[m_iPos].iData;</span><br><span class="line">    pstr += _tcslen(pstr) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>( pstr &lt; pstrEnd ) &#123;</span><br><span class="line">        m_pOwner-&gt;_SkipWhitespace(pstr);</span><br><span class="line">        <span class="comment">// 将键值对依次放入属性对数组中</span></span><br><span class="line">        m_aAttributes[m_nAttributes].iName = pstr - m_pOwner-&gt;m_pstrXML;</span><br><span class="line">        pstr += _tcslen(pstr) + <span class="number">1</span>;</span><br><span class="line">        m_pOwner-&gt;_SkipWhitespace(pstr);</span><br><span class="line">        <span class="keyword">if</span>( *pstr++ != _T(<span class="string">'\"'</span>) ) <span class="keyword">return</span>; <span class="comment">// if( *pstr != _T('\"') ) &#123; pstr = ::CharNext(pstr); return; &#125;</span></span><br><span class="line">        </span><br><span class="line">        m_aAttributes[m_nAttributes++].iValue = pstr - m_pOwner-&gt;m_pstrXML;</span><br><span class="line">        <span class="keyword">if</span>( m_nAttributes &gt;= MAX_XML_ATTRIBUTES ) <span class="keyword">return</span>;</span><br><span class="line">        pstr += _tcslen(pstr) + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>CMarkupNode</code>最高支持<strong>64</strong>个属性，超过会忽略不算</p>
+<p>内部使用<code>_MapAttributes</code>函数，从<code>CMarkup</code>中取<strong>首节点</strong>字符串，解析后，将键值对依次存到<code>XMLATTRIBUTE</code>数组中</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在这一层里主要是做标准xml格式的检查，duilib特化的工作主要在<strong>WindowBuilder</strong>进行</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/duilib/" rel="tag"># duilib</a>
+          
+            <a href="/tags/VC/" rel="tag"># VC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/20/message-loop-1/" rel="next" title="nbase 消息循环（一）MessagePump">
+                <i class="fa fa-chevron-left"></i> nbase 消息循环（一）MessagePump
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">HowsonLiu</p>
+              <p class="site-description motion-element" itemprop="description">Qt Duilib</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无关语义忽略"><span class="nav-number">2.</span> <span class="nav-text">无关语义忽略</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xml树形解析"><span class="nav-number">3.</span> <span class="nav-text">xml树形解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xml转义字符解析"><span class="nav-number">4.</span> <span class="nav-text">xml转义字符解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xml数据解析"><span class="nav-number">5.</span> <span class="nav-text">xml数据解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xml属性解析"><span class="nav-number">6.</span> <span class="nav-text">xml属性解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+
+  
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
