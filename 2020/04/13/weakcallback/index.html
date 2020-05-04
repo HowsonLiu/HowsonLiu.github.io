@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="duilib," />
+  <meta name="keywords" content="duilib,chrome,VC," />
 
 
 
@@ -79,17 +79,19 @@
 
 
 
-<meta name="description" content="WeakCallback是网易nbase库的一个重要部分，主要用来检测对象的生命周期。下面结合源码分析他是如何检测生命周期以及其缺陷。 SupportWeakCallback123456789101112131415161718192021222324252627282930313233343536373839404142434445class BASE_EXPORT SupportWeakCal">
+<meta name="description" content="Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现">
 <meta property="og:type" content="article">
 <meta property="og:title" content="weakcallback">
 <meta property="og:url" content="http://yoursite.com/2020/04/13/weakcallback/index.html">
 <meta property="og:site_name" content="HowsonLiu">
-<meta property="og:description" content="WeakCallback是网易nbase库的一个重要部分，主要用来检测对象的生命周期。下面结合源码分析他是如何检测生命周期以及其缺陷。 SupportWeakCallback123456789101112131415161718192021222324252627282930313233343536373839404142434445class BASE_EXPORT SupportWeakCal">
+<meta property="og:description" content="Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-04-13T14:45:31.000Z">
-<meta property="article:modified_time" content="2020-04-13T14:49:15.929Z">
+<meta property="article:modified_time" content="2020-05-04T16:05:23.742Z">
 <meta property="article:author" content="HowsonLiu">
 <meta property="article:tag" content="duilib">
+<meta property="article:tag" content="chrome">
+<meta property="article:tag" content="VC">
 <meta name="twitter:card" content="summary">
 
 
@@ -277,6 +279,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/chrome/" itemprop="url" rel="index">
+                    <span itemprop="name">chrome</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -289,6 +313,10 @@
 
           
 
+          
+              <div class="post-description">
+                  Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现
+              </div>
           
 
         </div>
@@ -304,7 +332,7 @@
       
 
       
-        <p>WeakCallback是网易nbase库的一个重要部分，主要用来检测对象的生命周期。下面结合源码分析他是如何检测生命周期以及其缺陷。</p>
+        <p>WeakCallback是nbase库的一个重要部分，主要用来检测对象的生命周期。下面结合源码分析他是如何检测生命周期以及其缺陷。</p>
 <h1 id="SupportWeakCallback"><a href="#SupportWeakCallback" class="headerlink" title="SupportWeakCallback"></a>SupportWeakCallback</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BASE_EXPORT</span> <span class="title">SupportWeakCallback</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">typedef</span> <span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt; _TyWeakFlag;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">virtual</span> ~SupportWeakCallback()&#123;&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> CallbackType&gt;</span><br><span class="line">	<span class="function"><span class="keyword">auto</span> <span class="title">ToWeakCallback</span><span class="params">(<span class="keyword">const</span> CallbackType&amp; closure)</span></span></span><br><span class="line">		-&gt;WeakCallback&lt;CallbackType&gt;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> WeakCallback&lt;CallbackType&gt;(GetWeakFlag(), closure);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt; <span class="title">GetWeakFlag</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (m_weakFlag.use_count() == <span class="number">0</span>) &#123;</span><br><span class="line">			m_weakFlag.reset((WeakFlag*)<span class="literal">NULL</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> m_weakFlag;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> ReturnValue, <span class="keyword">typename</span>... Param, <span class="keyword">typename</span> WeakFlag&gt;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::function&lt;<span class="title">ReturnValue</span><span class="params">(Param...)</span>&gt; <span class="title">ConvertToWeakCallback</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">		<span class="keyword">const</span> <span class="built_in">std</span>::function&lt;ReturnValue(Param...)&gt;&amp; callback, <span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt; expiredFlag)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">auto</span> weakCallback = [expiredFlag, callback](Param... p) &#123;</span><br><span class="line">			<span class="keyword">if</span> (!expiredFlag.expired()) &#123;</span><br><span class="line">				<span class="keyword">return</span> callback(p...);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> ReturnValue();</span><br><span class="line">		&#125;;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> weakCallback;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;WeakFlag&gt; m_weakFlag;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WeakFlag</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>SupportWeakCallback</code>类的主要作用是提供被检测生命周期的功能，如果一个类需要被监控（例如UI窗口），则继承这个类即可。检测方法主要通过智能指针<code>shared_ptr</code>实现。成员变量中有个<code>WeakFlag</code>类型的shared指针，成员方法将其对应的weak指针暴露出来。这样子，持有weak指针的一方就可以在任何时候通过<code>weak_ptr::expired</code>方法判断对应shared指针是否存在，从而检测到对象的生命周期。<code>WeakFlag</code>是一个空类，占位使用。</p>
 <h1 id="WeakCallback"><a href="#WeakCallback" class="headerlink" title="WeakCallback"></a>WeakCallback</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WeakCallback</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	WeakCallback(<span class="keyword">const</span> <span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt;&amp; weak_flag, <span class="keyword">const</span> T&amp; t) :</span><br><span class="line">		weak_flag_(weak_flag),</span><br><span class="line">		t_(t)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	WeakCallback(<span class="keyword">const</span> <span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt;&amp; weak_flag, T&amp;&amp; t) :</span><br><span class="line">		weak_flag_(weak_flag),</span><br><span class="line">		t_(<span class="built_in">std</span>::<span class="built_in">move</span>(t))</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">WeakType</span>&gt;</span></span><br><span class="line"><span class="class">	<span class="title">WeakCallback</span>(<span class="title">const</span> <span class="title">WeakType</span>&amp; <span class="title">weak_callback</span>) :</span></span><br><span class="line">		weak_flag_(weak_callback.weak_flag_),</span><br><span class="line">		t_(weak_callback.t_)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span>... <span class="title">Args</span>&gt;</span></span><br><span class="line"><span class="class">	<span class="title">auto</span> <span class="title">operator</span> ()(<span class="title">Args</span> &amp;&amp; ... <span class="title">args</span>) <span class="title">const</span></span></span><br><span class="line"><span class="class">		-&gt;<span class="title">decltype</span>(<span class="title">t_</span>(<span class="title">std</span>:</span>:forward&lt;Args&gt;(args)...))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (!weak_flag_.expired()) &#123;</span><br><span class="line">			<span class="keyword">return</span> t_(<span class="built_in">std</span>::forward&lt;Args&gt;(args)...);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">decltype</span>(t_(<span class="built_in">std</span>::forward&lt;Args&gt;(args)...))();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">bool</span> <span class="title">Expired</span><span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> weak_flag_.expired();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::weak_ptr&lt;WeakFlag&gt; weak_flag_;</span><br><span class="line">	<span class="keyword">mutable</span> T t_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -337,6 +365,10 @@
           
             <a href="/tags/duilib/" rel="tag"># duilib</a>
           
+            <a href="/tags/chrome/" rel="tag"># chrome</a>
+          
+            <a href="/tags/VC/" rel="tag"># VC</a>
+          
         </div>
       
 
@@ -347,10 +379,6 @@
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
-            
-              <a href="/2020/04/12/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
-              </a>
             
           </div>
 
@@ -437,7 +465,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -448,7 +476,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 
               </div>
