@@ -1,85 +1,26 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next muse use-motion" lang="zh">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
 
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="Hexo, NexT" />
-
-
-
-
-
-
-
-
-
-
-<meta name="description" content="Qt Duilib">
+  <meta name="description" content="Qt Duilib">
 <meta property="og:type" content="website">
 <meta property="og:title" content="HowsonLiu">
 <meta property="og:url" content="http://yoursite.com/index.html">
@@ -89,39 +30,18 @@
 <meta property="article:author" content="HowsonLiu">
 <meta name="twitter:card" content="summary">
 
+<link rel="canonical" href="http://yoursite.com/">
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Muse',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: 'Author'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh'
   };
 </script>
-
-
-
-  <link rel="canonical" href="http://yoursite.com/"/>
-
-
-
-
 
   <title>HowsonLiu</title>
   
@@ -131,191 +51,147 @@
 
 
 
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
 
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
 
   <!-- mouse effect explosion -->
   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
-  <script type="text/javascript" src="/js/src/mouse_effect_explosion.js"></script>
-<meta name="generator" content="Hexo 4.2.0"></head>
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh">
-
-  
-  
-    
-  
-
-  <div class="container sidebar-position-left 
-  page-home">
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">HowsonLiu</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="تشغيل شريط التصفح">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
-      
-        <p class="site-subtitle"></p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
   </div>
 </div>
 
+
+
+
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
-          <a href="/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            Home
-          </a>
-        </li>
-      
-        
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
-          <a href="/archives/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            Archives
-          </a>
-        </li>
-      
 
-      
-    </ul>
-  
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>الأرشيفات</a>
 
-  
+  </li>
+  </ul>
 </nav>
 
 
 
- </div>
+
+</div>
     </header>
 
-    <main id="main" class="main">
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
       <div class="main-inner">
         <div class="content-wrap">
-          <div id="content" class="content">
+          
+
+          <div class="content index posts-expand">
             
-  <section id="posts" class="posts-expand">
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/08/duilib-xml-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/05/08/duilib-xml-2/" itemprop="url">网易duilib中的xml解析（二）WindowBuilder</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/08/duilib-xml-2/" class="post-title-link" itemprop="url">网易duilib中的xml解析（二）WindowBuilder</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
+              <span class="post-meta-item-text">نُشر في</span>
               
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-08T21:23:01+08:00">
-                2020-05-08
-              </time>
-            
 
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/duilib/" itemprop="url" rel="index">
-                    <span itemprop="name">duilib</span>
-                  </a>
-                </span>
-
-                
-                
-              
+              <time title="أُنشأ: 2020-05-08 21:23:01 / عُدل: 21:26:28" itemprop="dateCreated datePublished" datetime="2020-05-08T21:23:01+08:00">2020-05-08</time>
             </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">في</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/duilib/" itemprop="url" rel="index"><span itemprop="name">duilib</span></a>
+                </span>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -323,145 +199,74 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          主要讨论duilib库如何在标准xml语法上做特化
+          <p>主要讨论duilib库如何在标准xml语法上做特化</p>
           <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/05/08/duilib-xml-2/">
-              Read more &raquo;
-            </a>
-          </div>
+            <div class="post-button">
+              <a class="btn" href="/2020/05/08/duilib-xml-2/">
+                تابع القراءة &raquo;
+              </a>
+            </div>
           <!--/noindex-->
         
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/04/duilib-xml-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/05/04/duilib-xml-1/" itemprop="url">网易duilib中的xml解析（一）CMarkup</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/04/duilib-xml-1/" class="post-title-link" itemprop="url">网易duilib中的xml解析（一）CMarkup</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
+              <span class="post-meta-item-text">نُشر في</span>
               
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-04T23:16:29+08:00">
-                2020-05-04
-              </time>
-            
 
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/duilib/" itemprop="url" rel="index">
-                    <span itemprop="name">duilib</span>
-                  </a>
-                </span>
-
-                
-                
-              
+              <time title="أُنشأ: 2020-05-04 23:16:29 / عُدل: 23:58:05" itemprop="dateCreated datePublished" datetime="2020-05-04T23:16:29+08:00">2020-05-04</time>
             </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">في</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/duilib/" itemprop="url" rel="index"><span itemprop="name">duilib</span></a>
+                </span>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -469,123 +274,71 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          主要讨论duilib库检查标准xml语法的方法以及细节
+          <p>主要讨论duilib库检查标准xml语法的方法以及细节</p>
           <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/05/04/duilib-xml-1/">
-              Read more &raquo;
-            </a>
-          </div>
+            <div class="post-button">
+              <a class="btn" href="/2020/05/04/duilib-xml-1/">
+                تابع القراءة &raquo;
+              </a>
+            </div>
           <!--/noindex-->
         
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/20/message-loop-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/20/message-loop-1/" itemprop="url">nbase 消息循环（一）MessagePump</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/20/message-loop-1/" class="post-title-link" itemprop="url">nbase 消息循环（一）MessagePump</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-20T22:00:01+08:00">
-                2020-04-20
-              </time>
-            
+              <span class="post-meta-item-text">نُشر في</span>
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="أُنشأ: 2020-04-20 22:00:01" itemprop="dateCreated datePublished" datetime="2020-04-20T22:00:01+08:00">2020-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">عُدل في</span>
+                <time title="عُدل: 2020-04-22 22:03:39" itemprop="dateModified" datetime="2020-04-22T22:03:39+08:00">2020-04-22</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -593,12 +346,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p><code>MessagePump</code>控制消息循环的开始与停止</p>
+          <p><code>MessagePump</code>控制消息循环的开始与停止</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BASE_EXPORT</span> <span class="title">MessagePump</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">BASE_EXPORT</span> <span class="title">Delegate</span></span></span><br><span class="line"><span class="class">	&#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="keyword">virtual</span> ~Delegate() &#123;&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">DoWork</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">DoDelayedWork</span><span class="params">(TimeTicks *next_delayed_message_time)</span> </span>= <span class="number">0</span>;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">DoIdleWork</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	MessagePump() &#123;&#125;;</span><br><span class="line">	<span class="keyword">virtual</span> ~MessagePump() &#123;&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Run</span><span class="params">(Delegate* delegate)</span> </span>= <span class="number">0</span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Quit</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ScheduleWork</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ScheduleDelayedWork</span><span class="params">(<span class="keyword">const</span> TimeTicks&amp; delay_message_time)</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DefaultMessagePump</span> :</span> <span class="keyword">public</span> MessagePump</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	DefaultMessagePump();</span><br><span class="line">	<span class="keyword">virtual</span> ~DefaultMessagePump() &#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Run</span><span class="params">(Delegate* delegate)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Quit</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ScheduleWork</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ScheduleDelayedWork</span><span class="params">(<span class="keyword">const</span> TimeTicks&amp; delay_message_time)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">Wait</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">WaitTimeout</span><span class="params">(<span class="keyword">const</span> TimeDelta &amp;timeout)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">Wakeup</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">	WaitableEvent event_;</span><br><span class="line">	<span class="keyword">bool</span> should_quit_;</span><br><span class="line">	TimeTicks delayed_work_time_;</span><br><span class="line"></span><br><span class="line">	DISALLOW_COPY_AND_ASSIGN(DefaultMessagePump);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>MessagePump</code>将<code>Run</code>与<code>Quit</code>函数暴露给外部用来控制消息泵开始与停止。同时，当内部没有消息时，会调用<code>Wait</code>函数放弃时间片，具体是通过事件机制（<code>WaitableEvent</code>）实现</p>
@@ -610,112 +358,62 @@
 <li>睡眠态<br>  当闲时任务也为空时，调用<code>MessagePump::Wait</code>相关函数，放弃时间片</li>
 </ul>
 <h1 id="延时与睡眠"><a href="#延时与睡眠" class="headerlink" title="延时与睡眠"></a>延时与睡眠</h1>
-          
-        
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/message-loop-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/19/message-loop-index/" itemprop="url">nbase 消息循环</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/19/message-loop-index/" class="post-title-link" itemprop="url">nbase 消息循环</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-19T15:10:22+08:00">
-                2020-04-19
-              </time>
-            
+              <span class="post-meta-item-text">نُشر في</span>
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="أُنشأ: 2020-04-19 15:10:22" itemprop="dateCreated datePublished" datetime="2020-04-19T15:10:22+08:00">2020-04-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">عُدل في</span>
+                <time title="عُدل: 2020-04-22 21:43:53" itemprop="dateModified" datetime="2020-04-22T21:43:53+08:00">2020-04-22</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -723,12 +421,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分<br><code>nbase</code>将消息循环按照功能拆分成及部分</p>
+          <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分<br><code>nbase</code>将消息循环按照功能拆分成及部分</p>
 <ul>
 <li><code>MessagePump</code> 控制消息循环的开始跟停止</li>
 <li><code>MessageLoop</code> 消息循环中的消息队列实现<h1 id="MessagePump"><a href="#MessagePump" class="headerlink" title="MessagePump"></a>MessagePump</h1>消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类<br>它主要提供几个方法</li>
@@ -746,112 +439,56 @@
 </ul>
 <p><code>nbase</code>库将任务分成这三种类型</p>
 
-          
-        
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/lazyeraser/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/19/lazyeraser/" itemprop="url">lazyeraser</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/19/lazyeraser/" class="post-title-link" itemprop="url">lazyeraser</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
+              <span class="post-meta-item-text">نُشر في</span>
               
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-19T14:07:12+08:00">
-                2020-04-19
-              </time>
-            
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="أُنشأ: 2020-04-19 14:07:12 / عُدل: 15:36:46" itemprop="dateCreated datePublished" datetime="2020-04-19T14:07:12+08:00">2020-04-19</time>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -859,12 +496,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>谷歌<code>nbase</code>库提供了一种集合元素删除的方法，名为<code>LazyEraser</code>。</p>
+          <p>谷歌<code>nbase</code>库提供了一种集合元素删除的方法，名为<code>LazyEraser</code>。</p>
 <h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>C++容器类一般都是调用<code>erase</code>方法删除元素，但是<code>erase</code>会导致迭代器失效。<code>LazyEraser</code>延迟了删除元素的时机，一次删除，提高了效率，控制了删除的时机</p>
 <h1 id="抽象基类"><a href="#抽象基类" class="headerlink" title="抽象基类"></a>抽象基类</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	LazyEraser() : lazy_erase_(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">	<span class="comment">/* <span class="doctag">NOTE:</span> calling 'ApplyLasyErase' increases the reference count, calling 'ReleaseLasyErase' decreases the reference count */</span></span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">AquireLazyErase</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> ++lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">ReleaseLazyErase</span><span class="params">()</span> </span>&#123; assert(lazy_erase_ &gt; <span class="number">0</span>); <span class="keyword">return</span> --lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Compact</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="keyword">int</span> lazy_erase_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>基类<code>LazyEraser</code>维护了一个引用计数。定义了抽象方法<code>Compact</code>，用于主动删除元素</p>
@@ -878,112 +510,56 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AutoLazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	AutoLazyEraser(LazyEraser* lazy_eraser) : ptr_(lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">			ptr_-&gt;AquireLazyErase();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	AutoLazyEraser(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="keyword">operator</span>=(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~AutoLazyEraser()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (ptr_-&gt;ReleaseLazyErase() &lt; <span class="number">1</span>)</span><br><span class="line">				ptr_-&gt;Compact();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	LazyEraser *ptr_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>AutoLazyEraser</code>类在析构时会自动调用一次<code>Compact</code>，这样就不怕泄露了</p>
 
-          
-        
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/thread-local/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/16/thread-local/" itemprop="url">thread_local</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/thread-local/" class="post-title-link" itemprop="url">thread_local</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
+              <span class="post-meta-item-text">نُشر في</span>
               
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-16T22:43:30+08:00">
-                2020-04-16
-              </time>
-            
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="أُنشأ: 2020-04-16 22:43:30 / عُدل: 22:54:23" itemprop="dateCreated datePublished" datetime="2020-04-16T22:43:30+08:00">2020-04-16</time>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -991,12 +567,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>这个是谷歌nbase库里面的线程局部存储模板类</p>
+          <p>这个是谷歌nbase库里面的线程局部存储模板类</p>
 <h1 id="跨平台"><a href="#跨平台" class="headerlink" title="跨平台"></a>跨平台</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ThreadLocalPlatform</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(OS_WIN)</span></span><br><span class="line">	<span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> SlotType;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(OS_POSIX)</span></span><br><span class="line">	<span class="keyword">typedef</span> <span class="keyword">pthread_key_t</span> SlotType;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">FreeSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="title">GetValueFromSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">SetValueInSlot</span><span class="params">(SlotType &amp;slot, <span class="keyword">void</span> *value)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// unix</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadLocalPlatform::AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> error = pthread_key_create(&amp;slot, <span class="literal">NULL</span>);</span><br><span class="line">	assert(error == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// win</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadLocalPlatform::AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	slot = ::TlsAlloc();</span><br><span class="line">	assert(slot != TLS_OUT_OF_INDEXES);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这个类提供跨平台API选择，Windows主要通过<code>::TlsAlloc</code>实现，unix主要通过<code>pthread_key_create</code>实现</p>
 <h1 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Type&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalPointer</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	ThreadLocalPointer() : slot_()</span><br><span class="line">	&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::AllocateSlot(slot_);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~ThreadLocalPointer()</span><br><span class="line">	&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::FreeSlot(slot_);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function">Type* <span class="title">Get</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;Type*&gt;(internal::ThreadLocalPlatform::GetValueFromSlot(slot_));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">Set</span><span class="params">(Type *ptr)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::SetValueInSlot(slot_, ptr);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">typedef</span> internal::ThreadLocalPlatform::SlotType SlotType;</span><br><span class="line">	SlotType slot_;</span><br><span class="line"></span><br><span class="line">	DISALLOW_COPY_AND_ASSIGN(ThreadLocalPointer);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -1006,112 +577,62 @@
 <li>禁止拷贝，保证安全</li>
 </ul>
 
-          
-        
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/lazyinstance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/14/lazyinstance/" itemprop="url">lazyinstance</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/lazyinstance/" class="post-title-link" itemprop="url">lazyinstance</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-14T22:18:59+08:00">
-                2020-04-14
-              </time>
-            
+              <span class="post-meta-item-text">نُشر في</span>
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="أُنشأ: 2020-04-14 22:18:59" itemprop="dateCreated datePublished" datetime="2020-04-14T22:18:59+08:00">2020-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">عُدل في</span>
+                <time title="عُدل: 2020-04-15 22:32:54" itemprop="dateModified" datetime="2020-04-15T22:32:54+08:00">2020-04-15</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1119,12 +640,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p><code>LazyInstance</code>是谷歌<code>nbase</code>库里的模板类，主要作用是延迟创建实例</p>
+          <p><code>LazyInstance</code>是谷歌<code>nbase</code>库里的模板类，主要作用是延迟创建实例</p>
 <h1 id="成员"><a href="#成员" class="headerlink" title="成员"></a>成员</h1><p>类私有部分如下</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Type&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyInstance</span></span></span><br><span class="line"><span class="class">&#123;</span>	</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">enum</span></span><br><span class="line">	&#123;</span><br><span class="line">		kNone = <span class="number">0</span>,</span><br><span class="line">		kCreating,</span><br><span class="line">		kCreated,</span><br><span class="line">		kDeleting,</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	base::subtle::Atomic32 state_;</span><br><span class="line">	base::subtle::AtomicWord instance_;</span><br><span class="line"></span><br><span class="line">	DISALLOW_COPY_AND_ASSIGN(LazyInstance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>将定义都展开一下</p>
@@ -1176,134 +692,71 @@
 <p><code>volatile</code>关键字在msvc跟gcc下都能保证编译期指令不被打乱，但是gcc的运行时内存屏障需要有一段汇编代码<code>ATOMICOPS_COMPILER_BARRIER()</code>实现，而msvc通过<code>volatile</code>关键字就可以实现了</p>
 <h1 id="另外版本的实现"><a href="#另外版本的实现" class="headerlink" title="另外版本的实现"></a>另外版本的实现</h1><p><a href="https://blog.csdn.net/leehark/article/details/6897858" target="_blank" rel="noopener">https://blog.csdn.net/leehark/article/details/6897858</a></p>
 
-          
-        
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/13/weakcallback/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="HowsonLiu">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="HowsonLiu">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/13/weakcallback/" itemprop="url">weakcallback</a></h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/13/weakcallback/" class="post-title-link" itemprop="url">weakcallback</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-13T22:45:31+08:00">
-                2020-04-13
-              </time>
-            
+              <span class="post-meta-item-text">نُشر في</span>
 
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/chrome/" itemprop="url" rel="index">
-                    <span itemprop="name">chrome</span>
-                  </a>
-                </span>
-
-                
-                
-              
+              <time title="أُنشأ: 2020-04-13 22:45:31" itemprop="dateCreated datePublished" datetime="2020-04-13T22:45:31+08:00">2020-04-13</time>
             </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">عُدل في</span>
+                <time title="عُدل: 2020-05-05 00:05:23" itemprop="dateModified" datetime="2020-05-05T00:05:23+08:00">2020-05-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">في</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/chrome/" itemprop="url" rel="index"><span itemprop="name">chrome</span></a>
+                </span>
+            </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1311,164 +764,136 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现
+          <p>Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现</p>
           <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/04/13/weakcallback/">
-              Read more &raquo;
-            </a>
-          </div>
+            <div class="post-button">
+              <a class="btn" href="/2020/04/13/weakcallback/">
+                تابع القراءة &raquo;
+              </a>
+            </div>
           <!--/noindex-->
         
       
     </div>
-    
-    
-    
 
     
-
     
-
     
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
-  </section>
 
   
+
 
 
           </div>
           
 
-
-          
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
 
         </div>
-        
           
   
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
   </div>
 
-  <aside id="sidebar" class="sidebar">
-    
+  <aside class="sidebar">
     <div class="sidebar-inner">
 
-      
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          المحتويات
+        </li>
+        <li class="sidebar-nav-overview">
+          عام
+        </li>
+      </ul>
 
-      
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name">HowsonLiu</p>
-              <p class="site-description motion-element" itemprop="description">Qt Duilib</p>
-          </div>
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">المقالات</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">التصنيفات</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">الوسوم</span>
+      </div>
+  </nav>
+</div>
 
-          <nav class="site-state motion-element">
 
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%20%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">8</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
 
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                
-                  <span class="site-state-item-count">2</span>
-                  <span class="site-state-item-name">categories</span>
-                
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">tags</span>
-                
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-
-      
+      </div>
 
     </div>
   </aside>
+  <div id="sidebar-dimmer"></div>
 
 
-        
       </div>
     </main>
 
-    <footer id="footer" class="footer">
+    <footer class="footer">
       <div class="footer-inner">
+        
+
         <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
-
-  
 </div>
 
 <div class="busuanzi">
@@ -1477,20 +902,8 @@
 	<span id="busuanzi_value_site_pv"></span> times
 </span>
 </div>
-
-
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
-
-
-
+  <div class="powered-by">تطبيق الموقع <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
 
         
 
@@ -1500,118 +913,25 @@
 
 
 
-        
+
       </div>
     </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
   </div>
 
   
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
-</script>
+<script src="/js/utils.js"></script>
 
-
-
+<script src="/js/motion.js"></script>
 
 
+<script src="/js/schemes/muse.js"></script>
 
 
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-  
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
+<script src="/js/next-boot.js"></script>
 
 
 
@@ -1629,22 +949,8 @@
 
 
 
-  
 
 
-
-
-
-  
-
-  
-
-  
-
-  
-  
-
-  
 
   
 
