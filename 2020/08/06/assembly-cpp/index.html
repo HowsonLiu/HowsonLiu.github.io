@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="记录一些C++代码的基础语句与编译后的汇编语句的对应关系，并且在Debug模式下与在Release模式下编译器会对这些基础语句做一些什么样的优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编基础之C++语句">
+<meta property="og:url" content="http://yoursite.com/2020/08/06/assembly-cpp/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="记录一些C++代码的基础语句与编译后的汇编语句的对应关系，并且在Debug模式下与在Release模式下编译器会对这些基础语句做一些什么样的优化">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/assembly_divice.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/compare_switch_to_if_1.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/compare_switch_to_if_2.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/switch_linera.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/switch_linera_table.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/switch_index_table.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/switch_index_address_table.png">
+<meta property="og:image" content="http://yoursite.com/2020/08/06/assembly-cpp/switch_tree.png">
+<meta property="article:published_time" content="2020-08-06T03:55:46.000Z">
+<meta property="article:modified_time" content="2021-01-23T08:17:55.914Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="assembly">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/08/06/assembly-cpp/assembly_divice.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/08/06/assembly-cpp/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>汇编基础之C++语句 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/assembly-cpp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          汇编基础之C++语句
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-06 11:55:46" itemprop="dateCreated datePublished" datetime="2020-08-06T11:55:46+08:00">2020-08-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 16:17:55" itemprop="dateModified" datetime="2021-01-23T16:17:55+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">逆向</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">记录一些C++代码的基础语句与编译后的汇编语句的对应关系，并且在Debug模式下与在Release模式下编译器会对这些基础语句做一些什么样的优化</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="算数运算"><a href="#算数运算" class="headerlink" title="算数运算"></a>算数运算</h1><p>算数运算要与赋值语句结合才会生成代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">5</span> + <span class="number">6</span>;  <span class="comment">// 无效语句</span></span><br><span class="line"><span class="keyword">int</span> i = <span class="number">5</span> + <span class="number">6</span>; <span class="comment">// OK</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="加法"><a href="#加法" class="headerlink" title="加法"></a>加法</h2><h3 id="常量-常量"><a href="#常量-常量" class="headerlink" title="常量 + 常量"></a>常量 + 常量</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">5</span> + <span class="number">6</span>;</span><br><span class="line"></span><br><span class="line">mov dword ptr [ebp<span class="number">-4</span>], <span class="number">11</span></span><br></pre></td></tr></table></figure>
+<p>编译器不会生成5+6的指令，而是在编译期间就算出5+6的值11，并将其赋值给i</p>
+<h3 id="变量-常量"><a href="#变量-常量" class="headerlink" title="变量 + 常量"></a>变量 + 常量</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">i = i + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">mov eax, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line">add eax, <span class="number">1</span></span><br><span class="line">mov dword ptr[ebp<span class="number">-4</span>], eax</span><br></pre></td></tr></table></figure>
+<p>编译器使用add指令完成加法</p>
+<h3 id="变量-变量"><a href="#变量-变量" class="headerlink" title="变量 + 变量"></a>变量 + 变量</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">i = i + j;</span><br><span class="line"></span><br><span class="line">mov eax, dword ptr[ebp<span class="number">-4</span>]</span><br><span class="line">add eax, dword ptr[ebp<span class="number">-8</span>]</span><br><span class="line">mov dword ptr[ebp<span class="number">-4</span>], eax</span><br></pre></td></tr></table></figure>
+<p>也是使用add指令完成加法</p>
+<hr>
+<h2 id="减法"><a href="#减法" class="headerlink" title="减法"></a>减法</h2><p>减法与加法类似，只不过指令是sub。但是有时候计算机会使用加法补码来完成减法。</p>
+<blockquote>
+<p>x - 2<br> = x + (-2)<br> = x + 2(补)</p>
+</blockquote>
+<hr>
+<h2 id="乘法"><a href="#乘法" class="headerlink" title="乘法"></a>乘法</h2><p> 乘法指令有有符号乘法imul以及无符号乘法mul两种。规则也与上面类似，下面说一下特例</p>
+<h3 id="乘数是2的幂"><a href="#乘数是2的幂" class="headerlink" title="乘数是2的幂"></a>乘数是2的幂</h3><p> 使用左移代替乘法指令<br> <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">i = i * <span class="number">16</span>;</span><br><span class="line"></span><br><span class="line">mov eax, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line">shl eax, <span class="number">4</span>     <span class="comment">// 左移4位</span></span><br></pre></td></tr></table></figure><br> Debug版以及Release版都会转换</p>
+<h3 id="组合运算"><a href="#组合运算" class="headerlink" title="组合运算"></a>组合运算</h3><p>当组合运算中的乘数为2、4、8时，组合运算会用lea指令替代<br> <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">i = i * <span class="number">4</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">mov ecx, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line">lea edx, [ecx*<span class="number">4</span>+<span class="number">5</span>]</span><br><span class="line">mov dword ptr [ebp<span class="number">-4</span>], edx</span><br></pre></td></tr></table></figure><br> lea指令是取址指令，周期要比mul短<br> 而乘数非2、4、8时，会按照正常流程执行</p>
+<h3 id="乘数非2的幂"><a href="#乘数非2的幂" class="headerlink" title="乘数非2的幂"></a>乘数非2的幂</h3> <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> i = i * <span class="number">15</span>;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// Debug</span></span><br><span class="line"> mov edx, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line"> imul edx, edx, <span class="number">0F</span>h</span><br><span class="line"> mov dword ptr [ebp<span class="number">-4</span>], edx</span><br><span class="line"></span><br><span class="line"><span class="comment">// Release</span></span><br><span class="line"> push esi</span><br><span class="line"> mov esi, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line"> lea eax, [esi+esi*<span class="number">2</span>]</span><br><span class="line"> lea eax, [eax+eax*<span class="number">4</span>]</span><br><span class="line"> mov dword ptr[ebp<span class="number">-4</span>], eax</span><br></pre></td></tr></table></figure>
+<p> Debug版注重调试，直接使用乘法指令替代<br> Release版本会将乘数分解因子，尽量使用低周期指令代替（强度削弱）。例如上例是这样分解的</p>
+<blockquote>
+<p>i * 15<br> = (i * 3) * 5<br> = (i + i * 2) * 5<br> = eax * 5<br> = eax + eax * 4</p>
+</blockquote>
+<hr>
+<h2 id="整数除法"><a href="#整数除法" class="headerlink" title="整数除法"></a>整数除法</h2><p>在C语言中，整数除法有三种情况</p>
+<ul>
+<li>两个无符号整数整除，结果是无符号的</li>
+<li>两个有符号整数整除，结果是有符号的</li>
+<li><strong>有符号整数与无符号整数混除，结果是无符号的</strong>，有符号的符号位会被当成数据位看待</li>
+</ul>
+<p>除法指令有有符号除法idiv以及无符号除法div两种，下面看看特殊情况</p>
+<h3 id="除数是2的幂"><a href="#除数是2的幂" class="headerlink" title="除数是2的幂"></a>除数是2的幂</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">i = i / <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">mov eax, dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line">cdq</span><br><span class="line">sub eax, edx</span><br><span class="line">sar eax, <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>除以2的幂可以通过右移来实现。<br>在除法中，除数需要放到指定的寄存器eax中。cdq命令将eax的最高位复制到edx中，实际上就是位数扩展。下面是一个很奇怪的减法: eax = eax - edx。实际上这里巧妙地实现了一个分支结构。<br>我们知道:</p>
+<blockquote>
+<p>3 / 2 = 1<br>-3 / 2 = -1</p>
+</blockquote>
+<p>除法是向0取整的<br>但是当我们使用右移代替除法时</p>
+<blockquote>
+<p>3 &gt;&gt; 1 = 1<br>-3 &gt;&gt; 1 = -2<br>11111101 &gt;&gt; 1 = 11111110</p>
+</blockquote>
+<p>由于右移丢失最后位，因此右移实际上是向下取整的！当除数为正数时，向下取整没问题；但除数为负数时，我们需要对其+1再右移，就能避免位数丢失造成的取整异常（这里有数学证明）。<br>所以现在的逻辑是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(eax &lt; 0) eax +&#x3D; 1;</span><br><span class="line">else eax &#x3D; eax</span><br></pre></td></tr></table></figure>
+<p>再回顾上面的cdq指令，当eax为负数时，edx是11111111(-1)；当eax为正数时，edx是00000000(0)。使用eax-edx，恰好就能实现上面的分支结构！<br>最后右移幂位数完成除法。</p>
+<h3 id="除数非2的幂"><a href="#除数非2的幂" class="headerlink" title="除数非2的幂"></a>除数非2的幂</h3><p><img src="/2020/08/06/assembly-cpp/assembly_divice.png" alt><br>这里编译器进行了一次强度削弱，使用乘法指令以及移位指令代替除法指令。具体方法如下<br>设x是变量，o是常量，则<br>$$\frac{x}{o} = x \ast \frac{1}{o} = x \ast \frac{2^n}{2^n \ast o} = x \ast \frac{2^n}{o} \ast \frac{1}{2^n}$$<br>由于$o$在编译期间已知，$n$是编译器选择的，因此$\frac{2^n}{o}$可以在编译期间算出，这个数也被称为Megic Number（魔数、幻数），例子中是0x38E38E39。<br>我们可以通过移位的个数以及魔数还原出被除数o。<br>至于上面的shr以及add指令，实际上也是做了一个分支结构，当eax是负数的时候，右移31位的出来的值是1，否则是0，它等价于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if (eax &lt; 0) eax +&#x3D; 1</span><br><span class="line">else eax &#x3D; eax</span><br></pre></td></tr></table></figure>
+<p>也是避免位移造成的取整异常</p>
+<h4 id="变体"><a href="#变体" class="headerlink" title="变体"></a>变体</h4><ul>
+<li>Magic Number超出4字节整数的表示范围</li>
+<li>除数为负数</li>
+<li>Magic Number &gt; 0x7FFFFFFF，当除数是正数</li>
+<li>Magic Number &lt; 0x80000000，当除数是负数</li>
+</ul>
+<hr>
+<h1 id="逻辑运算与关系运算"><a href="#逻辑运算与关系运算" class="headerlink" title="逻辑运算与关系运算"></a>逻辑运算与关系运算</h1><h2 id="三元运算符"><a href="#三元运算符" class="headerlink" title="三元运算符"></a>三元运算符</h2><blockquote>
+<p>表达式1 ? 表达式2 : 表达式3</p>
+</blockquote>
+<ul>
+<li>1为常量，则在编译器得出结果，不会存在指令</li>
+<li>2或3是变量，则不会优化</li>
+<li>2和3是常量，优化<ul>
+<li>1是简单比较，2和3的差值等于1</li>
+<li>1是简单比较，2和3的差值大于1</li>
+<li>1是复杂比较，2和3的差值大于1</li>
+</ul>
+</li>
+</ul>
+<h3 id="1是简单比较，2和3的差值等于1"><a href="#1是简单比较，2和3的差值等于1" class="headerlink" title="1是简单比较，2和3的差值等于1"></a>1是简单比较，2和3的差值等于1</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> argc == <span class="number">5</span> ? <span class="number">5</span> : <span class="number">6</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">xor</span> eax,eax;</span><br><span class="line">cmp dword ptr [argc], <span class="number">5</span></span><br><span class="line">setne al</span><br><span class="line">add eax, <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>使用cmp以及setne实现比较以及+1</p>
+<h3 id="1是简单比较，2和3的差值大于1"><a href="#1是简单比较，2和3的差值大于1" class="headerlink" title="1是简单比较，2和3的差值大于1"></a>1是简单比较，2和3的差值大于1</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> argc == <span class="number">5</span> ? <span class="number">4</span> : <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">mov eax, dword ptr [argc]</span><br><span class="line">sub eax, <span class="number">5</span></span><br><span class="line">neg eax         ; 求补，设置CF，仅当eax=<span class="number">0</span>时，CF=<span class="number">0</span></span><br><span class="line">sbb eax, eax    ; 借位减法，使用CF</span><br><span class="line"><span class="keyword">and</span> eax, <span class="number">6</span></span><br><span class="line">add eax, <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<p>等价于<code>reg == A ? C : B+C</code><br>使用sub以及neg实现比较，使用add实现赋值（表达式2） 然后利用sub结果配合and实现赋值（表达式3），当表达式3小于表达式2时，add的值是负数</p>
+<h3 id="1是复杂比较，2和3的差值大于1"><a href="#1是复杂比较，2和3的差值大于1" class="headerlink" title="1是复杂比较，2和3的差值大于1"></a>1是复杂比较，2和3的差值大于1</h3><p>区间比较属于复杂比较</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">return argc &lt;&#x3D; 8 ? 4 : 10</span><br><span class="line"></span><br><span class="line">xor eax, eax</span><br><span class="line">cmp dword ptr [argc], 8</span><br><span class="line">setg al     ; set greater</span><br><span class="line">dec eax</span><br><span class="line">and al, 0FAH</span><br><span class="line">add eax, 0AH</span><br></pre></td></tr></table></figure>
+<p>综合两种优化方案<br>使用cmp实现比较，add实现赋值，and实现另一种情况的赋值</p>
+<hr>
+<h1 id="流程语句"><a href="#流程语句" class="headerlink" title="流程语句"></a>流程语句</h1><h2 id="Debug下的if-与-if-else-语句"><a href="#Debug下的if-与-if-else-语句" class="headerlink" title="Debug下的if 与 if -else 语句"></a>Debug下的if 与 if -else 语句</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (argc &gt; 0) &#123;</span><br><span class="line">    printf(&quot;%d\n&quot;, argc);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">cmp dword ptr[argc] 0</span><br><span class="line">jle MyIf + 42h              &#x2F;&#x2F; 相反的比较</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    jxx     ELSE_BEGIN      &#x2F;&#x2F; 相反的比较</span><br><span class="line">IF_BEGIN:</span><br><span class="line">    ...</span><br><span class="line">IF_END:</span><br><span class="line">    jmp     ELSE_END</span><br><span class="line">ELSE_BEGIN:</span><br><span class="line">    ...</span><br><span class="line">ELSE_END</span><br></pre></td></tr></table></figure>
+<h2 id="Release下的if-与-if-else-语句"><a href="#Release下的if-与-if-else-语句" class="headerlink" title="Release下的if 与 if -else 语句"></a>Release下的if 与 if -else 语句</h2><p>几乎与三元运算符一致</p>
+<h2 id="Debug下的if-else-if-else语句"><a href="#Debug下的if-else-if-else语句" class="headerlink" title="Debug下的if -else if -else语句"></a>Debug下的if -else if -else语句</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">    jxx     ELSE_IF_BEGIN_1:</span><br><span class="line">IF_BEGIN:</span><br><span class="line">    ...</span><br><span class="line">IF_END:</span><br><span class="line">    jmp     ELSE_END</span><br><span class="line">ELSE_IF_BEGIN_1:</span><br><span class="line">    jxx     ELSE_IF_BEGIN_2</span><br><span class="line">    ...</span><br><span class="line">ELSE_IF_END_1:</span><br><span class="line">    jmp     ELSE_END</span><br><span class="line">ELSE_IF_BEGIN_2:</span><br><span class="line">    jxx     ELSE_BEGIN</span><br><span class="line">    ...</span><br><span class="line">ELSE_IF_END_2:</span><br><span class="line">    jmp     ELSE_END</span><br><span class="line">ELSE_BEGIN:</span><br><span class="line">    ...</span><br><span class="line">ELSE_END</span><br></pre></td></tr></table></figure>
+<p>不难发现，对于每一层if与else，实际上都是一样的格式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    jxx     NEXT_ELSE_IF_OR_ELSE        &#x2F;&#x2F; 相反的比较，跳到下一层</span><br><span class="line">BEGIN：</span><br><span class="line">    ...</span><br><span class="line">END:</span><br><span class="line">    jmp     END                         &#x2F;&#x2F; 符合当前比较，跳出整个if语句</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="Release下的if-else-if-else语句"><a href="#Release下的if-else-if-else语句" class="headerlink" title="Release下的if -else if -else语句"></a>Release下的if -else if -else语句</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void func(int i)&#123;</span><br><span class="line">    if (i &#x3D;&#x3D; 1) &#123;</span><br><span class="line">        printf(&quot;1&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    else if(i &#x3D;&#x3D; 2) &#123;</span><br><span class="line">        printf(&quot;2&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    else if(i &#x3D;&#x3D; 3) &#123;</span><br><span class="line">        printf(&quot;3&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        printf(&quot;4&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于这种只有if语句的函数来说，执行了其中一个分支就不需要跑到其他地方去了。编译器会使用Rutn指令进行优化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">void func(int i)&#123;</span><br><span class="line">    if (i &#x3D;&#x3D; 1) &#123;</span><br><span class="line">        printf(&quot;1&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if(i &#x3D;&#x3D; 2) &#123;</span><br><span class="line">        printf(&quot;2&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if(i &#x3D;&#x3D; 3) &#123;</span><br><span class="line">        printf(&quot;3&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        printf(&quot;4&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样子就能节省一个jmp语句了</p>
+<h2 id="switch-语句"><a href="#switch-语句" class="headerlink" title="switch 语句"></a>switch 语句</h2><p>switch语句与多重if -else if -else语句的区别是<br><img src="/2020/08/06/assembly-cpp/compare_switch_to_if_1.png" alt><br><img src="/2020/08/06/assembly-cpp/compare_switch_to_if_2.png" alt><br>if语句在条件判断指令后面就跟着要执行的指令<br>switch语句将所有要执行的指令都存放到后面，以便没有break的时候顺序执行<br><strong>在switch分支数小于4的情况下，VC++6.0会模拟成if语句提高效率</strong></p>
+<h2 id="switch语句的线性优化"><a href="#switch语句的线性优化" class="headerlink" title="switch语句的线性优化"></a>switch语句的线性优化</h2><p>当判定值存在明显线性关系的时候，switch会使用数组存放判定值<br><img src="/2020/08/06/assembly-cpp/switch_linera.png" alt><br>由于判定值从1开始，所以插入<code>dec eax</code>使<code>i</code>减一，然后就可以直接使用i的值作为索引查找数据了<br><code>cmp dword ptr [i], 6</code>是范围确定，在这里只有6个判定值，因此数组大小也只有6，超过了就直接跳过<br>最后红框处我们可以看到，<code>rcx</code>寄存器保存了数组的基地址，<code>11818</code>是数组的偏移地址，由于一个地址占<code>int</code>4个字节，所以<code>eax</code>需要乘以4<br><img src="/2020/08/06/assembly-cpp/switch_linera_table.png" alt></p>
+<h2 id="switch语句的索引优化"><a href="#switch语句的索引优化" class="headerlink" title="switch语句的索引优化"></a>switch语句的索引优化</h2><p>当最大判定值与最小判定值的差小于等于255的时候，switch语句使用索引表+地址表的形式优化<br><img src="/2020/08/06/assembly-cpp/switch_index_table.png" alt></p>
+<p>先根据变量查询索引表，索引表最多256位，而且每一项只占用1字节<br>这里可以看到，中空的4标签与default标签一样，都属于第6项</p>
+<p><img src="/2020/08/06/assembly-cpp/switch_index_address_table.png" alt><br>地址表的第6项就是结尾</p>
+<h2 id="switch语句的树状优化"><a href="#switch语句的树状优化" class="headerlink" title="switch语句的树状优化"></a>switch语句的树状优化</h2><p><img src="/2020/08/06/assembly-cpp/switch_tree.png" alt><br>还原出来的树如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">      5</span><br><span class="line">     &#x2F; \</span><br><span class="line">    1   6</span><br><span class="line">   &#x2F;     \</span><br><span class="line">  2      259</span><br><span class="line"> &#x2F;       &#x2F;</span><br><span class="line">3       &#x2F;</span><br><span class="line"> \     &#x2F;</span><br><span class="line">  default</span><br></pre></td></tr></table></figure>
+<h3 id="降低树的高度"><a href="#降低树的高度" class="headerlink" title="降低树的高度"></a>降低树的高度</h3><p>编译器会使用上方的三种方法优化（替换成if语句、线性优化、索引优化）尝试优化左右子树来降低树的高度</p>
+<hr>
+<h1 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h1><h2 id="Debug版"><a href="#Debug版" class="headerlink" title="Debug版"></a>Debug版</h2><h3 id="do循环"><a href="#do循环" class="headerlink" title="do循环"></a>do循环</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DO_BEGIN:</span><br><span class="line">...             ; 循环的语句块</span><br><span class="line">; 影响标记位的指令</span><br><span class="line">jxx DO_BEGIN</span><br></pre></td></tr></table></figure>
+<h3 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WHILE_BEGIN:</span><br><span class="line">; 影响标记位的指令</span><br><span class="line">jxx WHILE_END</span><br><span class="line">...</span><br><span class="line">jmp WHILE_BEGIN</span><br><span class="line">WHILE_END</span><br></pre></td></tr></table></figure>
+<p>while比do多用了一条跳转指令，因此效率比do低</p>
+<h3 id="for循环"><a href="#for循环" class="headerlink" title="for循环"></a>for循环</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mov mem&#x2F;reg, xxx    ; 初值</span><br><span class="line">jmp FOR_CMP</span><br><span class="line">FOR_STEP:</span><br><span class="line">mov reg, Step</span><br><span class="line">add reg, 1          ; Step+1</span><br><span class="line">mov Step, eax</span><br><span class="line">FOR_CMP:</span><br><span class="line">mov ecx, Step</span><br><span class="line">cmp ecx, StepEnd    ; Step &lt; Step End</span><br><span class="line">jxx FOR_END</span><br><span class="line">...                 ; 代码块</span><br><span class="line">jmp FOR_STEP</span><br><span class="line">FOR_END</span><br></pre></td></tr></table></figure>
+<p>最难读懂<br>从结构特征可以看出，从效率上来说 do &gt; while &gt; for</p>
+<h2 id="Release-优化"><a href="#Release-优化" class="headerlink" title="Release 优化"></a>Release 优化</h2><h3 id="while循环-1"><a href="#while循环-1" class="headerlink" title="while循环"></a>while循环</h3><p>while循环与do循环的区别就在于是否先判断条件，因此while循环等价于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if (XXX)&#123;</span><br><span class="line">    do&#123;</span><br><span class="line"></span><br><span class="line">    &#125; while (XXX);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Release版本下，编译器就是这样将while循环结构改成单分支结构加上do循环结构</p>
+<h3 id="for循环-1"><a href="#for循环-1" class="headerlink" title="for循环"></a>for循环</h3><p>for的循环结构与while的循环结构相似，实际上将赋初值外提，对变量的操作放到循环体内，完全完全可以等价于while循环</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">for (int i &#x3D; 0; i &lt; 5; i++)&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">可以等价于</span><br><span class="line"></span><br><span class="line">int i &#x3D; 0;</span><br><span class="line">while(i &lt; 5)&#123;</span><br><span class="line">    ...</span><br><span class="line">    i++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>既然for循环能转换为while循环，while循环能转换为do循环，因此for循环最后也会转换成do循环。事实上也正是如此，所以在逆向过程中，一般都很难还原成for类型的循环，只能尽量等价</p>
+<hr>
+<h1 id="与设备无关的优化方案"><a href="#与设备无关的优化方案" class="headerlink" title="与设备无关的优化方案"></a>与设备无关的优化方案</h1><h2 id="中间代码生成阶段优化方案"><a href="#中间代码生成阶段优化方案" class="headerlink" title="中间代码生成阶段优化方案"></a>中间代码生成阶段优化方案</h2><h3 id="常量折叠"><a href="#常量折叠" class="headerlink" title="常量折叠"></a>常量折叠</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x &#x3D; 1 + 2;</span><br></pre></td></tr></table></figure>
+<p>没必要生成加法指令，直接<code>x = 3</code></p>
+<h3 id="常量传播"><a href="#常量传播" class="headerlink" title="常量传播"></a>常量传播</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x &#x3D; i * 2;</span><br><span class="line">y &#x3D; j * 2;</span><br><span class="line">if (x &lt; y)&#123;     &#x2F;&#x2F; 其后没有引用到x跟y</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对xy的比较可以等价于对ij的比较，直接<code>if (i &lt; j)</code></p>
+<h3 id="公共表达式"><a href="#公共表达式" class="headerlink" title="公共表达式"></a>公共表达式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x &#x3D; i * 2;</span><br><span class="line">y &#x3D; i * 2;</span><br></pre></td></tr></table></figure>
+<p><code>i * 2</code>是公共表达式，直接<code>y = x</code></p>
+<h3 id="复写传播"><a href="#复写传播" class="headerlink" title="复写传播"></a>复写传播</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x &#x3D; a;</span><br><span class="line">...     &#x2F;&#x2F; 没有修改x</span><br><span class="line">y &#x3D; x + c;</span><br></pre></td></tr></table></figure>
+<p>没有修改x，直接<code>y = a + c</code></p>
+<h3 id="剪去不可达分支"><a href="#剪去不可达分支" class="headerlink" title="剪去不可达分支"></a>剪去不可达分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (1 &gt; 2)&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不可达，直接删除if代码块</p>
+<h3 id="顺序语句代替分支"><a href="#顺序语句代替分支" class="headerlink" title="顺序语句代替分支"></a>顺序语句代替分支</h3><p>例如除法中的条件表达式优化</p>
+<h3 id="强度削弱"><a href="#强度削弱" class="headerlink" title="强度削弱"></a>强度削弱</h3><p>例如加法或者移位代替乘法，乘法移位代替除法</p>
+<h3 id="数学变换"><a href="#数学变换" class="headerlink" title="数学变换"></a>数学变换</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x &#x3D; a * y + b * y;</span><br></pre></td></tr></table></figure>
+<p>等价于<code>x = (a + b) * y</code>，缩减成1次加法1次乘法</p>
+<h3 id="代码外提"><a href="#代码外提" class="headerlink" title="代码外提"></a>代码外提</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">while (x &lt; y &#x2F; 2) &#123;</span><br><span class="line">    ...     &#x2F;&#x2F; 没有修改y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不必每次判断都做一次除法，等价于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t &#x3D; y &#x2F; 2;</span><br><span class="line">while (x &lt; t) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="目标代码生成阶段优化方案"><a href="#目标代码生成阶段优化方案" class="headerlink" title="目标代码生成阶段优化方案"></a>目标代码生成阶段优化方案</h2><h3 id="流水线优化"><a href="#流水线优化" class="headerlink" title="流水线优化"></a>流水线优化</h3><p>支持流水线的处理器并不会顺序执行指令。在保证计算结果正确的前提下，流水线A在处理第一条指令时，若第二条指令无关，则流水线B会提前处理第二条指令，以提高寄存器的使用率</p>
+<h3 id="分支优化规则"><a href="#分支优化规则" class="headerlink" title="分支优化规则"></a>分支优化规则</h3><p>引入流水线工作机制后，处理器增加一个<strong>分支目标缓冲器</strong>。遇到分支结构，利用<strong>分支目标缓冲器</strong>预测并读取指令目标地址，并进行表格化管理，一次可以记录多个跳转地址。当发生跳转时，查表，找到有则表示并行成功</p>
+<h3 id="高速缓存"><a href="#高速缓存" class="headerlink" title="高速缓存"></a>高速缓存</h3><p>几层Cache</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+              <a href="/tags/assembly/" rel="tag"># assembly</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/06/assembly-base/" rel="prev" title="汇编基础">
+      <i class="fa fa-chevron-left"></i> 汇编基础
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/16/windows-bat/" rel="next" title="Windows批处理（cmd/bat）">
+      Windows批处理（cmd/bat） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%95%B0%E8%BF%90%E7%AE%97"><span class="nav-number">1.</span> <span class="nav-text">算数运算</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">加法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E9%87%8F-%E5%B8%B8%E9%87%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">常量 + 常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F-%E5%B8%B8%E9%87%8F"><span class="nav-number">1.1.2.</span> <span class="nav-text">变量 + 常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F-%E5%8F%98%E9%87%8F"><span class="nav-number">1.1.3.</span> <span class="nav-text">变量 + 变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%8F%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">减法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%98%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">乘法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%98%E6%95%B0%E6%98%AF2%E7%9A%84%E5%B9%82"><span class="nav-number">1.3.1.</span> <span class="nav-text">乘数是2的幂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E8%BF%90%E7%AE%97"><span class="nav-number">1.3.2.</span> <span class="nav-text">组合运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%98%E6%95%B0%E9%9D%9E2%E7%9A%84%E5%B9%82"><span class="nav-number">1.3.3.</span> <span class="nav-text">乘数非2的幂</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E6%95%B0%E9%99%A4%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">整数除法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%A4%E6%95%B0%E6%98%AF2%E7%9A%84%E5%B9%82"><span class="nav-number">1.4.1.</span> <span class="nav-text">除数是2的幂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%A4%E6%95%B0%E9%9D%9E2%E7%9A%84%E5%B9%82"><span class="nav-number">1.4.2.</span> <span class="nav-text">除数非2的幂</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%98%E4%BD%93"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">变体</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E4%B8%8E%E5%85%B3%E7%B3%BB%E8%BF%90%E7%AE%97"><span class="nav-number">2.</span> <span class="nav-text">逻辑运算与关系运算</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">2.1.</span> <span class="nav-text">三元运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E6%98%AF%E7%AE%80%E5%8D%95%E6%AF%94%E8%BE%83%EF%BC%8C2%E5%92%8C3%E7%9A%84%E5%B7%AE%E5%80%BC%E7%AD%89%E4%BA%8E1"><span class="nav-number">2.1.1.</span> <span class="nav-text">1是简单比较，2和3的差值等于1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E6%98%AF%E7%AE%80%E5%8D%95%E6%AF%94%E8%BE%83%EF%BC%8C2%E5%92%8C3%E7%9A%84%E5%B7%AE%E5%80%BC%E5%A4%A7%E4%BA%8E1"><span class="nav-number">2.1.2.</span> <span class="nav-text">1是简单比较，2和3的差值大于1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E6%98%AF%E5%A4%8D%E6%9D%82%E6%AF%94%E8%BE%83%EF%BC%8C2%E5%92%8C3%E7%9A%84%E5%B7%AE%E5%80%BC%E5%A4%A7%E4%BA%8E1"><span class="nav-number">2.1.3.</span> <span class="nav-text">1是复杂比较，2和3的差值大于1</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.</span> <span class="nav-text">流程语句</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Debug%E4%B8%8B%E7%9A%84if-%E4%B8%8E-if-else-%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.1.</span> <span class="nav-text">Debug下的if 与 if -else 语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Release%E4%B8%8B%E7%9A%84if-%E4%B8%8E-if-else-%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.2.</span> <span class="nav-text">Release下的if 与 if -else 语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Debug%E4%B8%8B%E7%9A%84if-else-if-else%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.3.</span> <span class="nav-text">Debug下的if -else if -else语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Release%E4%B8%8B%E7%9A%84if-else-if-else%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.4.</span> <span class="nav-text">Release下的if -else if -else语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#switch-%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.5.</span> <span class="nav-text">switch 语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#switch%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96"><span class="nav-number">3.6.</span> <span class="nav-text">switch语句的线性优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#switch%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96"><span class="nav-number">3.7.</span> <span class="nav-text">switch语句的索引优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#switch%E8%AF%AD%E5%8F%A5%E7%9A%84%E6%A0%91%E7%8A%B6%E4%BC%98%E5%8C%96"><span class="nav-number">3.8.</span> <span class="nav-text">switch语句的树状优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%8D%E4%BD%8E%E6%A0%91%E7%9A%84%E9%AB%98%E5%BA%A6"><span class="nav-number">3.8.1.</span> <span class="nav-text">降低树的高度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.</span> <span class="nav-text">循环</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Debug%E7%89%88"><span class="nav-number">4.1.</span> <span class="nav-text">Debug版</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#do%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.1.1.</span> <span class="nav-text">do循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#while%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.1.2.</span> <span class="nav-text">while循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#for%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.1.3.</span> <span class="nav-text">for循环</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Release-%E4%BC%98%E5%8C%96"><span class="nav-number">4.2.</span> <span class="nav-text">Release 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#while%E5%BE%AA%E7%8E%AF-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">while循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#for%E5%BE%AA%E7%8E%AF-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">for循环</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E8%AE%BE%E5%A4%87%E6%97%A0%E5%85%B3%E7%9A%84%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">与设备无关的优化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E9%98%B6%E6%AE%B5%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-number">5.1.</span> <span class="nav-text">中间代码生成阶段优化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E9%87%8F%E6%8A%98%E5%8F%A0"><span class="nav-number">5.1.1.</span> <span class="nav-text">常量折叠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E9%87%8F%E4%BC%A0%E6%92%AD"><span class="nav-number">5.1.2.</span> <span class="nav-text">常量传播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E5%85%B1%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">5.1.3.</span> <span class="nav-text">公共表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%86%99%E4%BC%A0%E6%92%AD"><span class="nav-number">5.1.4.</span> <span class="nav-text">复写传播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%AA%E5%8E%BB%E4%B8%8D%E5%8F%AF%E8%BE%BE%E5%88%86%E6%94%AF"><span class="nav-number">5.1.5.</span> <span class="nav-text">剪去不可达分支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E8%AF%AD%E5%8F%A5%E4%BB%A3%E6%9B%BF%E5%88%86%E6%94%AF"><span class="nav-number">5.1.6.</span> <span class="nav-text">顺序语句代替分支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%BA%A6%E5%89%8A%E5%BC%B1"><span class="nav-number">5.1.7.</span> <span class="nav-text">强度削弱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%A6%E5%8F%98%E6%8D%A2"><span class="nav-number">5.1.8.</span> <span class="nav-text">数学变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%A4%96%E6%8F%90"><span class="nav-number">5.1.9.</span> <span class="nav-text">代码外提</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E9%98%B6%E6%AE%B5%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-number">5.2.</span> <span class="nav-text">目标代码生成阶段优化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E6%B0%B4%E7%BA%BF%E4%BC%98%E5%8C%96"><span class="nav-number">5.2.1.</span> <span class="nav-text">流水线优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E4%BC%98%E5%8C%96%E8%A7%84%E5%88%99"><span class="nav-number">5.2.2.</span> <span class="nav-text">分支优化规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">5.2.3.</span> <span class="nav-text">高速缓存</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

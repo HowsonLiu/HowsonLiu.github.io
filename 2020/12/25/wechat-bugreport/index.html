@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="PC微信崩溃转储的处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PC微信逆向之崩溃采集">
+<meta property="og:url" content="http://yoursite.com/2020/12/25/wechat-bugreport/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="PC微信崩溃转储的处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b18.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b19.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b1.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b2.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b3.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b4.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b5.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b6.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b7.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b8.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b9.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b10.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b11.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b12.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b13.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b15.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b14.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b16.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b17.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b20.png">
+<meta property="article:published_time" content="2020-12-25T09:08:48.000Z">
+<meta property="article:modified_time" content="2021-01-23T09:28:13.882Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="wechat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/12/25/wechat-bugreport/b18.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/12/25/wechat-bugreport/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>PC微信逆向之崩溃采集 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/25/wechat-bugreport/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PC微信逆向之崩溃采集
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-25 17:08:48" itemprop="dateCreated datePublished" datetime="2020-12-25T17:08:48+08:00">2020-12-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 17:28:13" itemprop="dateModified" datetime="2021-01-23T17:28:13+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PC%E5%BE%AE%E4%BF%A1%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">PC微信逆向</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">PC微信崩溃转储的处理</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h1><p>本文章仅供技术研究，请勿用于任何商业用途，请勿用于非法用途，如有任何人凭此做何非法事情，均于作者无关，特此声明。</p>
+<hr>
+<p>在对PC微信进行二次开发的时候，很容易碰见崩溃。下面介绍两种崩溃采集的方案。</p>
+<h1 id="使用系统API"><a href="#使用系统API" class="headerlink" title="使用系统API"></a>使用系统API</h1><p>我们知道，windows下的异常处理机制有SEH与VEH。</p>
+<p>其中，SEH常用的API是<code>SetUnhandledExceptionFilter</code>。到IDA里面搜一下，就能找到他设置顶层异常处理函数的地方了<br><img src="/2020/12/25/wechat-bugreport/b18.png" alt></p>
+<p>这个<code>TopLevelExceptionFilter</code>函数就是微信的顶层异常处理了</p>
+<p>至于VEH，常用的API是<code>AddVectoredExceptionHandler</code>。先在导入表里面搜一下，没有搜到。但是在字符串表里面，就能搜到。<strong>原因是VEH需要windows xp版本之后的系统才能使用</strong>。微信为了保证系统兼容，于是在运行时调用<code>GetProcAddress</code>来获取API地址。<br><img src="/2020/12/25/wechat-bugreport/b19.png" alt></p>
+<p>这个地址为0x10A079B0的函数就时微信的VEH异常处理函数了</p>
+<p>我们可以使用inline function hook替换这两个异常处理函数，来接管微信异常处理。</p>
+<h1 id="使用微信自带的崩溃上报程序"><a href="#使用微信自带的崩溃上报程序" class="headerlink" title="使用微信自带的崩溃上报程序"></a>使用微信自带的崩溃上报程序</h1><h2 id="查看崩溃上报程序"><a href="#查看崩溃上报程序" class="headerlink" title="查看崩溃上报程序"></a>查看崩溃上报程序</h2><p>在微信安装目录下，有一个叫做TxBugReport.exe的程序<br><img src="/2020/12/25/wechat-bugreport/b1.png" alt><br>这个程序就是微信自带的崩溃上报程序。<strong>直接双击是并不能打开的</strong>。</p>
+<p>在WeChatWin.dll中搜索<code>&quot;TxBugReport.exe&quot;</code>字符串，按x查看其交叉引用<br><img src="/2020/12/25/wechat-bugreport/b2.png" alt><br>我们发现，在微信内部这个崩溃上报程序是通过<code>CreateProcess</code>创建的，并且需要在命令行传入相关数据，才能正确打开这个程序。因此直接双击是并不能打开的。传入的参数包括进程句柄，事件句柄，线程id，还有一个微信内部的全局变量，这些数据都不太好自行构建。所以我们只能在微信处故意写入会导致崩溃的代码，触发一下，才能打开这个程序<br><img src="/2020/12/25/wechat-bugreport/b3.png" alt><br>打开之后是这个样子的。下面有生成的dmp文件以及txt文件，我们搜索一下，在<code>AppData/Local/Temp/Tencent</code>目录就能找到下面那三个文件<br><img src="/2020/12/25/wechat-bugreport/b4.png" alt><br>其中：</p>
+<ul>
+<li>BREvent.ini<br>  <img src="/2020/12/25/wechat-bugreport/b5.png" alt><br>  记录了本机崩溃的次数</li>
+<li>WeChatXXX.txt<br>  <img src="/2020/12/25/wechat-bugreport/b6.png" alt><br>  记录了堆栈信息以及模块信息</li>
+<li>WeChatXXXMD5.txt<br>  <img src="/2020/12/25/wechat-bugreport/b7.png" alt><br>  记录微信运行目录下的所有文件以及其MD5</li>
+<li>WeChatXXXMidDump.dmp<br>  dmp文件  </li>
+</ul>
+<p>我们发现，通过微信自带的崩溃上报程序生成的崩溃上报信息还是比较全的，比我们上面替换异常处理函数的要全。<br>所以我打算，修改这个程序，把他的上报功能去掉，仅仅保留生成崩溃信息的功能为我们所用</p>
+<h2 id="使用Restorator修改上报程序界面"><a href="#使用Restorator修改上报程序界面" class="headerlink" title="使用Restorator修改上报程序界面"></a>使用Restorator修改上报程序界面</h2><p>去掉上报功能，第一步就是把他的上报按钮去掉，避免手抖点错:)</p>
+<p>从界面的风格猜测，这是一个MFC程序，因此我们可以使用Restorator打开其资源文件，修改界面布局<br><img src="/2020/12/25/wechat-bugreport/b8.png" alt><br>只要找到这个按钮，修改他的坐标至窗口外，就能做到“隐藏”按钮的效果了</p>
+<p>讲道理，做到这一步应该就能避免上传崩溃信息了。但是生性多疑的我，不敢相信腾讯的程序~</p>
+<p>谁知道他会不会你不点确认，也偷偷把崩溃信息上传上去呢？因此我打开IDA，分析这个程序</p>
+<h2 id="使用IDA查找上报流程"><a href="#使用IDA查找上报流程" class="headerlink" title="使用IDA查找上报流程"></a>使用IDA查找上报流程</h2><p>打开IDA后，先看他的导入表<br><img src="/2020/12/25/wechat-bugreport/b9.png" alt><br>发现关于网络的API就这些，交叉引用看看<br><img src="/2020/12/25/wechat-bugreport/b10.png" alt><br>发现里面还使用了这个url，猜测这可能就是上报的url了，直接浏览器访问看一下。下载了一个bugreport文件<br><img src="/2020/12/25/wechat-bugreport/b11.png" alt><br>里面是一对Key和Data，在IDA里搜这两个字<br><img src="/2020/12/25/wechat-bugreport/b12.png" alt><br>这两个字段感觉仅用于验权，但是会不会对产生dmp信息有用呢，需要做一个小实验确定一下。</p>
+<blockquote>
+<p>先联网登录微信，登录成功后，再断网触发崩溃点。结果发现没有网络，咱们的崩溃上传程序仍旧能打开并生成dmp文件。说明这个url并不会影响dmp信息的产生  </p>
+</blockquote>
+<p>知道了这个url后，后面就能使用抓包软件，筛选上报的信息包了</p>
+<h2 id="使用抓包软件抓崩溃上报程序的网络通讯包"><a href="#使用抓包软件抓崩溃上报程序的网络通讯包" class="headerlink" title="使用抓包软件抓崩溃上报程序的网络通讯包"></a>使用抓包软件抓崩溃上报程序的网络通讯包</h2><p>打开Wireshark，触发崩溃，先不点击上报，过滤url<br><img src="/2020/12/25/wechat-bugreport/b13.png" alt><br>果不其然，发现了一条网络请求。看来他不点击上报，也会先进行一次http请求，把自己的Key和Data先POST到服务器上面。</p>
+<p>接下来的关键是，他是否除了这条请求外，是否发送其他数据包。我们可以通过那个http请求的端口，再进行一次过滤<br><img src="/2020/12/25/wechat-bugreport/b15.png" alt><br>好像还是挺干净的，并没有发送其他数据包。但是多疑的我又怀疑，他是否会换一个端口发送呢？</p>
+<p>这时候就要用到NetworkMonitor了。NetworkMonitor是微软出的一个工具，他跟WireShark相比有一个好处就是能够根据进程id筛选报文</p>
+<p>打开NetworkMonitor，重复上述操作<br><img src="/2020/12/25/wechat-bugreport/b14.png" alt><br>等了半个小时，我们可以看到，除了一条HTTP请求外，崩溃上报程序并没有再传输其他报文了。显示的，也只是前十分钟的时候，服务器与端的TCP握手而已。</p>
+<p>虽然这个请求没有什么与崩溃相关的信息，但是他还是请求了微信服务器，会在后台留下记录。这个记录可能会导致微信发现有一个IP频繁请求崩溃的Key&amp;Data，但是一次崩溃信息都没有上传过的异常情况。为了避免这种情况的发生，虽然只有一个请求，但还是把他屏蔽掉比较好</p>
+<h2 id="修改崩溃上报程序"><a href="#修改崩溃上报程序" class="headerlink" title="修改崩溃上报程序"></a>修改崩溃上报程序</h2><p>修改程序的方法有很多种。一开始我使用OD把他调用网络API的地方（所幸不多）nop掉，但试了一下发现会崩溃orz。可能是某些指令涉及到寄存器的赋值，并不能简单nop掉就完事。</p>
+<p>恰好在修改资源的时候，发现他的字符串表恰好有那一个上报的url<br><img src="/2020/12/25/wechat-bugreport/b16.png" alt><br>那就尝试一下，把他的域名改成192.168.1.1，看下能不能整歪这个HTTP请求</p>
+<p>完成修改后，重复上面的步骤，到NetworkMonitor看一下发送的报文<br><img src="/2020/12/25/wechat-bugreport/b17.png" alt><br>哈哈，看来已经成功把这个请求重定向到自己电脑了~</p>
+<p>而且看起来微信并没有备用的url，等了很久都没有其他报文。甚至主动点击上报按钮，也没有发送。</p>
+<p>至此，上报程序的复用已经完成~</p>
+<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="/2020/12/25/wechat-bugreport/b20.png" alt></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/wechat/" rel="tag"># wechat</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/20/windows-SEH/" rel="prev" title="Windows SEH & VEH">
+      <i class="fa fa-chevron-left"></i> Windows SEH & VEH
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/21/wechat-image/" rel="next" title="PC微信逆向之解密微信图片">
+      PC微信逆向之解密微信图片 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">声明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%B3%BB%E7%BB%9FAPI"><span class="nav-number">2.</span> <span class="nav-text">使用系统API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%BE%AE%E4%BF%A1%E8%87%AA%E5%B8%A6%E7%9A%84%E5%B4%A9%E6%BA%83%E4%B8%8A%E6%8A%A5%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">使用微信自带的崩溃上报程序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%B4%A9%E6%BA%83%E4%B8%8A%E6%8A%A5%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.1.</span> <span class="nav-text">查看崩溃上报程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Restorator%E4%BF%AE%E6%94%B9%E4%B8%8A%E6%8A%A5%E7%A8%8B%E5%BA%8F%E7%95%8C%E9%9D%A2"><span class="nav-number">3.2.</span> <span class="nav-text">使用Restorator修改上报程序界面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8IDA%E6%9F%A5%E6%89%BE%E4%B8%8A%E6%8A%A5%E6%B5%81%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">使用IDA查找上报流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%8A%93%E5%8C%85%E8%BD%AF%E4%BB%B6%E6%8A%93%E5%B4%A9%E6%BA%83%E4%B8%8A%E6%8A%A5%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BD%91%E7%BB%9C%E9%80%9A%E8%AE%AF%E5%8C%85"><span class="nav-number">3.4.</span> <span class="nav-text">使用抓包软件抓崩溃上报程序的网络通讯包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%B4%A9%E6%BA%83%E4%B8%8A%E6%8A%A5%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.5.</span> <span class="nav-text">修改崩溃上报程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E6%95%88%E6%9E%9C"><span class="nav-number">3.6.</span> <span class="nav-text">最终效果</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

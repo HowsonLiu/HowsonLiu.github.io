@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简单记录学习音视频时看到的一些原理与编码方式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音视频编码原理">
+<meta property="og:url" content="http://yoursite.com/2020/01/31/av-decode-principle/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="简单记录学习音视频时看到的一些原理与编码方式">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/01/31/av-decode-principle/1.jpg">
+<meta property="og:image" content="https://leichn.github.io/img/avideo_basics/gop_mode.jpg">
+<meta property="og:image" content="https://leichn.github.io/img/avideo_basics/decode_order.jpg">
+<meta property="og:image" content="https://img-blog.csdn.net/20140602173751953?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGVpeGlhb2h1YTEwMjA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="https://img-blog.csdn.net/20140602173759515?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGVpeGlhb2h1YTEwMjA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="article:published_time" content="2020-01-31T03:55:45.000Z">
+<meta property="article:modified_time" content="2021-01-23T05:03:13.326Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="音视频">
+<meta property="article:tag" content="原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/01/31/av-decode-principle/1.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/01/31/av-decode-principle/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>音视频编码原理 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/31/av-decode-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          音视频编码原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-31 11:55:45" itemprop="dateCreated datePublished" datetime="2020-01-31T11:55:45+08:00">2020-01-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 13:03:13" itemprop="dateModified" datetime="2021-01-23T13:03:13+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/" itemprop="url" rel="index"><span itemprop="name">音视频</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">简单记录学习音视频时看到的一些原理与编码方式</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="视频播放的流程"><a href="#视频播放的流程" class="headerlink" title="视频播放的流程"></a>视频播放的流程</h1><p><img src="/2020/01/31/av-decode-principle/1.jpg" alt>  </p>
+<ol>
+<li><strong>解协议</strong><br> 解协议的作用，就是将流媒体协议的数据，解析为标准的相应的封装格式数据。音视频在网络上传播的时候，常常采用各种流媒体协议，例如HTTP，RTMP，或是MMS等等。这些协议在传输音视频数据的同时，也会传输一些信令数据。这些信令数据包括对播放的控制（播放，暂停，停止），或者对网络状态的描述等。解协议的过程中会去除掉信令数据而只保留音视频数据。</li>
+<li><strong>解封装</strong><br> 解封装的作用，是将输入的封装格式的数据，分离成为音频流压缩编码数据以及视频流压缩编码数据。封装格式的种类很多，比如MP4，MKV，RMVB，FLV等等，它的作用就是将已经压缩编码的视频数据和音频数据按照一定的格式放到一起。</li>
+<li><strong>解码</strong><br> 解码的作用，就是将视频/音频压缩编码数据，解码成为非压缩的视频/音频原始数据。音频的压缩编码标准包含AAC，MP3，AC-3等等，视频的压缩编码标准则包含H.264，MPEG2，VC-1等等。解码是整个系统中最重要也是最复杂的一个环节。通过解码，压缩编码的视频数据输出成为非压缩的颜色数据，例如YUV420P，RGB等等；压缩编码的音频数据输出成为非压缩的音频抽样数据，例如PCM数据。</li>
+<li><strong>音视频同步</strong><br> 视音频同步的作用，就是根据解封装模块处理过程中获取到的参数信息，同步解码出来的视频和音频数据，并将视频音频数据送至系统的显卡和声卡播放出来。</li>
+</ol>
+<h1 id="视频编码基本原理"><a href="#视频编码基本原理" class="headerlink" title="视频编码基本原理"></a>视频编码基本原理</h1><h2 id="视频信号的冗余信息"><a href="#视频信号的冗余信息" class="headerlink" title="视频信号的冗余信息"></a>视频信号的冗余信息</h2><p>总所周知，视频图像是由一连串的图片组成的，图片之间差距不大。当切换图片的速度超过每秒24帧时，根据<a target="_blank" rel="noopener" href="https://blog.csdn.net/charleslei/article/details/53248561">视觉暂留原理和似动现象</a>，人眼无法辨别单张图片，会认为这是平滑连续的视觉效果。</p>
+<blockquote>
+<p>以记录数字视频的YUV分量格式为例，YUV分别代表亮度与两个色差信号。例如对于现有的PAL制电视系统，其亮度信号采样频率为13.5MHz；色度信号的频带通常为亮度信号的一半或更少，为6.75MHz或3.375MHz。以4：2：2的采样频率为例，Y信号采用13.5MHz，色度信号U和V采用6.75MHz采样，采样信号以8bit量化，则可以计算出数字视频的码率为：<br>13.5*8 + 6.75*8 + 6.75*8= 216Mbit/s。<br>如此大的数据量如果直接进行存储或传输将会遇到很大困难，因此必须采用压缩技术以减少码率。</p>
+</blockquote>
+<p>数字化的视频信号能进行压缩主要依据两个条件：</p>
+<ul>
+<li><strong>数据冗余</strong><br>比如空间冗余，时间冗余，结构冗余，信息熵冗余等。即图像的各像素之间存在很强的相关性，消除这些冗余并不会导致信息丢失，属于无损压缩</li>
+<li><strong>视觉冗余</strong><br>人眼的一些特性比如亮度辨别阈值，视觉阈值，对亮度和色度的敏感度不同，使得在编码的时候引入适量的误差，也不会被察觉出来。可以利用人眼的视觉特性，以一定的客观失真换取数据压缩。这种压缩属于有损压缩。</li>
+</ul>
+<h2 id="压缩编码的种类"><a href="#压缩编码的种类" class="headerlink" title="压缩编码的种类"></a>压缩编码的种类</h2><ul>
+<li><strong>帧内编码</strong><br>  帧内编码是空间域编码，利用图像空间性冗余度进行图像压缩，处理的是一幅独立的图像，不会跨越多幅图像。例如JPEG标准。</li>
+<li><strong>帧间编码</strong><br>  帧间编码是时间域编码，是利用一组连续图像间的时间性冗余度进行图像压缩。如果某帧图像可被解码器使用，那么解码器只须利用两帧图像的差异即可得到下一帧图像。例如MPEG标准。</li>
+</ul>
+<h2 id="压缩编码的方法"><a href="#压缩编码的方法" class="headerlink" title="压缩编码的方法"></a>压缩编码的方法</h2><ul>
+<li><strong>变换编码</strong><br>  变换编码的作用是将空间域描述的图像信号变换到频率域，然后对变换后的系数进行编码处理。一般来说，图像在空间上具有较强的相关性，变换到频率域可以实现去相关和能量集中。常用的正交变换有离散傅里叶变换，离散余弦变换等等。数字视频压缩过程中应用广泛的是离散余弦变换。<strong>属于帧内编码。</strong></li>
+<li><strong>熵编码</strong><br>  熵编码多用可变字长编码（VLC，Variable Length Coding）实现。其基本原理是对信源中出现概率大的符号赋予短码，对于出现概率小的符号赋予长码，从而在统计上获得较短的平均码长。可变字长编码通常有霍夫曼编码、算术编码、游程编码等。其中游程编码是一种十分简单的压缩方法，它的压缩效率不高，但编码、解码速度快，仍被得到广泛的应用，特别在变换编码之后使用游程编码，有很好的效果。<strong>属于帧内编码。</strong></li>
+<li><strong>运动估计（Motion Estimation）和运动补偿（Motion Compensation）</strong><br>  运动估计指的是从视频序列中抽取运动信息的一整套技术。运动补偿指的是通过先前的局部图像来预测、补偿当前的局部图像。<strong>属于帧间编码。</strong></li>
+<li><strong>混合编码</strong><br>  上面介绍了视频压缩编码过程中的几个重要的方法。在实际应用中这几个方法不是分离的，通常将它们结合起来使用以达到最好的压缩效果。例如MPEG1，MPEG2，H.264等标准。</li>
+</ul>
+<h2 id="细看运动估计与运动补偿"><a href="#细看运动估计与运动补偿" class="headerlink" title="细看运动估计与运动补偿"></a>细看运动估计与运动补偿</h2><h3 id="理论基础"><a href="#理论基础" class="headerlink" title="理论基础"></a>理论基础</h3><p>一段时间内图像的统计结果表明，在相邻几幅图像画面中，一般有差别的像素只有10%以内的点，亮度差值变化不超过2%，而色度差值的变化只有1%以内。所以对于一段变化不大的图像画面，我们可以先编码出一个完整的图像帧A，随后的B帧不编码全部图像，只写入与A帧的差别，这样B帧的大小就只有完整帧的1/10或更小！</p>
+<h3 id="编码解码流程"><a href="#编码解码流程" class="headerlink" title="编码解码流程"></a>编码解码流程</h3><p>运动估计在通过运动估计算法得到运动矢量之后，会根据运动矢量计算出预测帧，接着再计算预测帧与实际帧的差值Δf，完成编码流程。在解码流程中，运动补偿也会根据运动矢量计算出预测帧，最后加上差值Δf，得到实际帧，完成解码流程。</p>
+<h3 id="帧种类"><a href="#帧种类" class="headerlink" title="帧种类"></a>帧种类</h3><ul>
+<li><strong>I帧</strong>(Intra-coded picture)：帧内编码帧，又叫关键帧。包含一幅完整的图像信息，属于帧内编码图像，不含运动矢量，在解码时不需要参考其他帧图像。</li>
+<li><strong>IDR帧</strong>(Instantaneous Decoding Refresh picture)：即时解码刷新帧。当解码器解码到ID R帧的时候，会将前后向参考帧列表清空，将已解码的数据全部输出或者丢弃，然后开始一次全新的解码序列。</li>
+<li><strong>P帧</strong>(Predictive-coded picture)：预测编码图像帧，是帧间编码帧，利用前面的I帧或者P帧进行预测编码</li>
+<li><strong>B帧</strong>(Bi-directionally predicted picture)：双向预测编码图像帧，是帧间编码帧，利用之前或者之后的I帧或者P帧进行双向预测编码。B帧不可以作为参考帧。</li>
+</ul>
+<h3 id="GOP-Group-Of-Pictures"><a href="#GOP-Group-Of-Pictures" class="headerlink" title="GOP(Group Of Pictures)"></a>GOP(Group Of Pictures)</h3><p>GOP是一组连续的图像，有一个I帧和多个B/P帧组成，是编解码器存取的基本单位。可以分为：</p>
+<ul>
+<li><strong>闭合式GOP</strong>：闭合式GOP只需要参考本GOP内的图像即可，不需参考前后GOP的数据。这种模式决定了，闭合式GOP的显示顺序总是以I帧开始以P帧结束</li>
+<li><strong>开放式GOP</strong>：开放式GOP中的B帧解码时可能要用到其前一个GOP或后一个GOP的某些帧。码流里面包含B帧的时候才会出现开放式GOP<br>  <img src="https://leichn.github.io/img/avideo_basics/gop_mode.jpg" alt></li>
+</ul>
+<h3 id="DTS和PTS"><a href="#DTS和PTS" class="headerlink" title="DTS和PTS"></a>DTS和PTS</h3><ul>
+<li><strong>DTS</strong>(Decoding Time Stamp)：解码时间戳，表示packet的解码时间</li>
+<li><strong>PTS</strong>(Presentation Time Stamp)：显示时间戳，表示packet解码后数据的显示时间<br>  <img src="https://leichn.github.io/img/avideo_basics/decode_order.jpg" alt></li>
+</ul>
+<h1 id="音频编码基本原理"><a href="#音频编码基本原理" class="headerlink" title="音频编码基本原理"></a>音频编码基本原理</h1><h2 id="音频信号的冗余信息"><a href="#音频信号的冗余信息" class="headerlink" title="音频信号的冗余信息"></a>音频信号的冗余信息</h2><blockquote>
+<p>数字音频信号如果不加压缩地直接进行传送，将会占用极大的带宽。例如，一套双声道数字音频若取样频率为44.1KHz，每样值按16bit量化，则其码率为：<br>2*44.1kHz*16bit=1.411Mbit/s<br>如此大的带宽将给信号的传输和处理都带来许多困难，因此必须采取音频压缩技术对音频数据进行处理，才能有效地传输音频数据。</p>
+</blockquote>
+<p>数字音频压缩编码是通过去除音频信号的冗余成分来实现的。其中冗余成分包括：</p>
+<ul>
+<li>人耳听觉范围外的音频信号</li>
+<li>根据人耳听觉的生理和心理声学现象，在某些情况会对某些声音进行屏蔽<ul>
+<li>频谱掩蔽效应</li>
+<li>时域掩蔽效应</li>
+</ul>
+</li>
+</ul>
+<h2 id="频谱掩蔽效应"><a href="#频谱掩蔽效应" class="headerlink" title="频谱掩蔽效应"></a>频谱掩蔽效应</h2><p><img src="https://img-blog.csdn.net/20140602173751953?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGVpeGlhb2h1YTEwMjA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt></p>
+<p>一个频率的声音能量小于某个阈值之后，人耳就会听不到，这个阈值称为最小可闻阈。当有另外能量较大的声音出现的时候，该声音频率附近的阈值会提高很多，即所谓的掩蔽效应。</p>
+<h2 id="时域掩蔽效应"><a href="#时域掩蔽效应" class="headerlink" title="时域掩蔽效应"></a>时域掩蔽效应</h2><p><img src="https://img-blog.csdn.net/20140602173759515?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGVpeGlhb2h1YTEwMjA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt></p>
+<p>当强音信号和弱音信号同时出现时，还存在时域掩蔽效应。即两者发生时间很接近的时候，也会发生掩蔽效应。时域掩蔽过程曲线如图所示，分为前掩蔽、同时掩蔽和后掩蔽三部分。</p>
+<h1 id="YUV"><a href="#YUV" class="headerlink" title="YUV"></a>YUV</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y</span><br><span class="line">Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y</span><br><span class="line">Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y</span><br><span class="line">Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y      Y Y Y Y Y Y</span><br><span class="line">U U U U U U      V V V V V V      U V U V U V      V U V U V U</span><br><span class="line">V V V V V V      U U U U U U      U V U V U V      V U V U V U</span><br><span class="line"> - I420 -          - YV12 -         - NV12 -         - NV21 -</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/" rel="tag"># 音视频</a>
+              <a href="/tags/%E5%8E%9F%E7%90%86/" rel="tag"># 原理</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/13/weakcallback/" rel="next" title="weakcallback">
+      weakcallback <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">视频播放的流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">视频编码基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%86%97%E4%BD%99%E4%BF%A1%E6%81%AF"><span class="nav-number">2.1.</span> <span class="nav-text">视频信号的冗余信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">压缩编码的种类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">压缩编码的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E7%9C%8B%E8%BF%90%E5%8A%A8%E4%BC%B0%E8%AE%A1%E4%B8%8E%E8%BF%90%E5%8A%A8%E8%A1%A5%E5%81%BF"><span class="nav-number">2.4.</span> <span class="nav-text">细看运动估计与运动补偿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80"><span class="nav-number">2.4.1.</span> <span class="nav-text">理论基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E8%A7%A3%E7%A0%81%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.2.</span> <span class="nav-text">编码解码流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%A7%E7%A7%8D%E7%B1%BB"><span class="nav-number">2.4.3.</span> <span class="nav-text">帧种类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GOP-Group-Of-Pictures"><span class="nav-number">2.4.4.</span> <span class="nav-text">GOP(Group Of Pictures)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DTS%E5%92%8CPTS"><span class="nav-number">2.4.5.</span> <span class="nav-text">DTS和PTS</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E7%BC%96%E7%A0%81%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">音频编码基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%86%97%E4%BD%99%E4%BF%A1%E6%81%AF"><span class="nav-number">3.1.</span> <span class="nav-text">音频信号的冗余信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%91%E8%B0%B1%E6%8E%A9%E8%94%BD%E6%95%88%E5%BA%94"><span class="nav-number">3.2.</span> <span class="nav-text">频谱掩蔽效应</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%9F%9F%E6%8E%A9%E8%94%BD%E6%95%88%E5%BA%94"><span class="nav-number">3.3.</span> <span class="nav-text">时域掩蔽效应</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YUV"><span class="nav-number">4.</span> <span class="nav-text">YUV</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

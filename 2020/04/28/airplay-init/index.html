@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Windows平台下Airplay接收端初始化流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Airplay初始化流程">
+<meta property="og:url" content="http://yoursite.com/2020/04/28/airplay-init/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="Windows平台下Airplay接收端初始化流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-28T03:55:45.000Z">
+<meta property="article:modified_time" content="2021-01-23T07:25:09.411Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="Airplay">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/28/airplay-init/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Airplay初始化流程 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/28/airplay-init/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Airplay初始化流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-28 11:55:45" itemprop="dateCreated datePublished" datetime="2020-04-28T11:55:45+08:00">2020-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 15:25:09" itemprop="dateModified" datetime="2021-01-23T15:25:09+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Airplay/" itemprop="url" rel="index"><span itemprop="name">Airplay</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">Windows平台下Airplay接收端初始化流程</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Airplay接收端初始化主要分为三部分</p>
+<ul>
+<li>airplay</li>
+<li>raop</li>
+<li>mDNS</li>
+</ul>
+<h1 id="Airplay协议初始化"><a href="#Airplay协议初始化" class="headerlink" title="Airplay协议初始化"></a>Airplay协议初始化</h1><p>这里的Airplay协议不是指广义的Airplay协议，而是指除去raop以及mDNS部分所剩余的协议</p>
+<p>初始化接受几个参数，分别是：</p>
+<ul>
+<li><strong>max_client</strong> (必选)<br>  最多可以同时连接几个设备</li>
+<li><strong>airplay_port</strong> (必选)<br>  监听的端口</li>
+<li>callback<br>  回调类</li>
+<li>logger<br>  日志类</li>
+</ul>
+<p>除此之外，接收端默认指定镜像端口<strong>mirror_port</strong>为7100</p>
+<p>首先进行socket环境的初始化</p>
+<p>接着初始化配对所需要的参数。配对过程使用了<a target="_blank" rel="noopener" href="https://blog.csdn.net/u013137970/article/details/84573265">ed25519加密协议</a>，加密协议的种子<code>seed</code>、公钥<code>ed_public</code>、私钥<code>ed_private</code>都在此初始化</p>
+<p>最后根据<strong>max_client</strong>，使用http协议监听<strong>airplay_port</strong>以及<strong>mirror_port</strong>端口，如果有callback回调类或者logger日志类，则同时绑定到http上（可选）</p>
+<p>至此，Airplay协议初始化完成。上面有任何一步失败，都被视为初始化失败</p>
+<h1 id="raop协议初始化"><a href="#raop协议初始化" class="headerlink" title="raop协议初始化"></a>raop协议初始化</h1><p>raop协议全称是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Remote_Audio_Output_Protocol">远程音频输出协议</a>(Romote Audio Output Protocal)</p>
+<p>初始化接受几个参数，分别是</p>
+<ul>
+<li><strong>max_client</strong> (必选)<br>  最多可以同时连接几个设备，值与上述Airplay协议一致</li>
+<li><strong>raop_port</strong> (必选)<br>  监听的端口</li>
+<li>callback<br>  回调类</li>
+<li>logger<br>  日志类</li>
+</ul>
+<p>流程也类似</p>
+<p>首先首先进行socket环境的初始化</p>
+<p>接着初始化配对所需要的参数。<strong>注意这里配对加密也是使用ed25519，但是它并没有沿用airplay协议的公私钥</strong></p>
+<p>最后监听<strong>raop_port</strong>端口，绑定相关回调与日志</p>
+<p>至此，raop协议初始化完成。上面有任何一步失败，都视为初始化失败</p>
+<h1 id="mDNS协议初始化"><a href="#mDNS协议初始化" class="headerlink" title="mDNS协议初始化"></a>mDNS协议初始化</h1><p>mDNS协议全称是<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/mdns/7544078?fr=aladdin">多播DNS协议</a>(Multicast DNS)，用于局域网的地址发现</p>
+<p>要想使用此协议，需要安装并运行苹果的Bonjour服务。作为开发者，我们可以直接下载Bonjour SDK(<a target="_blank" rel="noopener" href="https://developer.apple.com/download/more/?=Bonjour%20SDK%20for%20Windows">下载地址</a>)</p>
+<p>初始化需要确保Bonjour服务运行，接着将上面的Airplay服务以及raop服务都注册到mDNS上就好了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">dnssd_register_raop(<span class="keyword">dnssd_t</span> *dnssd, <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">unsigned</span> <span class="keyword">short</span> port, <span class="keyword">const</span> <span class="keyword">char</span> *hwaddr, <span class="keyword">int</span> hwaddrlen, <span class="keyword">int</span> password)</span><br><span class="line">&#123;</span><br><span class="line">	TXTRecordRef txtRecord;</span><br><span class="line">	<span class="keyword">char</span> servname[MAX_SERVNAME];</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">	assert(dnssd);</span><br><span class="line">	assert(name);</span><br><span class="line">	assert(hwaddr);</span><br><span class="line"></span><br><span class="line">	dnssd-&gt;TXTRecordCreate(&amp;txtRecord, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;txtvers&quot;</span>, <span class="built_in">strlen</span>(RAOP_TXTVERS), RAOP_TXTVERS);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;ch&quot;</span>, <span class="built_in">strlen</span>(RAOP_CH), RAOP_CH);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;cn&quot;</span>, <span class="built_in">strlen</span>(RAOP_CN), RAOP_CN);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;et&quot;</span>, <span class="built_in">strlen</span>(RAOP_ET), RAOP_ET);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;sv&quot;</span>, <span class="built_in">strlen</span>(RAOP_SV), RAOP_SV);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;da&quot;</span>, <span class="built_in">strlen</span>(RAOP_DA), RAOP_DA);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;sr&quot;</span>, <span class="built_in">strlen</span>(RAOP_SR), RAOP_SR);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;ss&quot;</span>, <span class="built_in">strlen</span>(RAOP_SS), RAOP_SS);</span><br><span class="line">	<span class="keyword">if</span> (password) &#123;</span><br><span class="line">		dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;pw&quot;</span>, <span class="built_in">strlen</span>(<span class="string">&quot;true&quot;</span>), <span class="string">&quot;true&quot;</span>);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;pw&quot;</span>, <span class="built_in">strlen</span>(<span class="string">&quot;false&quot;</span>), <span class="string">&quot;false&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;vn&quot;</span>, <span class="built_in">strlen</span>(RAOP_VN), RAOP_VN);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;tp&quot;</span>, <span class="built_in">strlen</span>(RAOP_TP), RAOP_TP);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;md&quot;</span>, <span class="built_in">strlen</span>(RAOP_MD), RAOP_MD);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;vs&quot;</span>, <span class="built_in">strlen</span>(GLOBAL_VERSION), GLOBAL_VERSION);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;sm&quot;</span>, <span class="built_in">strlen</span>(RAOP_SM), RAOP_SM);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;ek&quot;</span>, <span class="built_in">strlen</span>(RAOP_EK), RAOP_EK);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;sf&quot;</span>, <span class="built_in">strlen</span>(RAOP_SF), RAOP_SF);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;am&quot;</span>, <span class="built_in">strlen</span>(GLOBAL_MODEL), GLOBAL_MODEL);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Convert hardware address to string */</span></span><br><span class="line">	ret = utils_hwaddr_raop(servname, <span class="keyword">sizeof</span>(servname), hwaddr, hwaddrlen);</span><br><span class="line">	<span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="comment">/* <span class="doctag">FIXME:</span> handle better */</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Check that we have bytes for &#x27;hw@name&#x27; format */</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">sizeof</span>(servname) &lt; <span class="built_in">strlen</span>(servname)+<span class="number">1</span>+<span class="built_in">strlen</span>(name)+<span class="number">1</span>) &#123;</span><br><span class="line">		<span class="comment">/* <span class="doctag">FIXME:</span> handle better */</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">-2</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">strncat</span>(servname, <span class="string">&quot;@&quot;</span>, <span class="keyword">sizeof</span>(servname)-<span class="built_in">strlen</span>(servname)<span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">strncat</span>(servname, name, <span class="keyword">sizeof</span>(servname)-<span class="built_in">strlen</span>(servname)<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//	int len = dnssd-&gt;TXTRecordGetLength(&amp;txtRecord) + 1;</span></span><br><span class="line"><span class="comment">//	char* txt = malloc(len);</span></span><br><span class="line"><span class="comment">//	txt[len - 1] = &#x27;\0&#x27;;</span></span><br><span class="line"><span class="comment">//	memcpy(txt, dnssd-&gt;TXTRecordGetBytesPtr(&amp;txtRecord), len);</span></span><br><span class="line">	<span class="comment">/* Register the service */</span></span><br><span class="line">	ret = dnssd-&gt;DNSServiceRegister(&amp;dnssd-&gt;raopService, <span class="number">0</span>, <span class="number">0</span>,</span><br><span class="line">	                          servname, <span class="string">&quot;_raop._tcp&quot;</span>,</span><br><span class="line">	                          <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">	                          htons(port),</span><br><span class="line">	                          dnssd-&gt;TXTRecordGetLength(&amp;txtRecord),</span><br><span class="line">	                          dnssd-&gt;TXTRecordGetBytesPtr(&amp;txtRecord),</span><br><span class="line">		MyRegisterServiceReply, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Deallocate TXT record */</span></span><br><span class="line">	dnssd-&gt;TXTRecordDeallocate(&amp;txtRecord);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">dnssd_register_airplay(<span class="keyword">dnssd_t</span> *dnssd, <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">unsigned</span> <span class="keyword">short</span> port, <span class="keyword">const</span> <span class="keyword">char</span> *hwaddr, <span class="keyword">int</span> hwaddrlen)</span><br><span class="line">&#123;</span><br><span class="line">	TXTRecordRef txtRecord;</span><br><span class="line">	<span class="keyword">char</span> deviceid[<span class="number">3</span>*MAX_HWADDR_LEN];</span><br><span class="line">	<span class="keyword">char</span> features[<span class="number">16</span>];</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">	assert(dnssd);</span><br><span class="line">	assert(name);</span><br><span class="line">	assert(hwaddr);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Convert hardware address to string */</span></span><br><span class="line">	ret = utils_hwaddr_airplay(deviceid, <span class="keyword">sizeof</span>(deviceid), hwaddr, hwaddrlen);</span><br><span class="line">	<span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="comment">/* <span class="doctag">FIXME:</span> handle better */</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	features[<span class="keyword">sizeof</span>(features)<span class="number">-1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">	<span class="built_in">snprintf</span>(features, <span class="keyword">sizeof</span>(features)<span class="number">-1</span>, <span class="string">&quot;0x%x&quot;</span>, GLOBAL_FEATURES);</span><br><span class="line"></span><br><span class="line">	dnssd-&gt;TXTRecordCreate(&amp;txtRecord, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;srcvers&quot;</span>, <span class="built_in">strlen</span>(GLOBAL_VERSION), GLOBAL_VERSION);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;deviceid&quot;</span>, <span class="built_in">strlen</span>(deviceid), deviceid);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;features&quot;</span>, <span class="built_in">strlen</span>(<span class="string">&quot;0x5A7FFFF7, 0x1E&quot;</span>), <span class="string">&quot;0x5A7FFFF7,0x1E&quot;</span>);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;model&quot;</span>, <span class="built_in">strlen</span>(GLOBAL_MODEL), GLOBAL_MODEL);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;flags&quot;</span>, <span class="built_in">strlen</span>(RAOP_SF), RAOP_SF);</span><br><span class="line">	dnssd-&gt;TXTRecordSetValue(&amp;txtRecord, <span class="string">&quot;vv&quot;</span>, <span class="built_in">strlen</span>(RAOP_VV), RAOP_VV);</span><br><span class="line"></span><br><span class="line"><span class="comment">//	int len = dnssd-&gt;TXTRecordGetLength(&amp;txtRecord) + 1;</span></span><br><span class="line"><span class="comment">//	char* txt = malloc(len);</span></span><br><span class="line"><span class="comment">//	txt[len - 1] = &#x27;\0&#x27;;</span></span><br><span class="line"><span class="comment">//	memcpy(txt, dnssd-&gt;TXTRecordGetBytesPtr(&amp;txtRecord), len);</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Register the service */</span></span><br><span class="line">	ret = dnssd-&gt;DNSServiceRegister(&amp;dnssd-&gt;airplayService, <span class="number">0</span>, <span class="number">0</span>,</span><br><span class="line">	                          name, <span class="string">&quot;_airplay._tcp&quot;</span>,</span><br><span class="line">	                          <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">	                          htons(port),</span><br><span class="line">	                          dnssd-&gt;TXTRecordGetLength(&amp;txtRecord),</span><br><span class="line">	                          dnssd-&gt;TXTRecordGetBytesPtr(&amp;txtRecord),</span><br><span class="line">	                          MyRegisterServiceReply, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Deallocate TXT record */</span></span><br><span class="line">	dnssd-&gt;TXTRecordDeallocate(&amp;txtRecord);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，密码功能由raop注册的mDNS实现，因为投屏一定推音频流，但推音频流不一定投屏</p>
+<p>相关字段含义，可以在<a target="_blank" rel="noopener" href="https://nto.github.io/AirPlay.html#servicediscovery">这里</a>查看  </p>
+<h1 id="初始化总结"><a href="#初始化总结" class="headerlink" title="初始化总结"></a>初始化总结</h1><p>广义的Airplay协议由Airplay协议、raop协议以及mDNS协议组成。其中Airplay负责视频流，raop负责音频流、mDNS负责局域网设备发现。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Airplay/" rel="tag"># Airplay</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/20/message-loop-1/" rel="prev" title="nbase 消息循环（一）MessagePump">
+      <i class="fa fa-chevron-left"></i> nbase 消息循环（一）MessagePump
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/03/airplay-handshake1/" rel="next" title="Airplay握手流程（一）">
+      Airplay握手流程（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Airplay%E5%8D%8F%E8%AE%AE%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">Airplay协议初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#raop%E5%8D%8F%E8%AE%AE%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">raop协议初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mDNS%E5%8D%8F%E8%AE%AE%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">mDNS协议初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">初始化总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

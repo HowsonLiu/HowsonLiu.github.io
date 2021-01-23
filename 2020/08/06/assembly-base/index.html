@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="学习汇编时的一些知识点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编基础">
+<meta property="og:url" content="http://yoursite.com/2020/08/06/assembly-base/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="学习汇编时的一些知识点">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.tutorialspoint.com/assembly_programming/images/register1.jpg">
+<meta property="og:image" content="https://www.tutorialspoint.com/assembly_programming/images/register2.jpg">
+<meta property="og:image" content="https://www.tutorialspoint.com/assembly_programming/images/register3.jpg">
+<meta property="og:image" content="https://images.cnblogs.com/cnblogs_com/BoyXiao/Windows-Live-Writer/80x86--CPU-_11929/image_thumb_10.png">
+<meta property="article:published_time" content="2020-08-06T03:55:45.000Z">
+<meta property="article:modified_time" content="2021-01-23T08:16:15.691Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="assembly">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.tutorialspoint.com/assembly_programming/images/register1.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/08/06/assembly-base/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>汇编基础 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/assembly-base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          汇编基础
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-06 11:55:45" itemprop="dateCreated datePublished" datetime="2020-08-06T11:55:45+08:00">2020-08-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 16:16:15" itemprop="dateModified" datetime="2021-01-23T16:16:15+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">逆向</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">学习汇编时的一些知识点</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="著名CPU"><a href="#著名CPU" class="headerlink" title="著名CPU"></a>著名CPU</h1><ul>
+<li><strong>8086</strong><br>  8086是Intel公司设计的16位微处理器芯片，是x86架构的鼻祖。</li>
+<li><strong>80386</strong><br>  也称为<strong>i386</strong>。是Intel公司设计的32位微处理器芯片。</li>
+</ul>
+<hr>
+<h1 id="寄存器分类（8086-i386）"><a href="#寄存器分类（8086-i386）" class="headerlink" title="寄存器分类（8086/i386）"></a>寄存器分类（8086/i386）</h1><ul>
+<li>通用寄存器<ul>
+<li>四个数据寄存器<ul>
+<li>AX/EAX 累加器。加法乘法指令的缺省寄存器</li>
+<li>BX/EBX 基地址寄存器。作为存储器指针使用</li>
+<li>CX/ECX 计数器。在循环和字符串操作时控制次数；在位操作时CL指明移位的位数</li>
+<li>DX/EDX 数据寄存器。乘除运算中常作为默认参与数参与运算；存放I/O端口地址</li>
+</ul>
+</li>
+<li>两个变址寄存器<ul>
+<li>SI/ESI 源变址寄存器</li>
+<li>DI/EDI 目的变址寄存器</li>
+</ul>
+</li>
+<li>两个指针寄存器<ul>
+<li>SP/ESP 堆栈指针寄存器 栈顶指针</li>
+<li>BP/EBP 基指针寄存器 栈底指针</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>控制寄存器<ul>
+<li>IP/EIP 指令指针寄存器 存放下一个CPU指令的内存地址</li>
+<li>EFL/FLAG 标志寄存器 存放前一个指令执行结果的信息</li>
+</ul>
+</li>
+<li>四个段寄存器<ul>
+<li>CS 代码段寄存器</li>
+<li>DS 数据段寄存器</li>
+<li>SS 堆栈段寄存器</li>
+<li>ES 附加段寄存器</li>
+</ul>
+</li>
+</ul>
+<h1 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h1><p>这些寄存器除了在特殊情况下有专用的作用外，其他时候都可以用来传送和暂存数据，因此叫通用寄存器</p>
+<h2 id="数据寄存器-Data-Registers"><a href="#数据寄存器-Data-Registers" class="headerlink" title="数据寄存器(Data Registers)"></a>数据寄存器(Data Registers)</h2><p><img src="https://www.tutorialspoint.com/assembly_programming/images/register1.jpg" alt></p>
+<blockquote>
+<p>E表示extend，L表示Low，H表示High，注意只有数据寄存器才能分HL</p>
+</blockquote>
+<h3 id="AX-Accumulator-Registers-的特殊作用"><a href="#AX-Accumulator-Registers-的特殊作用" class="headerlink" title="AX(Accumulator Registers)的特殊作用"></a>AX(Accumulator Registers)的特殊作用</h3><ul>
+<li>DIV除法指令<ul>
+<li>当除数为8位时，那么被除数为16位（<a target="_blank" rel="noopener" href="https://www.cnblogs.com/mrblug/p/5721196.html">为啥</a>），保存在AX中，结果中AL存储商，AH存储余数。</li>
+<li>当除数为16位时，那么被除数为32位，AX存放被除数的低16位，DX存放被除数的高16位，结果中AX存储商，DX存储余数。</li>
+</ul>
+</li>
+<li>MUL乘法指令<ul>
+<li>两个乘数都是8位，那么AL会默认存放一个（另一个存在其他寄存器或者内存中），结果存放在AX</li>
+<li>两个乘数都是16位，那么AX会默认存放一个，结果的高位存在DX，低位存在AX。</li>
+</ul>
+</li>
+</ul>
+<h3 id="BX-Base-Register-的特殊作用"><a href="#BX-Base-Register-的特殊作用" class="headerlink" title="BX(Base Register)的特殊作用"></a>BX(Base Register)的特殊作用</h3><p>在寻址的情况下，一般用来存放偏移地址</p>
+<h3 id="CX-Count-Register-的特殊作用"><a href="#CX-Count-Register-的特殊作用" class="headerlink" title="CX(Count Register)的特殊作用"></a>CX(Count Register)的特殊作用</h3><p>在使用LOOP指令时，使用CX跳出循环。CX不等于0的时候，CX = CX - 1，否则跳出</p>
+<h3 id="DX-Data-Register-的特殊作用"><a href="#DX-Data-Register-的特殊作用" class="headerlink" title="DX(Data Register)的特殊作用"></a>DX(Data Register)的特殊作用</h3><p>详看AX</p>
+<h2 id="索引寄存器-Index-Registers"><a href="#索引寄存器-Index-Registers" class="headerlink" title="索引寄存器(Index Registers)"></a>索引寄存器(Index Registers)</h2><p><img src="https://www.tutorialspoint.com/assembly_programming/images/register2.jpg" alt></p>
+<blockquote>
+<p>与BX寄存器功能相近，但是不能拆分成两个8位寄存器使用</p>
+</blockquote>
+<p>两者都是在某个地址的基础上进行偏移变化，因此都需要基址寄存器：</p>
+<ul>
+<li>一般与DS数据段寄存器使用</li>
+<li>在串处理指令中，SI与DS联用，DI与ES联用</li>
+</ul>
+<h2 id="指针寄存器-Pointer-Registers"><a href="#指针寄存器-Pointer-Registers" class="headerlink" title="指针寄存器(Pointer Registers)"></a>指针寄存器(Pointer Registers)</h2><p><img src="https://www.tutorialspoint.com/assembly_programming/images/register3.jpg" alt></p>
+<blockquote>
+<p>IP(Instruction Pointer)</p>
+</blockquote>
+<h3 id="BP-Base-Pointer-的特殊作用"><a href="#BP-Base-Pointer-的特殊作用" class="headerlink" title="BP(Base Pointer)的特殊作用"></a>BP(Base Pointer)的特殊作用</h3><p>如果寻址操作的偏移地址为BP且段地址不给出，则段地址默认为SS</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MOV AX, [BP]        ; equal MOV AX, SS:[BP]</span><br><span class="line">MOV AX, CS:[BP]</span><br></pre></td></tr></table></figure>
+<h3 id="SP-Stack-Pointer-的特殊作用"><a href="#SP-Stack-Pointer-的特殊作用" class="headerlink" title="SP(Stack Pointer)的特殊作用"></a>SP(Stack Pointer)的特殊作用</h3><p><code>SS:[SP]</code>永远指向栈顶</p>
+<h2 id="控制寄存器-Control-Registers"><a href="#控制寄存器-Control-Registers" class="headerlink" title="控制寄存器(Control Registers)"></a>控制寄存器(Control Registers)</h2><p>IP与FL(Flag Registers)相结合被认为是控制寄存器<br>FL上的标志位通常有:</p>
+<ul>
+<li>Overflow Flag(OF)：标志带符号算术运算后是否高位溢出</li>
+<li>Direction Flag(DF)：标志比较字符串的方向，0表示左-&gt;右，1表示右-&gt;左</li>
+<li>Interrupt Flag(IF)：标志是否收到外中断</li>
+<li>Trap Flag(TF)：标志软中断，在debug模式下为1</li>
+<li>Sign Flag(SF)：表示运算后的符号，0为正，1为负</li>
+<li>Zero Flag(ZF)：表示比较或者算法的返回值，非0为1</li>
+<li>Auxiliary Carry Flag(AF)：标志单位计算的进位</li>
+<li>Parity Flag(PF)：表示奇偶校验结果</li>
+<li>Carry Flag(CF)：标志算术运算后的进位</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>O</th>
+<th>D</th>
+<th>I</th>
+<th>T</th>
+<th>S</th>
+<th>Z</th>
+<th></th>
+<th>A</th>
+<th></th>
+<th>P</th>
+<th></th>
+<th>C</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bit no</td>
+<td>15</td>
+<td>14</td>
+<td>13</td>
+<td>12</td>
+<td>11</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<h1 id="段"><a href="#段" class="headerlink" title="段"></a>段</h1><h2 id="分段的原因"><a href="#分段的原因" class="headerlink" title="分段的原因"></a>分段的原因</h2><p>在<strong>8086</strong>CPU中，地址总线有20根，也就是说每次能传输20位的地址，寻址能力有2^20=1Mb。但是CPU的寄存器只有16位，并不能一次处理20位的地址。因此<strong>8086</strong>在内部通过两个16位的地址合成一个20位的地址<br><img src="https://images.cnblogs.com/cnblogs_com/BoyXiao/Windows-Live-Writer/80x86--CPU-_11929/image_thumb_10.png" alt></p>
+<blockquote>
+<p>基地址 = 段地址 &lt;&lt; 4<br>物理地址 = 基地址 + 偏移地址</p>
+</blockquote>
+<h2 id="段的类型"><a href="#段的类型" class="headerlink" title="段的类型"></a>段的类型</h2><ul>
+<li><strong>数据段</strong> 存放数据的内存</li>
+<li><strong>代码段</strong> 存放代码（指令）的内存</li>
+<li><strong>栈段</strong> 具有栈结构的内存</li>
+</ul>
+<h2 id="段寄存器"><a href="#段寄存器" class="headerlink" title="段寄存器"></a>段寄存器</h2><h3 id="CS与IP"><a href="#CS与IP" class="headerlink" title="CS与IP"></a>CS与IP</h3><p>CS是代码段寄存器，通常结合IP进行指令的读取。指令的地址在<code>CS:[IP]</code></p>
+<h3 id="SS与SP与BP"><a href="#SS与SP与BP" class="headerlink" title="SS与SP与BP"></a>SS与SP与BP</h3><p>SS是堆栈段寄存器，8086CPU不检查对栈的越界操作</p>
+<hr>
+<h1 id="汇编程序"><a href="#汇编程序" class="headerlink" title="汇编程序"></a>汇编程序</h1><p>一个汇编程序可以分为</p>
+<ul>
+<li><strong>数据段(data section)</strong><br>  数据段用于声明初始化的变量或者常量，其内容不会在运行的时候改变。声明的语句为：<br>  <code>section .data</code></li>
+<li><strong>bss段(bss section)</strong><br>  bss段用于声明变量。声明语法为：<br>  <code>section .bss</code></li>
+<li><strong>代码段(text section)</strong><br>  代码段用于保存实际的代码。必须以<code>global _start</code>告诉内核程序的执行位置。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">    global _start</span><br><span class="line">_start:</span><br></pre></td></tr></table></figure></li>
+<li><strong>注释</strong><br>  以<code>;</code>开头</li>
+</ul>
+<p>汇编语句由有三种类型</p>
+<ul>
+<li>可执行指令</li>
+<li>汇编程序指令或者伪操作</li>
+<li>宏</li>
+</ul>
+<p>汇编语句语法</p>
+<blockquote>
+<p>[label] mnemonic [operands] [;comment]<br>[标签] 指令 [操作数] [注释]</p>
+</blockquote>
+<h1 id="Hello-world"><a href="#Hello-world" class="headerlink" title="Hello world"></a>Hello world</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">section	.text</span><br><span class="line">	global _start       ;must be declared for using gcc</span><br><span class="line">_start:                     ;tell linker entry point</span><br><span class="line">	mov	edx, len    ;message length</span><br><span class="line">	mov	ecx, msg    ;message to write</span><br><span class="line">	mov	ebx, 1	    ;file descriptor (stdout)</span><br><span class="line">	mov	eax, 4	    ;system call number (sys_write)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line">	mov	eax, 1	    ;system call number (sys_exit)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line"></span><br><span class="line">section	.data</span><br><span class="line"></span><br><span class="line">msg	db	&#39;Hello, world!&#39;,0xa	;our dear string</span><br><span class="line">len	equ	$ - msg			;length of our dear string</span><br></pre></td></tr></table></figure>
+
+<h1 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h1><p>系统调用是从用户态切换到内核态的一组API。调用步骤如下：</p>
+<ol>
+<li>将系统调用码放入EAX</li>
+<li>将参数依次存入EBX,ECX,EDX,ESI,EDI,EBP寄存器</li>
+<li>启动中断<code>int 0x80</code>(linux)</li>
+<li>返回值存储在EAX</li>
+</ol>
+<p>系统调用码在 <em>/usr/include/asm/unistd.h</em>中列出，下表列举出一些系统调用  </p>
+<table>
+<thead>
+<tr>
+<th>EAX</th>
+<th>NAME</th>
+<th>EBX</th>
+<th>ECX</th>
+<th>EDX</th>
+<th>ESX</th>
+<th>EDI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>SYS_EXIT</td>
+<td>int</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>SYS_FORK</td>
+<td>struct pt_regs</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>SYS_READ</td>
+<td>uint</td>
+<td>char*</td>
+<td>size_t</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>SYS_WRITE</td>
+<td>uint</td>
+<td>const char*</td>
+<td>size_t</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>SYS_OPEN</td>
+<td>const char*</td>
+<td>int</td>
+<td>int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>SYS_CLOSE</td>
+<td>uint</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="寻址方法"><a href="#寻址方法" class="headerlink" title="寻址方法"></a>寻址方法</h1><ul>
+<li><strong>寄存器寻址(Register Addressing)</strong><br>  操作数已经在寄存器里面。源和目的数都可以是寄存器。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov dx, second_parm</span><br><span class="line">mov first_parm, cx</span><br><span class="line">mov eax, ebx</span><br></pre></td></tr></table></figure></li>
+<li><strong>立即寻址(Immediate Addressing)</strong><br>  立即数可以为8位或者16位。源可以为寄存器或者储存器位置，目的数为立即数。速度最快。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">byte_val db 150 ;定义byte类型变量</span><br><span class="line">add byte_val, 65</span><br><span class="line">add ax, 45h</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><h2 id="int"><a href="#int" class="headerlink" title="int"></a>int</h2><blockquote>
+<p>int 0x80</p>
+</blockquote>
+<p>常用指令为<code>int 0x80</code>，表示中断进行系统调用</p>
+<h2 id="call"><a href="#call" class="headerlink" title="call"></a>call</h2><blockquote>
+<p>call _printf</p>
+</blockquote>
+<p>函数调用</p>
+<h2 id="cdq"><a href="#cdq" class="headerlink" title="cdq"></a>cdq</h2><blockquote>
+<p>cdq</p>
+</blockquote>
+<p>将eax的第31位复制到edx的每一位上。常出现在除法中，实际上是有符号数位数的扩展</p>
+<h2 id="neg"><a href="#neg" class="headerlink" title="neg"></a>neg</h2><blockquote>
+<p>neg eax</p>
+</blockquote>
+<p>求补运算，在数学上相当于取负</p>
+<h2 id="setne"><a href="#setne" class="headerlink" title="setne"></a>setne</h2><blockquote>
+<p>setne al</p>
+</blockquote>
+<p>set not equal，ZF==1时al=0，否则al=1</p>
+<h2 id="sbb"><a href="#sbb" class="headerlink" title="sbb"></a>sbb</h2><blockquote>
+<p>sbb eax, ebx</p>
+</blockquote>
+<p>带借位减法指令。上面等价于<code>eax = eax - ebx - CF</code><br>eax = 1020H, ebx = 1200H, CF = 1, =&gt; sbb eax, ebx = FE1F</p>
+<h2 id="shl"><a href="#shl" class="headerlink" title="shl"></a>shl</h2><blockquote>
+<p>shl eax, 3</p>
+</blockquote>
+<p>位运算左移。Shift Logical Left。</p>
+<h2 id="sar-shr"><a href="#sar-shr" class="headerlink" title="sar shr"></a>sar shr</h2><blockquote>
+<p>sar eax, 3</p>
+</blockquote>
+<p>位运算右移。sar是有符号移位，shr是无符号移位</p>
+<h2 id="mul"><a href="#mul" class="headerlink" title="mul"></a>mul</h2><blockquote>
+<p>mul dword ptr [i]</p>
+</blockquote>
+<p>将eax的值与变量i相乘，结果的低32位放到eax，高32位放到edx</p>
+<h2 id="rep"><a href="#rep" class="headerlink" title="rep"></a>rep</h2><blockquote>
+<p>rep opr</p>
+</blockquote>
+<p>重复执行后面的指令。ecx每执行一次-1。</p>
+<h2 id="stos"><a href="#stos" class="headerlink" title="stos"></a>stos</h2><blockquote>
+<p>mov ecx, 30<br>mov eax, 0cccccccch<br>rep stos dword ptr es:[edi]</p>
+</blockquote>
+<p>串存储指令。将al/ax/eax的值存储到es:edi指定的内存单元</p>
+<h2 id="scasb-scasw-scasd"><a href="#scasb-scasw-scasd" class="headerlink" title="scasb/scasw/scasd"></a>scasb/scasw/scasd</h2><blockquote>
+<p>push esi<br>mov esi, [esp+4+arg_0]<br>push edi<br>mov edi, esi<br>or ecx, 0ffffffffh<br>xor eax, eax<br>repne scasb</p>
+</blockquote>
+<p>在字符串或者数组中寻找一个值。分别将al/ax/eax中的值与edi寻址的一个byte/word/dword进行比较。常常结合repne使用。若查找成功，则edi指向匹配字符后面的位置。示例含义是内联strlen</p>
+<h2 id="test"><a href="#test" class="headerlink" title="test"></a>test</h2><blockquote>
+<p>test eax, 100b<br>jnz loc_40000</p>
+</blockquote>
+<h2 id="test-1"><a href="#test-1" class="headerlink" title="test"></a>test</h2><blockquote>
+<p>test eax, eax</p>
+</blockquote>
+<p>test执行AND运算，并设置zf标记。test与and命令的区别是，and命令会将结果返回到eax。实例含义是常见的判断寄存器是否为空。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+              <a href="/tags/assembly/" rel="tag"># assembly</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/08/qtbuild/" rel="prev" title="Windows下Qt源码编译">
+      <i class="fa fa-chevron-left"></i> Windows下Qt源码编译
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/06/assembly-cpp/" rel="next" title="汇编基础之C++语句">
+      汇编基础之C++语句 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%91%97%E5%90%8DCPU"><span class="nav-number">1.</span> <span class="nav-text">著名CPU</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E5%88%86%E7%B1%BB%EF%BC%888086-i386%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">寄存器分类（8086&#x2F;i386）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">通用寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%AF%84%E5%AD%98%E5%99%A8-Data-Registers"><span class="nav-number">3.1.</span> <span class="nav-text">数据寄存器(Data Registers)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AX-Accumulator-Registers-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text">AX(Accumulator Registers)的特殊作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BX-Base-Register-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">BX(Base Register)的特殊作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CX-Count-Register-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.3.</span> <span class="nav-text">CX(Count Register)的特殊作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DX-Data-Register-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.4.</span> <span class="nav-text">DX(Data Register)的特殊作用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%AF%84%E5%AD%98%E5%99%A8-Index-Registers"><span class="nav-number">3.2.</span> <span class="nav-text">索引寄存器(Index Registers)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%AF%84%E5%AD%98%E5%99%A8-Pointer-Registers"><span class="nav-number">3.3.</span> <span class="nav-text">指针寄存器(Pointer Registers)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BP-Base-Pointer-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.3.1.</span> <span class="nav-text">BP(Base Pointer)的特殊作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SP-Stack-Pointer-%E7%9A%84%E7%89%B9%E6%AE%8A%E4%BD%9C%E7%94%A8"><span class="nav-number">3.3.2.</span> <span class="nav-text">SP(Stack Pointer)的特殊作用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%AF%84%E5%AD%98%E5%99%A8-Control-Registers"><span class="nav-number">3.4.</span> <span class="nav-text">控制寄存器(Control Registers)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AE%B5"><span class="nav-number">4.</span> <span class="nav-text">段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%AE%B5%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">4.1.</span> <span class="nav-text">分段的原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AE%B5%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.2.</span> <span class="nav-text">段的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">4.3.</span> <span class="nav-text">段寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CS%E4%B8%8EIP"><span class="nav-number">4.3.1.</span> <span class="nav-text">CS与IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SS%E4%B8%8ESP%E4%B8%8EBP"><span class="nav-number">4.3.2.</span> <span class="nav-text">SS与SP与BP</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F"><span class="nav-number">5.</span> <span class="nav-text">汇编程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hello-world"><span class="nav-number">6.</span> <span class="nav-text">Hello world</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">系统调用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%BB%E5%9D%80%E6%96%B9%E6%B3%95"><span class="nav-number">8.</span> <span class="nav-text">寻址方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">9.</span> <span class="nav-text">常用指令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#int"><span class="nav-number">9.1.</span> <span class="nav-text">int</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#call"><span class="nav-number">9.2.</span> <span class="nav-text">call</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cdq"><span class="nav-number">9.3.</span> <span class="nav-text">cdq</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#neg"><span class="nav-number">9.4.</span> <span class="nav-text">neg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#setne"><span class="nav-number">9.5.</span> <span class="nav-text">setne</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sbb"><span class="nav-number">9.6.</span> <span class="nav-text">sbb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shl"><span class="nav-number">9.7.</span> <span class="nav-text">shl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sar-shr"><span class="nav-number">9.8.</span> <span class="nav-text">sar shr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mul"><span class="nav-number">9.9.</span> <span class="nav-text">mul</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rep"><span class="nav-number">9.10.</span> <span class="nav-text">rep</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stos"><span class="nav-number">9.11.</span> <span class="nav-text">stos</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scasb-scasw-scasd"><span class="nav-number">9.12.</span> <span class="nav-text">scasb&#x2F;scasw&#x2F;scasd</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#test"><span class="nav-number">9.13.</span> <span class="nav-text">test</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#test-1"><span class="nav-number">9.14.</span> <span class="nav-text">test</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Windows平台下Airplay接收端与IOS设备连接握手流程，主要介绍fairplay协议与第一个SETUP报文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Airplay握手流程（二）">
+<meta property="og:url" content="http://yoursite.com/2020/05/08/airplay-handshake2/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="Windows平台下Airplay接收端与IOS设备连接握手流程，主要介绍fairplay协议与第一个SETUP报文">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-08T03:55:45.000Z">
+<meta property="article:modified_time" content="2021-01-23T07:36:31.309Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="Airplay">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/08/airplay-handshake2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Airplay握手流程（二） | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/08/airplay-handshake2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Airplay握手流程（二）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-08 11:55:45" itemprop="dateCreated datePublished" datetime="2020-05-08T11:55:45+08:00">2020-05-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 15:36:31" itemprop="dateModified" datetime="2021-01-23T15:36:31+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Airplay/" itemprop="url" rel="index"><span itemprop="name">Airplay</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">Windows平台下Airplay接收端与IOS设备连接握手流程，主要介绍fairplay协议与第一个SETUP报文</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="fairplay"><a href="#fairplay" class="headerlink" title="fairplay"></a>fairplay</h1><p><a target="_blank" rel="noopener" href="https://developer.apple.com/streaming/fps/">fairplay</a>是苹果的流传输协议。在建立连接前，进行<strong>四次握手</strong></p>
+<ul>
+<li><strong>第一次握手（发送方发出）</strong>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;fp-setup RTSP&#x2F;1.0</span><br><span class="line">X-Apple-ET: 32</span><br><span class="line">Content-Length: 16</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line">CSeq: 4</span><br><span class="line">DACP-ID: 1FF65A04A9252F60</span><br><span class="line">Active-Remote: 2814835199</span><br><span class="line">User-Agent: AirPlay&#x2F;409.16</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文</span><br><span class="line">FPLY»</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文16进制</span><br><span class="line">0100   xx xx xx xx 46 50 4c 59 03 01 01 00 00 00 00 04</span><br><span class="line">0110   02 00 02 bb</span><br></pre></td></tr></table></figure>
+  报文的第5个字节表明他的fairplay版本<code>version</code>，此例是0x03；第15个字节表明模式<code>mode</code>，此例是0x02  </li>
+<li><strong>第二次握手（接收端回应）</strong><br>  接收端判断fairplay版本是否一致，不一致忽略，握手失败  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">RTSP&#x2F;1.0 200 OK</span><br><span class="line">CSeq: 4</span><br><span class="line">Server: AirTunes&#x2F;220.68</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line">Content-Length: 142</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文</span><br><span class="line">FPLYÁi£Rîí5±ÝXÖOÁQëS½</span><br><span class="line">C6Íhö8ÿj[R·ú²¶TÇD!¢ÇþØ&#x3D;·ª×Ñpcâ¤WUY¯üv4&#125;@CXäûä,©ÞÜ^²£ª&#x3D;.ÍYçîç6)ò*ýsSÝ¹ÜnVøPÎ</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文16进制</span><br><span class="line">00b0   xx xx xx xx 46 50 4c 59 03 01 02 00 00 00 00 82</span><br><span class="line">00c0   02 02 c1 69 a3 52 ee ed 35 b1 8c dd 9c 58 d6 4f</span><br><span class="line">00d0   16 c1 51 9a 89 eb 53 17 bd 0d 43 36 cd 68 f6 38</span><br><span class="line">00e0   ff 9d 01 6a 5b 52 b7 fa 92 16 b2 b6 54 82 c7 84</span><br><span class="line">00f0   44 11 81 21 a2 c7 fe d8 3d b7 11 9e 91 82 aa d7</span><br><span class="line">0100   d1 8c 70 63 e2 a4 57 55 59 10 af 9e 0e fc 76 34</span><br><span class="line">0110   7d 16 40 43 80 7f 58 1e e4 fb e4 2c a9 de dc 1b</span><br><span class="line">0120   5e b2 a3 aa 3d 2e cd 59 e7 ee e7 0b 36 29 f2 2a</span><br><span class="line">0130   fd 16 1d 87 73 53 dd b9 9a dc 8e 07 00 6e 56 f8</span><br><span class="line">0140   50 ce</span><br></pre></td></tr></table></figure>
+  版本合理之后，根据模式返回对应的142字节数据，代码如下：  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> reply_message[<span class="number">4</span>][<span class="number">142</span>] = &#123;&#123;<span class="number">0x46</span>,<span class="number">0x50</span>,<span class="number">0x4c</span>,<span class="number">0x59</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x02</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x82</span>,<span class="number">0x02</span>,<span class="number">0x00</span>,<span class="number">0x0f</span>,<span class="number">0x9f</span>,<span class="number">0x3f</span>,<span class="number">0x9e</span>,<span class="number">0x0a</span>,<span class="number">0x25</span>,<span class="number">0x21</span>,<span class="number">0xdb</span>,<span class="number">0xdf</span>,<span class="number">0x31</span>,<span class="number">0x2a</span>,<span class="number">0xb2</span>,<span class="number">0xbf</span>,<span class="number">0xb2</span>,<span class="number">0x9e</span>,<span class="number">0x8d</span>,<span class="number">0x23</span>,<span class="number">0x2b</span>,<span class="number">0x63</span>,<span class="number">0x76</span>,<span class="number">0xa8</span>,<span class="number">0xc8</span>,<span class="number">0x18</span>,<span class="number">0x70</span>,<span class="number">0x1d</span>,<span class="number">0x22</span>,<span class="number">0xae</span>,<span class="number">0x93</span>,<span class="number">0xd8</span>,<span class="number">0x27</span>,<span class="number">0x37</span>,<span class="number">0xfe</span>,<span class="number">0xaf</span>,<span class="number">0x9d</span>,<span class="number">0xb4</span>,<span class="number">0xfd</span>,<span class="number">0xf4</span>,<span class="number">0x1c</span>,<span class="number">0x2d</span>,<span class="number">0xba</span>,<span class="number">0x9d</span>,<span class="number">0x1f</span>,<span class="number">0x49</span>,<span class="number">0xca</span>,<span class="number">0xaa</span>,<span class="number">0xbf</span>,<span class="number">0x65</span>,<span class="number">0x91</span>,<span class="number">0xac</span>,<span class="number">0x1f</span>,<span class="number">0x7b</span>,<span class="number">0xc6</span>,<span class="number">0xf7</span>,<span class="number">0xe0</span>,<span class="number">0x66</span>,<span class="number">0x3d</span>,<span class="number">0x21</span>,<span class="number">0xaf</span>,<span class="number">0xe0</span>,<span class="number">0x15</span>,<span class="number">0x65</span>,<span class="number">0x95</span>,<span class="number">0x3e</span>,<span class="number">0xab</span>,<span class="number">0x81</span>,<span class="number">0xf4</span>,<span class="number">0x18</span>,<span class="number">0xce</span>,<span class="number">0xed</span>,<span class="number">0x09</span>,<span class="number">0x5a</span>,<span class="number">0xdb</span>,<span class="number">0x7c</span>,<span class="number">0x3d</span>,<span class="number">0x0e</span>,<span class="number">0x25</span>,<span class="number">0x49</span>,<span class="number">0x09</span>,<span class="number">0xa7</span>,<span class="number">0x98</span>,<span class="number">0x31</span>,<span class="number">0xd4</span>,<span class="number">0x9c</span>,<span class="number">0x39</span>,<span class="number">0x82</span>,<span class="number">0x97</span>,<span class="number">0x34</span>,<span class="number">0x34</span>,<span class="number">0xfa</span>,<span class="number">0xcb</span>,<span class="number">0x42</span>,<span class="number">0xc6</span>,<span class="number">0x3a</span>,<span class="number">0x1c</span>,<span class="number">0xd9</span>,<span class="number">0x11</span>,<span class="number">0xa6</span>,<span class="number">0xfe</span>,<span class="number">0x94</span>,<span class="number">0x1a</span>,<span class="number">0x8a</span>,<span class="number">0x6d</span>,<span class="number">0x4a</span>,<span class="number">0x74</span>,<span class="number">0x3b</span>,<span class="number">0x46</span>,<span class="number">0xc3</span>,<span class="number">0xa7</span>,<span class="number">0x64</span>,<span class="number">0x9e</span>,<span class="number">0x44</span>,<span class="number">0xc7</span>,<span class="number">0x89</span>,<span class="number">0x55</span>,<span class="number">0xe4</span>,<span class="number">0x9d</span>,<span class="number">0x81</span>,<span class="number">0x55</span>,<span class="number">0x00</span>,<span class="number">0x95</span>,<span class="number">0x49</span>,<span class="number">0xc4</span>,<span class="number">0xe2</span>,<span class="number">0xf7</span>,<span class="number">0xa3</span>,<span class="number">0xf6</span>,<span class="number">0xd5</span>,<span class="number">0xba</span>&#125;,</span><br><span class="line">                          &#123;<span class="number">0x46</span>,<span class="number">0x50</span>,<span class="number">0x4c</span>,<span class="number">0x59</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x02</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x82</span>,<span class="number">0x02</span>,<span class="number">0x01</span>,<span class="number">0xcf</span>,<span class="number">0x32</span>,<span class="number">0xa2</span>,<span class="number">0x57</span>,<span class="number">0x14</span>,<span class="number">0xb2</span>,<span class="number">0x52</span>,<span class="number">0x4f</span>,<span class="number">0x8a</span>,<span class="number">0xa0</span>,<span class="number">0xad</span>,<span class="number">0x7a</span>,<span class="number">0xf1</span>,<span class="number">0x64</span>,<span class="number">0xe3</span>,<span class="number">0x7b</span>,<span class="number">0xcf</span>,<span class="number">0x44</span>,<span class="number">0x24</span>,<span class="number">0xe2</span>,<span class="number">0x00</span>,<span class="number">0x04</span>,<span class="number">0x7e</span>,<span class="number">0xfc</span>,<span class="number">0x0a</span>,<span class="number">0xd6</span>,<span class="number">0x7a</span>,<span class="number">0xfc</span>,<span class="number">0xd9</span>,<span class="number">0x5d</span>,<span class="number">0xed</span>,<span class="number">0x1c</span>,<span class="number">0x27</span>,<span class="number">0x30</span>,<span class="number">0xbb</span>,<span class="number">0x59</span>,<span class="number">0x1b</span>,<span class="number">0x96</span>,<span class="number">0x2e</span>,<span class="number">0xd6</span>,<span class="number">0x3a</span>,<span class="number">0x9c</span>,<span class="number">0x4d</span>,<span class="number">0xed</span>,<span class="number">0x88</span>,<span class="number">0xba</span>,<span class="number">0x8f</span>,<span class="number">0xc7</span>,<span class="number">0x8d</span>,<span class="number">0xe6</span>,<span class="number">0x4d</span>,<span class="number">0x91</span>,<span class="number">0xcc</span>,<span class="number">0xfd</span>,<span class="number">0x5c</span>,<span class="number">0x7b</span>,<span class="number">0x56</span>,<span class="number">0xda</span>,<span class="number">0x88</span>,<span class="number">0xe3</span>,<span class="number">0x1f</span>,<span class="number">0x5c</span>,<span class="number">0xce</span>,<span class="number">0xaf</span>,<span class="number">0xc7</span>,<span class="number">0x43</span>,<span class="number">0x19</span>,<span class="number">0x95</span>,<span class="number">0xa0</span>,<span class="number">0x16</span>,<span class="number">0x65</span>,<span class="number">0xa5</span>,<span class="number">0x4e</span>,<span class="number">0x19</span>,<span class="number">0x39</span>,<span class="number">0xd2</span>,<span class="number">0x5b</span>,<span class="number">0x94</span>,<span class="number">0xdb</span>,<span class="number">0x64</span>,<span class="number">0xb9</span>,<span class="number">0xe4</span>,<span class="number">0x5d</span>,<span class="number">0x8d</span>,<span class="number">0x06</span>,<span class="number">0x3e</span>,<span class="number">0x1e</span>,<span class="number">0x6a</span>,<span class="number">0xf0</span>,<span class="number">0x7e</span>,<span class="number">0x96</span>,<span class="number">0x56</span>,<span class="number">0x16</span>,<span class="number">0x2b</span>,<span class="number">0x0e</span>,<span class="number">0xfa</span>,<span class="number">0x40</span>,<span class="number">0x42</span>,<span class="number">0x75</span>,<span class="number">0xea</span>,<span class="number">0x5a</span>,<span class="number">0x44</span>,<span class="number">0xd9</span>,<span class="number">0x59</span>,<span class="number">0x1c</span>,<span class="number">0x72</span>,<span class="number">0x56</span>,<span class="number">0xb9</span>,<span class="number">0xfb</span>,<span class="number">0xe6</span>,<span class="number">0x51</span>,<span class="number">0x38</span>,<span class="number">0x98</span>,<span class="number">0xb8</span>,<span class="number">0x02</span>,<span class="number">0x27</span>,<span class="number">0x72</span>,<span class="number">0x19</span>,<span class="number">0x88</span>,<span class="number">0x57</span>,<span class="number">0x16</span>,<span class="number">0x50</span>,<span class="number">0x94</span>,<span class="number">0x2a</span>,<span class="number">0xd9</span>,<span class="number">0x46</span>,<span class="number">0x68</span>,<span class="number">0x8a</span>&#125;,</span><br><span class="line">                          &#123;<span class="number">0x46</span>,<span class="number">0x50</span>,<span class="number">0x4c</span>,<span class="number">0x59</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x02</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x82</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0xc1</span>,<span class="number">0x69</span>,<span class="number">0xa3</span>,<span class="number">0x52</span>,<span class="number">0xee</span>,<span class="number">0xed</span>,<span class="number">0x35</span>,<span class="number">0xb1</span>,<span class="number">0x8c</span>,<span class="number">0xdd</span>,<span class="number">0x9c</span>,<span class="number">0x58</span>,<span class="number">0xd6</span>,<span class="number">0x4f</span>,<span class="number">0x16</span>,<span class="number">0xc1</span>,<span class="number">0x51</span>,<span class="number">0x9a</span>,<span class="number">0x89</span>,<span class="number">0xeb</span>,<span class="number">0x53</span>,<span class="number">0x17</span>,<span class="number">0xbd</span>,<span class="number">0x0d</span>,<span class="number">0x43</span>,<span class="number">0x36</span>,<span class="number">0xcd</span>,<span class="number">0x68</span>,<span class="number">0xf6</span>,<span class="number">0x38</span>,<span class="number">0xff</span>,<span class="number">0x9d</span>,<span class="number">0x01</span>,<span class="number">0x6a</span>,<span class="number">0x5b</span>,<span class="number">0x52</span>,<span class="number">0xb7</span>,<span class="number">0xfa</span>,<span class="number">0x92</span>,<span class="number">0x16</span>,<span class="number">0xb2</span>,<span class="number">0xb6</span>,<span class="number">0x54</span>,<span class="number">0x82</span>,<span class="number">0xc7</span>,<span class="number">0x84</span>,<span class="number">0x44</span>,<span class="number">0x11</span>,<span class="number">0x81</span>,<span class="number">0x21</span>,<span class="number">0xa2</span>,<span class="number">0xc7</span>,<span class="number">0xfe</span>,<span class="number">0xd8</span>,<span class="number">0x3d</span>,<span class="number">0xb7</span>,<span class="number">0x11</span>,<span class="number">0x9e</span>,<span class="number">0x91</span>,<span class="number">0x82</span>,<span class="number">0xaa</span>,<span class="number">0xd7</span>,<span class="number">0xd1</span>,<span class="number">0x8c</span>,<span class="number">0x70</span>,<span class="number">0x63</span>,<span class="number">0xe2</span>,<span class="number">0xa4</span>,<span class="number">0x57</span>,<span class="number">0x55</span>,<span class="number">0x59</span>,<span class="number">0x10</span>,<span class="number">0xaf</span>,<span class="number">0x9e</span>,<span class="number">0x0e</span>,<span class="number">0xfc</span>,<span class="number">0x76</span>,<span class="number">0x34</span>,<span class="number">0x7d</span>,<span class="number">0x16</span>,<span class="number">0x40</span>,<span class="number">0x43</span>,<span class="number">0x80</span>,<span class="number">0x7f</span>,<span class="number">0x58</span>,<span class="number">0x1e</span>,<span class="number">0xe4</span>,<span class="number">0xfb</span>,<span class="number">0xe4</span>,<span class="number">0x2c</span>,<span class="number">0xa9</span>,<span class="number">0xde</span>,<span class="number">0xdc</span>,<span class="number">0x1b</span>,<span class="number">0x5e</span>,<span class="number">0xb2</span>,<span class="number">0xa3</span>,<span class="number">0xaa</span>,<span class="number">0x3d</span>,<span class="number">0x2e</span>,<span class="number">0xcd</span>,<span class="number">0x59</span>,<span class="number">0xe7</span>,<span class="number">0xee</span>,<span class="number">0xe7</span>,<span class="number">0x0b</span>,<span class="number">0x36</span>,<span class="number">0x29</span>,<span class="number">0xf2</span>,<span class="number">0x2a</span>,<span class="number">0xfd</span>,<span class="number">0x16</span>,<span class="number">0x1d</span>,<span class="number">0x87</span>,<span class="number">0x73</span>,<span class="number">0x53</span>,<span class="number">0xdd</span>,<span class="number">0xb9</span>,<span class="number">0x9a</span>,<span class="number">0xdc</span>,<span class="number">0x8e</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x6e</span>,<span class="number">0x56</span>,<span class="number">0xf8</span>,<span class="number">0x50</span>,<span class="number">0xce</span>&#125;,</span><br><span class="line">                          &#123;<span class="number">0x46</span>,<span class="number">0x50</span>,<span class="number">0x4c</span>,<span class="number">0x59</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x02</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x82</span>,<span class="number">0x02</span>,<span class="number">0x03</span>,<span class="number">0x90</span>,<span class="number">0x01</span>,<span class="number">0xe1</span>,<span class="number">0x72</span>,<span class="number">0x7e</span>,<span class="number">0x0f</span>,<span class="number">0x57</span>,<span class="number">0xf9</span>,<span class="number">0xf5</span>,<span class="number">0x88</span>,<span class="number">0x0d</span>,<span class="number">0xb1</span>,<span class="number">0x04</span>,<span class="number">0xa6</span>,<span class="number">0x25</span>,<span class="number">0x7a</span>,<span class="number">0x23</span>,<span class="number">0xf5</span>,<span class="number">0xcf</span>,<span class="number">0xff</span>,<span class="number">0x1a</span>,<span class="number">0xbb</span>,<span class="number">0xe1</span>,<span class="number">0xe9</span>,<span class="number">0x30</span>,<span class="number">0x45</span>,<span class="number">0x25</span>,<span class="number">0x1a</span>,<span class="number">0xfb</span>,<span class="number">0x97</span>,<span class="number">0xeb</span>,<span class="number">0x9f</span>,<span class="number">0xc0</span>,<span class="number">0x01</span>,<span class="number">0x1e</span>,<span class="number">0xbe</span>,<span class="number">0x0f</span>,<span class="number">0x3a</span>,<span class="number">0x81</span>,<span class="number">0xdf</span>,<span class="number">0x5b</span>,<span class="number">0x69</span>,<span class="number">0x1d</span>,<span class="number">0x76</span>,<span class="number">0xac</span>,<span class="number">0xb2</span>,<span class="number">0xf7</span>,<span class="number">0xa5</span>,<span class="number">0xc7</span>,<span class="number">0x08</span>,<span class="number">0xe3</span>,<span class="number">0xd3</span>,<span class="number">0x28</span>,<span class="number">0xf5</span>,<span class="number">0x6b</span>,<span class="number">0xb3</span>,<span class="number">0x9d</span>,<span class="number">0xbd</span>,<span class="number">0xe5</span>,<span class="number">0xf2</span>,<span class="number">0x9c</span>,<span class="number">0x8a</span>,<span class="number">0x17</span>,<span class="number">0xf4</span>,<span class="number">0x81</span>,<span class="number">0x48</span>,<span class="number">0x7e</span>,<span class="number">0x3a</span>,<span class="number">0xe8</span>,<span class="number">0x63</span>,<span class="number">0xc6</span>,<span class="number">0x78</span>,<span class="number">0x32</span>,<span class="number">0x54</span>,<span class="number">0x22</span>,<span class="number">0xe6</span>,<span class="number">0xf7</span>,<span class="number">0x8e</span>,<span class="number">0x16</span>,<span class="number">0x6d</span>,<span class="number">0x18</span>,<span class="number">0xaa</span>,<span class="number">0x7f</span>,<span class="number">0xd6</span>,<span class="number">0x36</span>,<span class="number">0x25</span>,<span class="number">0x8b</span>,<span class="number">0xce</span>,<span class="number">0x28</span>,<span class="number">0x72</span>,<span class="number">0x6f</span>,<span class="number">0x66</span>,<span class="number">0x1f</span>,<span class="number">0x73</span>,<span class="number">0x88</span>,<span class="number">0x93</span>,<span class="number">0xce</span>,<span class="number">0x44</span>,<span class="number">0x31</span>,<span class="number">0x1e</span>,<span class="number">0x4b</span>,<span class="number">0xe6</span>,<span class="number">0xc0</span>,<span class="number">0x53</span>,<span class="number">0x51</span>,<span class="number">0x93</span>,<span class="number">0xe5</span>,<span class="number">0xef</span>,<span class="number">0x72</span>,<span class="number">0xe8</span>,<span class="number">0x68</span>,<span class="number">0x62</span>,<span class="number">0x33</span>,<span class="number">0x72</span>,<span class="number">0x9c</span>,<span class="number">0x22</span>,<span class="number">0x7d</span>,<span class="number">0x82</span>,<span class="number">0x0c</span>,<span class="number">0x99</span>,<span class="number">0x94</span>,<span class="number">0x45</span>,<span class="number">0xd8</span>,<span class="number">0x92</span>,<span class="number">0x46</span>,<span class="number">0xc8</span>,<span class="number">0xc3</span>,<span class="number">0x59</span>&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分别对应模式0-3</span></span><br></pre></td></tr></table></figure>
+  模式之间的区别、数据包表示的内容，还需要进一步学习  </li>
+<li><strong>第三次握手（发送方发出）</strong>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;fp-setup RTSP&#x2F;1.0</span><br><span class="line">X-Apple-ET: 32</span><br><span class="line">Content-Length: 164</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line">CSeq: 5</span><br><span class="line">DACP-ID: 1FF65A04A9252F60</span><br><span class="line">Active-Remote: 2814835199</span><br><span class="line">User-Agent: AirPlay&#x2F;409.16</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文16进制（txt报文跟md格式换行符冲突了..）</span><br><span class="line">0100   xx xx xx xx xx 46 50 4c 59 03 01 03 00 00 00 00</span><br><span class="line">0110   98 02 8f 1a 9c ef f8 33 ec eb 40 f8 2e d4 bd 27</span><br><span class="line">0120   e1 10 fa d1 05 c5 57 d0 d6 e6 61 83 c2 18 0e 29</span><br><span class="line">0130   e7 c0 e2 1a 83 11 0b 82 a7 b4 90 1b db 13 4b 89</span><br><span class="line">0140   92 ff 4e 27 ba 32 30 a4 55 8d d2 64 4c fd 7f 98</span><br><span class="line">0150   85 fc f1 90 2f 2a f6 91 70 e1 17 89 be 4f 3f 57</span><br><span class="line">0160   27 07 6c ea bb 8f 0d 27 cf 51 db f0 8e 89 78 e9</span><br><span class="line">0170   b9 55 6a 6a 38 f1 56 85 d6 73 92 b7 46 8a 46 5d</span><br><span class="line">0180   21 81 59 d3 b9 6f 3e 7e ab a3 2c 2d e2 62 28 66</span><br><span class="line">0190   1d 10 f7 13 bf 4b 50 ab bc 39 a1 fe 46 29 a4 da</span><br><span class="line">01a0   49 18 81 8e 3f a0 fc 5c 83</span><br></pre></td></tr></table></figure>
+  内容是fairplay加密密钥<code>keymsg</code>，长度固定164字节</li>
+<li><strong>第四次握手（接收方回应）</strong>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">RTSP&#x2F;1.0 200 OK</span><br><span class="line">CSeq: 5</span><br><span class="line">Server: AirTunes&#x2F;220.68</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line">Content-Length: 32</span><br><span class="line"></span><br><span class="line">FPLYKP«¼9¡þF)¤ÚI? ü\</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报文16进制</span><br><span class="line">00b0   xx xx xx 46 50 4c 59 03 01 04 00 00 00 00 14 4b</span><br><span class="line">00c0   50 ab bc 39 a1 fe 46 29 a4 da 49 18 81 8e 3f a0</span><br><span class="line">00d0   fc 5c 83</span><br></pre></td></tr></table></figure>
+  报文的前12个字节是固定的  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> fp_header[] = &#123;<span class="number">0x46</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x59</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x14</span>&#125;;</span><br></pre></td></tr></table></figure>
+  后20个字节，实际上是第三次握手报文的末尾20个字节  </li>
+</ul>
+<h2 id="fairplay总结"><a href="#fairplay总结" class="headerlink" title="fairplay总结"></a>fairplay总结</h2><p>协议内容还需要进一步学习。但是从目前几次握手来看，两边主要是检查fairplay版本以及商量模式，并最终确定一个164字节的密钥用于以后的加解密处理</p>
+<h1 id="SETUP-1"><a href="#SETUP-1" class="headerlink" title="SETUP 1"></a>SETUP 1</h1><h2 id="发送端传输"><a href="#发送端传输" class="headerlink" title="发送端传输"></a>发送端传输</h2><p>fairplay认证成功后，发送端会发送SETUP包</p>
+<p>SETUP包在整个airplay建立连接过程中会由发送端发送最多三次，现在是第一次</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SETUP rtsp:&#x2F;&#x2F;192.168.137.1&#x2F;10555496157292350542 RTSP&#x2F;1.0</span><br><span class="line">Content-Length: 529</span><br><span class="line">Content-Type: application&#x2F;x-apple-binary-plist</span><br><span class="line">CSeq: 6</span><br><span class="line">DACP-ID: 1FF65A04A9252F60</span><br><span class="line">Active-Remote: 2814835199</span><br><span class="line">User-Agent: AirPlay&#x2F;409.16</span><br><span class="line"></span><br><span class="line">bplist00ß	</span><br><span class="line"></span><br><span class="line">RetSeiv^timingProtocol[sessionUUIDVosName^osBuildVersion]sourceVersionZtimingPort_isScreenMirroringSessionYosVersionTekeyXdeviceIDUmodelTnameZmacAddress OnþôTûÝNîqÒ¿\%iýSNTP_$927CA7D4-6369-4C4E-BB1F-B098F51192B5YiPhone OSU17B84V409.16Õ	T13.2OHFPLY&lt; ¡4»píFÁµÂûmýÒEb3¯xú )6ÚZ&#96;²&amp;ò&#x2F;s&#123;VêÁ÷Ú´ ¦_10:30:25:B1:D7:4BWiPad7,5jrainv iPad_10:30:25:A6:E6:B8),0?KRaoz¤³¸ÃÅØÜ</span><br><span class="line">#n³</span><br></pre></td></tr></table></figure>
+<p>SETUP包采用的是bplist格式传输，解析后大概如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE plist PUBLIC &quot;-&#x2F;&#x2F;Apple&#x2F;&#x2F;DTD PLIST 1.0&#x2F;&#x2F;EN&quot; &quot;http:&#x2F;&#x2F;www.apple.com&#x2F;DTDs&#x2F;PropertyList-1.0.dtd&quot;&gt;</span><br><span class="line">&lt;plist version&#x3D;&quot;1.0&quot;&gt;</span><br><span class="line">&lt;dict&gt;</span><br><span class="line">	&lt;key&gt;et&lt;&#x2F;key&gt;</span><br><span class="line">	&lt;integer&gt;32&lt;&#x2F;integer&gt;</span><br><span class="line">	&lt;key&gt;eiv&lt;&#x2F;key&gt;                                                              &#x2F;&#x2F; aes初向量</span><br><span class="line">	&lt;data&gt;</span><br><span class="line">	GSgNHeRh+6vF1GfGcxMbFg&#x3D;&#x3D;</span><br><span class="line">	&lt;&#x2F;data&gt;</span><br><span class="line">	&lt;key&gt;timingProtocol&lt;&#x2F;key&gt;                                                   &#x2F;&#x2F; 时间同步协议类型</span><br><span class="line">	&lt;string&gt;NTP&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;sessionUUID&lt;&#x2F;key&gt;                                                      &#x2F;&#x2F; 会话uuid</span><br><span class="line">	&lt;string&gt;FC871575-191F-434C-9CAC-56AC500AAB3A&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;osName&lt;&#x2F;key&gt;                                                           &#x2F;&#x2F; os</span><br><span class="line">	&lt;string&gt;iPhone OS&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;osBuildVersion&lt;&#x2F;key&gt;                                                   &#x2F;&#x2F; os版本</span><br><span class="line">	&lt;string&gt;17B84&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;sourceVersion&lt;&#x2F;key&gt;</span><br><span class="line">	&lt;string&gt;409.16&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;timingPort&lt;&#x2F;key&gt;                                                       &#x2F;&#x2F; 时间同步端口</span><br><span class="line">	&lt;integer&gt;49234&lt;&#x2F;integer&gt;</span><br><span class="line">	&lt;key&gt;isScreenMirroringSession&lt;&#x2F;key&gt;                                         &#x2F;&#x2F; 是否镜像会话</span><br><span class="line">	&lt;true&#x2F;&gt;</span><br><span class="line">	&lt;key&gt;osVersion&lt;&#x2F;key&gt;                                                        &#x2F;&#x2F; os版本</span><br><span class="line">	&lt;string&gt;13.2&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;ekey&lt;&#x2F;key&gt;                                                             &#x2F;&#x2F; aes密钥密文</span><br><span class="line">	&lt;data&gt;</span><br><span class="line">	RlBMWQECAQAAAAA8AAAAAPSn9omnrwyvkQ3dQ2zlYhcAAAAQ3U7aEmD&#x2F;w57Bd760J6nq</span><br><span class="line">	lPr1kfslMSn4sNDywSEHZzLndoYH</span><br><span class="line">	&lt;&#x2F;data&gt;</span><br><span class="line">	&lt;key&gt;deviceID&lt;&#x2F;key&gt;</span><br><span class="line">	&lt;string&gt;10:30:25:B1:D7:4B&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;model&lt;&#x2F;key&gt;</span><br><span class="line">	&lt;string&gt;iPad7,5&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;name&lt;&#x2F;key&gt;                                                             &#x2F;&#x2F; 设备名称</span><br><span class="line">	&lt;string&gt;rain的 iPad&lt;&#x2F;string&gt;</span><br><span class="line">	&lt;key&gt;macAddress&lt;&#x2F;key&gt;                                                       &#x2F;&#x2F; mac地址</span><br><span class="line">	&lt;string&gt;10:30:25:A6:E6:B8&lt;&#x2F;string&gt;</span><br><span class="line">&lt;&#x2F;dict&gt;</span><br><span class="line">&lt;&#x2F;plist&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>eiv</code><br>  16字节数据，作为aes加密的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%88%9D%E5%A7%8B%E5%90%91%E9%87%8F">初向量</a></li>
+<li><code>ekey</code><br>  72字节数据，内容是被fairplay加密后的aes密钥</li>
+<li><code>timing_port</code><br>  时间同步端口</li>
+<li><code>name</code><br>  设备显示名字</li>
+<li><code>deviceId</code><br>  设备ID，注意不是mac地址</li>
+</ul>
+<h2 id="rtp初始化"><a href="#rtp初始化" class="headerlink" title="rtp初始化"></a>rtp初始化</h2><p><strong>SETUP 1</strong>包主要初始化了raop协议的</p>
+<ul>
+<li><strong>ip</strong><br>  支持ipv4以及ipv6</li>
+<li><strong>设备名称</strong></li>
+<li><strong>DeviceId</strong></li>
+<li><strong>时间同步协议远端端口</strong></li>
+<li><strong>音频缓冲区</strong><ul>
+<li><strong>创建aac解码器</strong></li>
+<li><strong>初始化加密环境</strong><br>  其中<code>eiv</code>可以直接使用，但是<code>ekey</code>是密文。下面是得到aes密钥的流程<pre><code>1. `ekey`通过[fairplay](#fairplay)解密获取16位密文`fairplay_ekey`
+2. 初始化sha512上下文
+3. sha512摘要`fairplay_ekey`
+4. sha512摘要`ecdh_secret`
+5. 使用sha512签名的64位数据作为aes加密密钥`aeskey`</code></pre></li>
+</ul>
+</li>
+<li><strong>视频缓冲区</strong><ul>
+<li><strong>初步初始化加密环境</strong><br>  <strong>SETUP 1</strong>阶段初始化只是记录16位<code>fairplay_ekey</code>以及<code>ecdh_secret</code>，后续加密在<strong>SETUP 2</strong>完成</li>
+</ul>
+</li>
+</ul>
+<h2 id="接收端回应"><a href="#接收端回应" class="headerlink" title="接收端回应"></a>接收端回应</h2><p>回应一个空包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;info RTSP&#x2F;1.0</span><br><span class="line">X-Apple-ProtocolVersion: 1</span><br><span class="line">CSeq: 7</span><br><span class="line">DACP-ID: 1FF65A04A9252F60</span><br><span class="line">Active-Remote: 2814835199</span><br><span class="line">User-Agent: AirPlay&#x2F;409.16</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="SETUP-1总结"><a href="#SETUP-1总结" class="headerlink" title="SETUP 1总结"></a>SETUP 1总结</h2><p><strong>SETUP 1</strong>阶段实际上是发送端单方面的数据传输，接收端根据报文初始化rtp协议。其中音频环境已完成，镜像环境未完成。</p>
+<p>其中音频加密协议主要使用aes加密算法，其中初向量来自包中<code>eiv</code>数据，密钥的获取需要经过fairplay解密、pair流程的ecdh密钥、sha512签名运算获得</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Airplay/" rel="tag"># Airplay</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/04/duilib-xml-1/" rel="prev" title="网易duilib中的xml解析（一）CMarkup">
+      <i class="fa fa-chevron-left"></i> 网易duilib中的xml解析（一）CMarkup
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/08/airplay-handshake3/" rel="next" title="Airplay握手流程（三）">
+      Airplay握手流程（三） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#fairplay"><span class="nav-number">1.</span> <span class="nav-text">fairplay</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#fairplay%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.</span> <span class="nav-text">fairplay总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SETUP-1"><span class="nav-number">2.</span> <span class="nav-text">SETUP 1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E7%AB%AF%E4%BC%A0%E8%BE%93"><span class="nav-number">2.1.</span> <span class="nav-text">发送端传输</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rtp%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.2.</span> <span class="nav-text">rtp初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E6%94%B6%E7%AB%AF%E5%9B%9E%E5%BA%94"><span class="nav-number">2.3.</span> <span class="nav-text">接收端回应</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SETUP-1%E6%80%BB%E7%BB%93"><span class="nav-number">2.4.</span> <span class="nav-text">SETUP 1总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

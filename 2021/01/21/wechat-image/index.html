@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="解密微信图片">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PC微信逆向之解密微信图片">
+<meta property="og:url" content="http://yoursite.com/2021/01/21/wechat-image/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="解密微信图片">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/1.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/2.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/3.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/4.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/5.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/6.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/7.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/8.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/9.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/10.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/11.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/12.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/13.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/14.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/15.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/16.png">
+<meta property="og:image" content="http://yoursite.com/2021/01/21/wechat-image/10.gif">
+<meta property="article:published_time" content="2021-01-21T09:08:48.000Z">
+<meta property="article:modified_time" content="2021-01-23T09:34:11.994Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="wechat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2021/01/21/wechat-image/1.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/01/21/wechat-image/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>PC微信逆向之解密微信图片 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/21/wechat-image/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PC微信逆向之解密微信图片
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-21 17:08:48" itemprop="dateCreated datePublished" datetime="2021-01-21T17:08:48+08:00">2021-01-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 17:34:11" itemprop="dateModified" datetime="2021-01-23T17:34:11+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PC%E5%BE%AE%E4%BF%A1%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">PC微信逆向</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">解密微信图片</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h1><p>本文章仅供技术研究，请勿用于任何商业用途，请勿用于非法用途，如有任何人凭此做何非法事情，均于作者无关，特此声明。</p>
+<hr>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ul>
+<li>PC 微信 2.9.5.41</li>
+</ul>
+<h1 id="开始解密"><a href="#开始解密" class="headerlink" title="开始解密"></a>开始解密</h1><p>我们知道，微信的图片是以加密的形式，存放在<code>WeChat Files\wxid\FileStorage\Image\</code>下面。<br>微信在读取历史记录的时候，对于图片类型的聊天消息，肯定会先从那个文件夹下面找。找到之后经过解密，再展示给用户。<br>因此我们可以通过对<code>CreateFileW</code>以及<code>ReadFile</code>下断点，定位到图片文件解密的代码。<br>首先，先对<code>CreateFileW</code>下断点，然后点开一张历史图片<br><img src="/2021/01/21/wechat-image/1.png" alt><br>确认路径是微信的图片，然后Ctrl+F9执行到返回，记住eax寄存器的值，这是图片文件的句柄<br><img src="/2021/01/21/wechat-image/2.png" alt><br>接着对<code>ReadFile</code>下断点，运行<br><img src="/2021/01/21/wechat-image/3.png" alt><br>确认句柄一致，然后Alt+K查看堆栈<br><img src="/2021/01/21/wechat-image/4.png" alt><br>找一下可以发现，WeChatWin.0F8F11C0这个函数特别有意思，他里面用了<code>SecureFileStorage::Decrypt</code>字符串<br><img src="/2021/01/21/wechat-image/5.png" alt><br>上面还有一个类似文件名的字符串。猜测这些应该都是微信打log用到的<strong>FILE</strong>宏，因此我们可以确定这个函数的名字就是<code>SecureFileStorage::Decrypt</code>。从名字来看，这个就是微信解密图片用到的函数了。我们在函数头下个断点，做些操作验证一下。 </p>
+<p>经过验证，我们发现以下的操作都会走到<code>SecureFileStorage::Decrypt</code>函数：</p>
+<ul>
+<li>点击一张缩略图展开成大图</li>
+<li>在大图右键另存为  </li>
+</ul>
+<p>其中另存为这个操作，跟我们要直接解密.dat文件流程上有点像，所以我打算从它下手</p>
+<h1 id="确定参数"><a href="#确定参数" class="headerlink" title="确定参数"></a>确定参数</h1><p>在IDA中找到这个函数，反编译一下<br><img src="/2021/01/21/wechat-image/6.png" alt><br>发现这个函数还挺麻烦的，调用约定不清楚，用到的参数也比较多。不过IDA也把他用到的寄存器以及参数数量告诉我们了，接下来我们通过调试确认一下具体值是什么。OD在<code>SecureFileStorage::Decrypt</code>下断点，右键大图另存为  </p>
+<p>先看看通过寄存器传的参<br><img src="/2021/01/21/wechat-image/7.png" alt></p>
+<ul>
+<li>edx<br>  <img src="/2021/01/21/wechat-image/8.png" alt><br>  <img src="/2021/01/21/wechat-image/9.png" alt><br>  做过PC微信逆向的都知道，这五个字节的结构很显然就是微信的字符串<code>WXString</code>。第一个字节是UNICODE字符串指针，第二个字节是字符串的长度，第三个字节是缓冲区大小，最后两个字节保留一般为0。<br>  所以edx的值是加密图片路径</li>
+<li>ecx<br>  <img src="/2021/01/21/wechat-image/10.png" alt><br>  ecx指向一个空地址</li>
+<li>ebp<br>  跟了一会儿都没发现什么有意义的值，而且我感觉一般ebp都很少作为数据寄存器传值，这里就暂且认为是IDA的误判把</li>
+</ul>
+<p>再看看通过压栈传的参<br><img src="/2021/01/21/wechat-image/11.png" alt><br>虽说从IDA看起来参数有6个，但是这个堆栈一看，前五个字节的结构，恰好就是一个微信字符串，值就是我另存为的目标图片路径。最后一个字节它也是传了一个0。</p>
+<p>所以我们现在可以暂时确定<code>SecureFileStorage::Decrypt</code>的调用方式了：</p>
+<ul>
+<li>edx 一个<code>WXString</code>类型字符串，字符串的值为加密图片dat路径</li>
+<li>ecx 一个指针，指向NULL</li>
+<li>通过压栈传的第一个参数 一个<code>WXString</code>，值为目标图片路径</li>
+<li>通过压栈传的第二个参数 一个<code>int</code>, 值为0</li>
+</ul>
+<p>简单写个代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WeChatInternal &#123;</span><br><span class="line">    	<span class="class"><span class="keyword">struct</span> <span class="title">string</span> &#123;</span></span><br><span class="line">		<span class="keyword">wchar_t</span>* str = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> strLen = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> bufferLen = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> fill1 = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> fill2 = <span class="number">0</span>;</span><br><span class="line">		<span class="function"><span class="keyword">void</span> <span class="title">fromString</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; s)</span></span>;</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> addr = GET_ADDRESS(<span class="number">0x5001C0</span>);</span><br><span class="line">	<span class="keyword">auto</span> pdatFilePath = <span class="keyword">new</span> WeChatInternal::<span class="built_in">string</span>;</span><br><span class="line">	pdatFilePath-&gt;fromString(<span class="string">&quot;d:\\softwaredata\\Wechat\\WeChat Files\\wxid_0wz1x9w0b9oh22\\FileStorage\\Image\\2021-01\\edbdf8621d3d507b43f19c72ac84b2aa.dat&quot;</span>);</span><br><span class="line">	<span class="keyword">auto</span> psaveFilePath = <span class="keyword">new</span> WeChatInternal::<span class="built_in">string</span>;</span><br><span class="line">	psaveFilePath-&gt;fromString(<span class="string">&quot;C:\\Users\\liuhaosheng\\Desktop\\1.jpg&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span>* pUnknow = <span class="literal">nullptr</span>;</span><br><span class="line">	<span class="keyword">auto</span> fill2 = psaveFilePath-&gt;fill2;</span><br><span class="line">	<span class="keyword">auto</span> fill1 = psaveFilePath-&gt;fill1;</span><br><span class="line">	<span class="keyword">auto</span> bufferLen = psaveFilePath-&gt;bufferLen;</span><br><span class="line">	<span class="keyword">auto</span> strLen = psaveFilePath-&gt;strLen;</span><br><span class="line">	<span class="keyword">auto</span> str = psaveFilePath-&gt;str;</span><br><span class="line">	__asm &#123;</span><br><span class="line">		push <span class="number">0</span>;</span><br><span class="line">		push fill2;</span><br><span class="line">		push fill1;</span><br><span class="line">		push bufferLen;</span><br><span class="line">		push strLen;</span><br><span class="line">		push str;</span><br><span class="line">		mov ecx, pUnknow;</span><br><span class="line">		mov eax, psaveFilePath;</span><br><span class="line">		mov edx, pdatFilePath;</span><br><span class="line">		call addr;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="一些细节及内部实现"><a href="#一些细节及内部实现" class="headerlink" title="一些细节及内部实现"></a>一些细节及内部实现</h1><p>跑了一下上面的测试代码，发现崩溃了，直接说一下结论<br><img src="/2021/01/21/wechat-image/12.png" alt><br>dat路径传进去之后，会放到edi寄存器上。而esi存放了一个<code>WXString</code>类型的列表。接着微信会比较dat路径与<code>WXString</code>列表的每一项，确保dat路径合法（即目录在<code>WeChat Files\wxid\FileStorage</code>）下。我也顺手dump了一下esi所指向的列表中的每一项，如下所示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">124BD9E8  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">124BD9F8  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">124BDA08  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">124BDA18  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">124BDA28  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">124BDA38  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">124BDA48  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">124BDA58  44 00 61 00 74 00 61 00 5C 00 00 00              Data\.</span><br><span class="line"></span><br><span class="line">1254CD08  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">1254CD18  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">1254CD28  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">1254CD38  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">1254CD48  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">1254CD58  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">1254CD68  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">1254CD78  46 00 69 00 6C 00 65 00 53 00 74 00 6F 00 72 00  FileStor</span><br><span class="line">1254CD88  61 00 67 00 65 00 5C 00 49 00 6D 00 61 00 67 00  age\Imag</span><br><span class="line">1254CD98  65 00 5C 00 00 00                                e\.</span><br><span class="line"></span><br><span class="line">13688508  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">13688518  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">13688528  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">13688538  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">13688548  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">13688558  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">13688568  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">13688578  46 00 69 00 6C 00 65 00 53 00 74 00 6F 00 72 00  FileStor</span><br><span class="line">13688588  61 00 67 00 65 00 5C 00 49 00 6D 00 61 00 67 00  age\Imag</span><br><span class="line">13688598  65 00 5C 00 54 00 68 00 75 00 6D 00 62 00 5C 00  e\Thumb\</span><br><span class="line">136885A8  00 00                                            .</span><br><span class="line"></span><br><span class="line">136B17D0  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">136B17E0  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">136B17F0  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">136B1800  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">136B1810  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">136B1820  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">136B1830  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">136B1840  46 00 69 00 6C 00 65 00 53 00 74 00 6F 00 72 00  FileStor</span><br><span class="line">136B1850  61 00 67 00 65 00 5C 00 47 00 65 00 6E 00 65 00  age\Gene</span><br><span class="line">136B1860  72 00 61 00 6C 00 5C 00 44 00 61 00 74 00 61 00  ral\Data</span><br><span class="line">136B1870  5C 00 45 00 6D 00 6F 00 74 00 69 00 6F 00 6E 00  \Emotion</span><br><span class="line">136B1880  49 00 63 00 6F 00 6E 00 5C 00 00 00              Icon\.</span><br><span class="line"></span><br><span class="line">1249E740  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">1249E750  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">1249E760  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">1249E770  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">1249E780  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">1249E790  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">1249E7A0  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">1249E7B0  46 00 69 00 6C 00 65 00 53 00 74 00 6F 00 72 00  FileStor</span><br><span class="line">1249E7C0  61 00 67 00 65 00 5C 00 46 00 61 00 76 00 5C 00  age\Fav\</span><br><span class="line">1249E7D0  54 00 68 00 75 00 6D 00 62 00 5C 00 00 00        Thumb\.</span><br><span class="line"></span><br><span class="line">1257A0A0  44 00 3A 00 5C 00 73 00 6F 00 66 00 74 00 77 00  D:\softw</span><br><span class="line">1257A0B0  61 00 72 00 65 00 64 00 61 00 74 00 61 00 5C 00  aredata\</span><br><span class="line">1257A0C0  57 00 65 00 63 00 68 00 61 00 74 00 5C 00 57 00  Wechat\W</span><br><span class="line">1257A0D0  65 00 43 00 68 00 61 00 74 00 20 00 46 00 69 00  eChat Fi</span><br><span class="line">1257A0E0  6C 00 65 00 73 00 5C 00 77 00 78 00 69 00 64 00  les\wxid</span><br><span class="line">1257A0F0  5F 00 30 00 77 00 7A 00 31 00 78 00 39 00 77 00  _0wz1x9w</span><br><span class="line">1257A100  30 00 62 00 39 00 6F 00 68 00 32 00 32 00 5C 00  0b9oh22\</span><br><span class="line">1257A110  46 00 69 00 6C 00 65 00 53 00 74 00 6F 00 72 00  FileStor</span><br><span class="line">1257A120  61 00 67 00 65 00 5C 00 46 00 61 00 76 00 5C 00  age\Fav\</span><br><span class="line">1257A130  44 00 61 00 74 00 61 00 5C 00 00 00              Data\.</span><br></pre></td></tr></table></figure>
+<p>如果dat路径不在这几个目录下，则微信不会帮你解密图片文件。</p>
+<p>上面测试代码的错误，就是盘符写成了小写，导致此判断失败，需要从<code>d:\\softwaredata\\Wechat\\WeChat Files\\...</code>改为<code>D:\\softwaredata\\Wechat\\WeChat Files\\...</code> Orz</p>
+<hr>
+<p>修改后再次运行，还是会崩溃，崩溃发生在偏移为0x500557的函数上<br><img src="/2021/01/21/wechat-image/13.png" alt><br>我们可以看到第一个参数，他还访问了以this为基址的偏移变量，看来这个this并不是简单的int类型<br><img src="/2021/01/21/wechat-image/14.png" alt><br>交叉引用可以发现，这个unknow来源于ecx寄存器，而在我们的测试代码里面，我们误以为他只是一个int类型的空指针</p>
+<blockquote>
+<p>int* pUnknow = nullptr<br>mov ecx, pUnknow</p>
+</blockquote>
+<p>因此对一个int<em>的空指针进行偏移访问肯定是会崩溃的。那这个指针到底是什么类型呢？我们使用OD看一下，在调用完sub_1052D1D0处下断点<br><img src="/2021/01/21/wechat-image/15.png" alt><br><img src="/2021/01/21/wechat-image/16.png" alt><br>原来，unknow是一个<code>WXString</code>类型，里面存的是目标图片的保存路径，因此我们把pUnknow的类型改成`WXString</em>`就好了</p>
+<h1 id="最终代码"><a href="#最终代码" class="headerlink" title="最终代码"></a>最终代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WeChatInternal &#123;</span><br><span class="line">    	<span class="class"><span class="keyword">struct</span> <span class="title">string</span> &#123;</span></span><br><span class="line">		<span class="keyword">wchar_t</span>* str = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> strLen = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> bufferLen = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> fill1 = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> fill2 = <span class="number">0</span>;</span><br><span class="line">		<span class="function"><span class="keyword">void</span> <span class="title">fromString</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; s)</span></span>;</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> addr = GET_ADDRESS(<span class="number">0x5001C0</span>);</span><br><span class="line">	<span class="keyword">auto</span> pdatFilePath = <span class="keyword">new</span> WeChatInternal::<span class="built_in">string</span>;</span><br><span class="line">	pdatFilePath-&gt;fromString(<span class="string">&quot;D:\\softwaredata\\Wechat\\WeChat Files\\wxid_0wz1x9w0b9oh22\\FileStorage\\Image\\2021-01\\edbdf8621d3d507b43f19c72ac84b2aa.dat&quot;</span>);</span><br><span class="line">	<span class="keyword">auto</span> psaveFilePath = <span class="keyword">new</span> WeChatInternal::<span class="built_in">string</span>;</span><br><span class="line">	psaveFilePath-&gt;fromString(<span class="string">&quot;C:\\Users\\liuhaosheng\\Desktop\\1.jpg&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">auto</span> pres = <span class="keyword">new</span> WeChatInternal::<span class="built_in">string</span>;</span><br><span class="line">	<span class="keyword">auto</span> fill2 = psaveFilePath-&gt;fill2;</span><br><span class="line">	<span class="keyword">auto</span> fill1 = psaveFilePath-&gt;fill1;</span><br><span class="line">	<span class="keyword">auto</span> bufferLen = psaveFilePath-&gt;bufferLen;</span><br><span class="line">	<span class="keyword">auto</span> strLen = psaveFilePath-&gt;strLen;</span><br><span class="line">	<span class="keyword">auto</span> str = psaveFilePath-&gt;str;</span><br><span class="line">	__asm &#123;</span><br><span class="line">		push <span class="number">0</span>;</span><br><span class="line">		push fill2;</span><br><span class="line">		push fill1;</span><br><span class="line">		push bufferLen;</span><br><span class="line">		push strLen;</span><br><span class="line">		push str;</span><br><span class="line">		mov ecx, pres;</span><br><span class="line">		mov eax, psaveFilePath;</span><br><span class="line">		mov edx, pdatFilePath;</span><br><span class="line">		call addr;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h1><p><img src="/2021/01/21/wechat-image/10.gif" alt></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"># 逆向</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/wechat/" rel="tag"># wechat</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/25/wechat-bugreport/" rel="prev" title="PC微信逆向之崩溃采集">
+      <i class="fa fa-chevron-left"></i> PC微信逆向之崩溃采集
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">声明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E8%A7%A3%E5%AF%86"><span class="nav-number">3.</span> <span class="nav-text">开始解密</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">确定参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E7%BB%86%E8%8A%82%E5%8F%8A%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">一些细节及内部实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E4%BB%A3%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">最终代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">7.</span> <span class="nav-text">运行结果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

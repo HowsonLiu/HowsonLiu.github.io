@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Qt Duilib">
+<meta property="og:type" content="website">
+<meta property="og:title" content="HowsonLiu">
+<meta property="og:url" content="http://yoursite.com/page/3/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="Qt Duilib">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="HowsonLiu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/page/3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/20/message-loop-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/20/message-loop-1/" class="post-title-link" itemprop="url">nbase 消息循环（一）MessagePump</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-20 22:00:01" itemprop="dateCreated datePublished" datetime="2020-04-20T22:00:01+08:00">2020-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 17:41:19" itemprop="dateModified" datetime="2021-01-23T17:41:19+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Duilib/" itemprop="url" rel="index"><span itemprop="name">Duilib</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>chrome源码中的公共库nbase中的消息循环代码解析</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/20/message-loop-1/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/message-loop-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/19/message-loop-index/" class="post-title-link" itemprop="url">nbase 消息循环</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-19 15:10:22" itemprop="dateCreated datePublished" datetime="2020-04-19T15:10:22+08:00">2020-04-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-22 21:43:53" itemprop="dateModified" datetime="2020-04-22T21:43:53+08:00">2020-04-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>消息循环是<code>nbase</code>库比较重要的一个部分，也比较庞大，在这里先记录其重要的部分，也算一个索引，后面在详细记录实现部分<br><code>nbase</code>将消息循环按照功能拆分成及部分</p>
+<ul>
+<li><code>MessagePump</code> 控制消息循环的开始跟停止</li>
+<li><code>MessageLoop</code> 消息循环中的消息队列实现<h1 id="MessagePump"><a href="#MessagePump" class="headerlink" title="MessagePump"></a>MessagePump</h1>消息泵。驱动各种类型的消息循环，简单来说就是实现死循环的类<br>它主要提供几个方法</li>
+<li>Run 启动消息循环</li>
+<li>Quit 结束消息循环</li>
+<li>ScheduleWork 处理任务</li>
+<li>ScheduleDelayedWork 处理延时任务</li>
+</ul>
+<p><code>MessagePump</code>主要充当CPU跟<code>MessageLoop</code>间中间人的角色。<code>MessageLoop</code>不用操心啥时候有时间片啥时候开始啥时候停止，而<code>MessagePump</code>也不用操心要执行什么任务</p>
+<h1 id="MessageLoop"><a href="#MessageLoop" class="headerlink" title="MessageLoop"></a>MessageLoop</h1><p>消息循环。主要维护任务队列，提供接口供外界提交任务，提供任务给<code>MessagePump</code>执行。<br>简单的消息循环一定要提供几个方法</p>
+<ul>
+<li>DoWork 处理普通任务</li>
+<li>DoDelayedWork 处理延时任务</li>
+<li>DoIdleWork 处理空闲任务</li>
+</ul>
+<p><code>nbase</code>库将任务分成这三种类型</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/19/lazyeraser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/19/lazyeraser/" class="post-title-link" itemprop="url">lazyeraser</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-19 14:07:12 / 修改时间：15:36:46" itemprop="dateCreated datePublished" datetime="2020-04-19T14:07:12+08:00">2020-04-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>谷歌<code>nbase</code>库提供了一种集合元素删除的方法，名为<code>LazyEraser</code>。</p>
+<h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>C++容器类一般都是调用<code>erase</code>方法删除元素，但是<code>erase</code>会导致迭代器失效。<code>LazyEraser</code>延迟了删除元素的时机，一次删除，提高了效率，控制了删除的时机</p>
+<h1 id="抽象基类"><a href="#抽象基类" class="headerlink" title="抽象基类"></a>抽象基类</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	LazyEraser() : lazy_erase_(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">	<span class="comment">/* <span class="doctag">NOTE:</span> calling &#x27;ApplyLasyErase&#x27; increases the reference count, calling &#x27;ReleaseLasyErase&#x27; decreases the reference count */</span></span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">AquireLazyErase</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> ++lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">ReleaseLazyErase</span><span class="params">()</span> </span>&#123; assert(lazy_erase_ &gt; <span class="number">0</span>); <span class="keyword">return</span> --lazy_erase_; &#125;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Compact</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="keyword">int</span> lazy_erase_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>基类<code>LazyEraser</code>维护了一个引用计数。定义了抽象方法<code>Compact</code>，用于主动删除元素</p>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p><code>nbase</code>库里记录观察者的列表类<code>ObserverList</code>就是使用<code>LazyEraser</code>的一个例子</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> ObserverType&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ObserverList</span> :</span> <span class="keyword">public</span> LazyEraser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">AddObserver</span><span class="params">(ObserverType *observer)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		assert(observer);</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">std</span>::find(observers_.begin(), observers_.end(), observer) == observers_.end())</span><br><span class="line">			observers_.push_back(observer);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">	<span class="function">ObserverType* <span class="title">GetObserver</span><span class="params">(<span class="keyword">size_t</span> index)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (index &gt;= GetObserverCount())</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		<span class="keyword">return</span> observers_[index];</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">size_t</span> <span class="title">GetObserverCount</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> observers_.size(); &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;ObserverType *&gt; observers_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>本质上<code>ObserverList</code>属于<code>std::vector</code>，在插入、取值、计数等方面与<code>std::vector</code>表现一致，区别在于删除方面。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RemoveObserver</span><span class="params">(ObserverType *observer)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">typename</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;ObserverType *&gt;::iterator pos = <span class="built_in">std</span>::find(observers_.begin(), observers_.end(), observer);</span><br><span class="line">	<span class="keyword">if</span> (pos == observers_.end())</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="comment">/* this method may be called within a traversal of the list */</span></span><br><span class="line">	<span class="keyword">if</span> (lazy_erase_ &gt; <span class="number">0</span>)    <span class="comment">// 关键</span></span><br><span class="line">		*pos = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		observers_.erase(pos);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用<code>RemoveObserver</code>删除时如果此时引用计数不为0，那么容器不会调用<code>std::vector::erase</code>函数，只是仅仅将该地址置空。也就是说它并不会立即回收删除对象在容器里对应的内存（所以对应的迭代器还能正常使用），等到调用<code>Compact</code>函数，才会正常释放内存</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Compact</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (lazy_erase_ &gt; <span class="number">0</span> || observers_.empty())</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	ObserverType **src = &amp;observers_[<span class="number">0</span>];</span><br><span class="line">	ObserverType **target = src;</span><br><span class="line">	ObserverType **end = src + observers_.size();</span><br><span class="line">		<span class="comment">/* fast compacting algorithm */</span></span><br><span class="line">	<span class="keyword">while</span> (src &lt; end)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (*src != <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (target != src)</span><br><span class="line">				*target = *src;</span><br><span class="line">			target++;</span><br><span class="line">		&#125;</span><br><span class="line">		src++;</span><br><span class="line">	&#125;</span><br><span class="line">		observers_.resize(target - &amp;observers_[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="改进"><a href="#改进" class="headerlink" title="改进"></a>改进</h1><p>如果当引用计数为0的时候忘了调用<code>Compact</code>，那么岂不是会造成内存泄漏？这部分内存得等到析构的时候才能正常释放？<br>谷歌考虑到这种情况，使用<code>RAII</code>机制新增了<code>AutoLazyEraser</code>类</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AutoLazyEraser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	AutoLazyEraser(LazyEraser* lazy_eraser) : ptr_(lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">			ptr_-&gt;AquireLazyErase();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	AutoLazyEraser(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> <span class="keyword">operator</span>=(AutoLazyEraser &amp;lazy_eraser)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (lazy_eraser.ptr_)</span><br><span class="line">			lazy_eraser.ptr_-&gt;AquireLazyErase();</span><br><span class="line">		ptr_ = lazy_eraser.ptr_;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~AutoLazyEraser()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ptr_)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (ptr_-&gt;ReleaseLazyErase() &lt; <span class="number">1</span>)</span><br><span class="line">				ptr_-&gt;Compact();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	LazyEraser *ptr_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>AutoLazyEraser</code>类在析构时会自动调用一次<code>Compact</code>，这样就不怕泄露了</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/thread-local/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/thread-local/" class="post-title-link" itemprop="url">thread_local</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-16 22:43:30 / 修改时间：22:54:23" itemprop="dateCreated datePublished" datetime="2020-04-16T22:43:30+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这个是谷歌nbase库里面的线程局部存储模板类</p>
+<h1 id="跨平台"><a href="#跨平台" class="headerlink" title="跨平台"></a>跨平台</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ThreadLocalPlatform</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(OS_WIN)</span></span><br><span class="line">	<span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> SlotType;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(OS_POSIX)</span></span><br><span class="line">	<span class="keyword">typedef</span> <span class="keyword">pthread_key_t</span> SlotType;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">FreeSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="title">GetValueFromSlot</span><span class="params">(SlotType &amp;slot)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">SetValueInSlot</span><span class="params">(SlotType &amp;slot, <span class="keyword">void</span> *value)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// unix</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadLocalPlatform::AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> error = pthread_key_create(&amp;slot, <span class="literal">NULL</span>);</span><br><span class="line">	assert(error == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// win</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThreadLocalPlatform::AllocateSlot</span><span class="params">(SlotType &amp;slot)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	slot = ::TlsAlloc();</span><br><span class="line">	assert(slot != TLS_OUT_OF_INDEXES);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个类提供跨平台API选择，Windows主要通过<code>::TlsAlloc</code>实现，unix主要通过<code>pthread_key_create</code>实现</p>
+<h1 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Type&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalPointer</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	ThreadLocalPointer() : slot_()</span><br><span class="line">	&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::AllocateSlot(slot_);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~ThreadLocalPointer()</span><br><span class="line">	&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::FreeSlot(slot_);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function">Type* <span class="title">Get</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;Type*&gt;(internal::ThreadLocalPlatform::GetValueFromSlot(slot_));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">Set</span><span class="params">(Type *ptr)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		internal::ThreadLocalPlatform::SetValueInSlot(slot_, ptr);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">typedef</span> internal::ThreadLocalPlatform::SlotType SlotType;</span><br><span class="line">	SlotType slot_;</span><br><span class="line"></span><br><span class="line">	DISALLOW_COPY_AND_ASSIGN(ThreadLocalPointer);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>很简单的贫血模式</li>
+<li>对目标类并不直接存储，而是记录其地址</li>
+<li>禁止拷贝，保证安全</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/lazyinstance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/lazyinstance/" class="post-title-link" itemprop="url">lazyinstance</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-14 22:18:59" itemprop="dateCreated datePublished" datetime="2020-04-14T22:18:59+08:00">2020-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-15 22:32:54" itemprop="dateModified" datetime="2020-04-15T22:32:54+08:00">2020-04-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>LazyInstance</code>是谷歌<code>nbase</code>库里的模板类，主要作用是延迟创建实例</p>
+<h1 id="成员"><a href="#成员" class="headerlink" title="成员"></a>成员</h1><p>类私有部分如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Type&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyInstance</span></span></span><br><span class="line"><span class="class">&#123;</span>	</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">enum</span></span><br><span class="line">	&#123;</span><br><span class="line">		kNone = <span class="number">0</span>,</span><br><span class="line">		kCreating,</span><br><span class="line">		kCreated,</span><br><span class="line">		kDeleting,</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	base::subtle::Atomic32 state_;</span><br><span class="line">	base::subtle::AtomicWord instance_;</span><br><span class="line"></span><br><span class="line">	DISALLOW_COPY_AND_ASSIGN(LazyInstance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将定义都展开一下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> __w64 <span class="keyword">int32_t</span> Atomic32;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">intptr_t</span> AtomicWord;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DISALLOW_COPY_AND_ASSIGN(TypeName) \</span></span><br><span class="line">  TypeName(<span class="keyword">const</span> TypeName&amp;);               \</span><br><span class="line">  <span class="keyword">void</span> <span class="keyword">operator</span>=(<span class="keyword">const</span> TypeName&amp;)</span><br></pre></td></tr></table></figure>
+<p>实际上它保存了两个值：</p>
+<ul>
+<li><code>state_</code><br>类型是在win32是int类型，保存此对象的状态，值可以为上面的4中枚举状态</li>
+<li><code>instance_</code><br>在win32下是intptr_t类型，实际上存的是模板Type类型对象的地址</li>
+</ul>
+<p>而<code>DISALLOW_COPY_AND_ASSIGN</code>说明它禁止拷贝</p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>共有部分代码如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	LazyInstance() : instance_(<span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		base::subtle::NoBarrier_Store(&amp;state_, kNone);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~LazyInstance()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// |instance_| should be deleted by |OnExit|</span></span><br><span class="line">		<span class="comment">//DCHECK(instance_ == 0);</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function">Type&amp; <span class="title">Get</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> *Pointer();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function">Type* <span class="title">Pointer</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">using</span> <span class="keyword">namespace</span> base::subtle;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (Acquire_Load(&amp;state_) != kCreated)</span><br><span class="line">		&#123;</span><br><span class="line">			Atomic32 state =</span><br><span class="line">				NoBarrier_CompareAndSwap(&amp;state_, kNone, kCreating);</span><br><span class="line">			<span class="keyword">if</span> (state == kNone)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// we take the chance to create the instance</span></span><br><span class="line">				instance_ = <span class="keyword">reinterpret_cast</span>&lt;AtomicWord&gt;(<span class="keyword">new</span> Type());</span><br><span class="line">				AtExitManager::RegisterCallback(OnExit, <span class="keyword">this</span>);</span><br><span class="line">				Release_Store(&amp;state_, kCreated);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> <span class="keyword">if</span> (state != kCreated)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// wait, util another thread created the instance</span></span><br><span class="line">				<span class="keyword">while</span> (Acquire_Load(&amp;state_) != kCreated)</span><br><span class="line">					Thread::YieldThread();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">reinterpret_cast</span>&lt;Type *&gt;(instance_);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，他具体延迟创建的代码在Pointer函数中实现。大概流程如下：</p>
+<ol>
+<li>通过<code>Acquire_Load</code>函数判断当前状态是否为已创建状态<code>kCreated</code>，如果是，说明已经有实例，直接返回<code>instance_</code>对象<blockquote>
+<p><code>Acquire_Load</code>函数属于读屏障，不取cache的值，而是取主存的值，在多线程环境下保证了此成员变量为最新</p>
+</blockquote>
+</li>
+<li>如果当前状态是<code>kNone</code>，则更新为<code>kCreating</code>，通过<code>NoBarrier_CompareAndSwap</code>函数实现 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Atomically execute:</span></span><br><span class="line"><span class="comment">//      result = *ptr;</span></span><br><span class="line"><span class="comment">//      if (*ptr == old_value)</span></span><br><span class="line"><span class="comment">//        *ptr = new_value;</span></span><br><span class="line"><span class="comment">//      return result;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// I.e., replace &quot;*ptr&quot; with &quot;new_value&quot; if &quot;*ptr&quot; used to be &quot;old_value&quot;.</span></span><br><span class="line"><span class="comment">// Always return the old value of &quot;*ptr&quot;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// This routine implies no memory barriers.</span></span><br><span class="line"><span class="function">Atomic32 <span class="title">NoBarrier_CompareAndSwap</span><span class="params">(<span class="keyword">volatile</span> Atomic32* ptr,</span></span></span><br><span class="line"><span class="function"><span class="params">                                Atomic32 old_value,</span></span></span><br><span class="line"><span class="function"><span class="params">                                Atomic32 new_value)</span></span>;</span><br></pre></td></tr></table></figure>
+ 这个注释写的很明白：CompareAndSwap(CAS)是原子性操作。说明多线程同时跑到这个语句时，此函数保证后入者会得到最新的已经更改过的值，因此只有一个线程能够将<code>kNone</code>状态改为<code>kCreating</code>状态，另一个函数会在这之后原子操作，得到state为<code>kCreating</code></li>
+<li>如果state是<code>kNone</code>，则<blockquote>
+<p>注意参与比较的是局部变量而非成员变量。经过上一步的顺序执行后，实际上到这里已经线程安全了</p>
+</blockquote>
+<ol>
+<li>创建实例</li>
+<li>退出注册（后面再说）</li>
+<li>将成员状态<code>state_</code>更新为<code>kCreated</code><blockquote>
+<p>Release_Store函数属于写屏障，让写到cache的数据写进主存，让其他线程可见</p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li>如果state不属于<code>kCreated</code>（而且2步骤得到的局部变量不是<code>kNone</code>），说明有另一个线程重入并且在创建对象，等待创建好了即可</li>
+</ol>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="keyword">bool</span> <span class="keyword">operator</span> ==(Type *object) <span class="keyword">const</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">switch</span> (base::subtle::NoBarrier_Load(&amp;state_))</span><br><span class="line">		&#123;</span><br><span class="line">		<span class="keyword">case</span> kNone:</span><br><span class="line">			<span class="keyword">return</span> object == <span class="literal">NULL</span>;</span><br><span class="line">		<span class="keyword">case</span> kCreating:</span><br><span class="line">		<span class="keyword">case</span> kCreated:</span><br><span class="line">			<span class="keyword">return</span> instance_ == object;</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>不存在没构造好懒对象就比较的情况，因此结合状态比较即可</p>
+<h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><p>直接delete会造成内存泄漏，需要用OnExit函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">OnExit</span><span class="params">(<span class="keyword">void</span> *lazy_instance)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		LazyInstance&lt;Type&gt;* me =</span><br><span class="line">			<span class="keyword">reinterpret_cast</span>&lt;LazyInstance&lt;Type&gt;*&gt;(lazy_instance);</span><br><span class="line">		<span class="keyword">delete</span> <span class="keyword">reinterpret_cast</span>&lt;Type*&gt;(me-&gt;instance_);</span><br><span class="line">		base::subtle::NoBarrier_Store(&amp;me-&gt;instance_, <span class="number">0</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p><code>LazyInstance</code>对象只能通过此函数进行删除，而此函数是私有的，所以<code>LazyInstance</code>对象只能在程序结束时统一删除，并不能手动删除（不过<code>LazyInstance</code>对象一般都是全局对象，很少会主动删除）</p>
+<h1 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h1><ul>
+<li>全局变量延迟创建</li>
+<li>相比于单例，<code>LazyInstance</code>对象可以有多份</li>
+</ul>
+<h1 id="关于内存屏障"><a href="#关于内存屏障" class="headerlink" title="关于内存屏障"></a>关于内存屏障</h1><p>学习这个之前我还不了解内存屏障，在翻源码时发现了一点小知识，先记录一下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> Atomic32 <span class="title">Acquire_Load</span><span class="params">(<span class="keyword">volatile</span> <span class="keyword">const</span> Atomic32* ptr)</span> </span>&#123;</span><br><span class="line">  Atomic32 value = *ptr;</span><br><span class="line">  <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">Release_Store</span><span class="params">(<span class="keyword">volatile</span> Atomic32* ptr, Atomic32 value)</span> </span>&#123;</span><br><span class="line">  *ptr = value; <span class="comment">// works w/o barrier for current Intel chips as of June 2005</span></span><br><span class="line">  <span class="comment">// See comments in Atomic64 version of Release_Store() below.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面是x86架构下msvc的内存屏障</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> Atomic32 <span class="title">Acquire_Load</span><span class="params">(<span class="keyword">volatile</span> <span class="keyword">const</span> Atomic32* ptr)</span> </span>&#123;</span><br><span class="line">  Atomic32 value = *ptr; <span class="comment">// An x86 load acts as a acquire barrier.</span></span><br><span class="line">  <span class="comment">// See comments in Atomic64 version of Release_Store(), below.</span></span><br><span class="line">  ATOMICOPS_COMPILER_BARRIER();</span><br><span class="line">  <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">Release_Store</span><span class="params">(<span class="keyword">volatile</span> Atomic32* ptr, Atomic32 value)</span> </span>&#123;</span><br><span class="line">  ATOMICOPS_COMPILER_BARRIER();</span><br><span class="line">  *ptr = value; <span class="comment">// An x86 store acts as a release barrier.</span></span><br><span class="line">  <span class="comment">// See comments in Atomic64 version of Release_Store(), below.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ATOMICOPS_COMPILER_BARRIER() __asm__ __volatile__(<span class="meta-string">&quot;&quot;</span> : : : <span class="meta-string">&quot;memory&quot;</span>)</span></span><br></pre></td></tr></table></figure>
+<p>这是x86下gcc的内存屏障</p>
+<p><code>volatile</code>关键字在msvc跟gcc下都能保证编译期指令不被打乱，但是gcc的运行时内存屏障需要有一段汇编代码<code>ATOMICOPS_COMPILER_BARRIER()</code>实现，而msvc通过<code>volatile</code>关键字就可以实现了</p>
+<h1 id="另外版本的实现"><a href="#另外版本的实现" class="headerlink" title="另外版本的实现"></a>另外版本的实现</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/leehark/article/details/6897858">https://blog.csdn.net/leehark/article/details/6897858</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/13/weakcallback/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/13/weakcallback/" class="post-title-link" itemprop="url">weakcallback</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-13 22:45:31" itemprop="dateCreated datePublished" datetime="2020-04-13T22:45:31+08:00">2020-04-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-05 00:05:23" itemprop="dateModified" datetime="2020-05-05T00:05:23+08:00">2020-05-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/chrome/" itemprop="url" rel="index"><span itemprop="name">chrome</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Chrome浏览器源码的公共库nbase中，有一套用于检测对象生命周期的方法。主要使用C++标准库中的shared_ptr以及weak_ptr实现</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/13/weakcallback/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/31/av-decode-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/31/av-decode-principle/" class="post-title-link" itemprop="url">音视频编码原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-31 11:55:45" itemprop="dateCreated datePublished" datetime="2020-01-31T11:55:45+08:00">2020-01-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-23 13:03:13" itemprop="dateModified" datetime="2021-01-23T13:03:13+08:00">2021-01-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/" itemprop="url" rel="index"><span itemprop="name">音视频</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>简单记录学习音视频时看到的一些原理与编码方式</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/01/31/av-decode-principle/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
