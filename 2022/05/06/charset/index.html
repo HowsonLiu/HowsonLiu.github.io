@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="被乱码影响了这么多遍的我，必须要把这个玩意儿搞清楚">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符串编码研究">
+<meta property="og:url" content="http://yoursite.com/2022/05/06/charset/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="被乱码影响了这么多遍的我，必须要把这个玩意儿搞清楚">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/model.jpg">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/ascii.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/utf-plane.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/utf-8.jpg">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/bom.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/codepage.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/charset/locale.png">
+<meta property="article:published_time" content="2022-05-06T08:35:20.000Z">
+<meta property="article:modified_time" content="2022-05-06T08:42:47.378Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="基础知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2022/05/06/charset/model.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2022/05/06/charset/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>字符串编码研究 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/06/charset/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          字符串编码研究
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-05-06 16:35:20 / 修改时间：16:42:47" itemprop="dateCreated datePublished" datetime="2022-05-06T16:35:20+08:00">2022-05-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">被乱码影响了这么多遍的我，必须要把这个玩意儿搞清楚</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>我们知道，计算机世界里都由0和1组成。我们之所以能看到文字，理解他的意思，是因为我们人为约束了特定的字节序列所表示的意思。这种约束也能称为<strong>编码/解码</strong>。  </p>
+<h2 id="关键术语介绍"><a href="#关键术语介绍" class="headerlink" title="关键术语介绍"></a>关键术语介绍</h2><ul>
+<li>位（Bit）<br>比特位，只能为0和1</li>
+<li>字节（Byte）<br>8位</li>
+<li>字（Word）<br>虽然字节是大多数现代计算机的最小存储单元和传输单元，但并不代表它是计算机可以最高效地处理的数据单位。所以<strong>字</strong>代表的是计算机一次作为整体处理的一串比特位，而<strong>字长</strong>表示这一串比特位的长度。一般来说32位电脑的字长是32位也就是4字节</li>
+<li>字符集（Character Set）<br>字符的集合，是一个自然语言文字系统支持的所有抽象字符的集合。例如ASCII字符集，定义了128个字符。</li>
+<li>字符编码（Character Encoding）<br>把字符集中的字符按一定格式编码为某指定集合中某一对象的过程，亦即在字符集与指定集合两者之间建立一个映射关系的过程。  </li>
+<li>字符编码模型（Character Encoding Model）<br>由于历史的原因，早期一般认为字符集和字符编码是同义词，并不需要进行严格区分。因此在像ASCII这样的简单字符集为代表的传统字符编码模型中，这两个概念的含义几乎是等同的。但是，由统一码(Unicode)和通用字符集(UCS)为代表的现代字符编码模型则没有直接采用ASCII这样的简单字符集的编码思路，而是采用了一个全新的编码思路。这个思路化作模型，就是字符编码模型。  </li>
+<li>码点（Code Point）<br>字符编号。  </li>
+<li>码元（Code Unit）<br>字符编码方式CEF(Character Encoding Form)对码点值进行编码处理时作为一个整体来看待的最小基本单元。</li>
+</ul>
+<h2 id="字符编码模型"><a href="#字符编码模型" class="headerlink" title="字符编码模型"></a>字符编码模型</h2><p><img src="/2022/05/06/charset/model.jpg" alt>  </p>
+<h3 id="第一层-抽象字符表ACR（Abstract-Character-Repertoire）"><a href="#第一层-抽象字符表ACR（Abstract-Character-Repertoire）" class="headerlink" title="第一层 抽象字符表ACR（Abstract Character Repertoire）"></a>第一层 抽象字符表ACR（Abstract Character Repertoire）</h3><p>明确字符的范围。字符表可以是封闭的，即除非创建一个新的标准，否则不允许添加新的字符，比如ASCII字符表和ISO/IEC 8859系列都是这样的例子；字符表也可以是开放的，即允许不断添加新的字符，比如Unicode字符表是这方面的例子。  </p>
+<h3 id="第二层-编号字符集CCS（Coded-Character-Set）"><a href="#第二层-编号字符集CCS（Coded-Character-Set）" class="headerlink" title="第二层 编号字符集CCS（Coded Character Set）"></a>第二层 编号字符集CCS（Coded Character Set）</h3><p>前面讲了，抽象字符表里的字符是没有编排顺序的，但无序的抽象字符表只能判断某个字符是否属于某个字符表，却无法方便地引用、指称该字符表中的某个特定字符。为了更方便地引用、指称字符表中的字符，就必须为抽象字符表中的每个字符进行编号。这个编号，称为<strong>码点值</strong>  </p>
+<h3 id="第三层-字符编码方式CEF（Character-Encoding-Form）"><a href="#第三层-字符编码方式CEF（Character-Encoding-Form）" class="headerlink" title="第三层 字符编码方式CEF（Character Encoding Form）"></a>第三层 字符编码方式CEF（Character Encoding Form）</h3><p>将编号字符集里字符的<strong>码点值</strong>编码成有限比特长度的<strong>编码值</strong>。在ASCII这样传统的、简单的字符编码系统中，字符编号就是字符编码，字符编号与字符编码之间是一个直接映射关系。而在Unicode这样现代的、复杂的字符编码系统中，字符编号不一定等于字符编码，字符编号与字符编码之间不一定是一个直接映射关系，比如UTF-8、UTF-16为间接映射，而UTF-32则为直接映射。</p>
+<h3 id="第四层-字符编码模式CES（Character-Encoding-Scheme）"><a href="#第四层-字符编码模式CES（Character-Encoding-Scheme）" class="headerlink" title="第四层 字符编码模式CES（Character Encoding Scheme）"></a>第四层 字符编码模式CES（Character Encoding Scheme）</h3><p>也称作”序列化格式”(Serialization Format)，指的是将字符编号进行编码之后的码元序列映射为字节序列，以便编码后的字符在计算机中进行处理、存储和传输。这一层与平台相关，需要处理的问题有大小端等</p>
+<h3 id="第五层-传输编码语法TES（Ttransfer-Encoding-Syntax）"><a href="#第五层-传输编码语法TES（Ttransfer-Encoding-Syntax）" class="headerlink" title="第五层 传输编码语法TES（Ttransfer Encoding Syntax）"></a>第五层 传输编码语法TES（Ttransfer Encoding Syntax）</h3><p>在某些特殊的传输环境中，需要对上一层次所提供的字节序列作进一步的适应性编码处理。例如Email协议设计为仅能传输7位的ASCII字符。  </p>
+<h2 id="历史发展"><a href="#历史发展" class="headerlink" title="历史发展"></a>历史发展</h2><h3 id="EBCDIC"><a href="#EBCDIC" class="headerlink" title="EBCDIC"></a>EBCDIC</h3><p>EBCDIC(Extended Binary Coded Decimal Interchange Code)是由国际商用机器公司(IBM)为大型机操作系统而开发设计的，于1964年推出。是最早的编码。缺点是英文不连续  </p>
+<h3 id="ASCII"><a href="#ASCII" class="headerlink" title="ASCII"></a>ASCII</h3><p>ASCII码(American Standard Code for Information Interchange美国信息交换标准码)，由美国国家标准学会ANSI(American National Standard Institute)于1968年正式制定。它虽然不是最早出现的编码，却是最广泛使用的编码。</p>
+<h3 id="ASCII扩展"><a href="#ASCII扩展" class="headerlink" title="ASCII扩展"></a>ASCII扩展</h3><p>由于ASCII字符集十分有限，各国都对其进行扩展</p>
+<ul>
+<li><p>EASCII（Extend ASCII） 欧洲的扩展  </p>
+</li>
+<li><p>汉字的扩展  </p>
+<ul>
+<li><p>GB2312 由中国国家标准总局于1980年发布  </p>
+</li>
+<li><p>GB13000  </p>
+</li>
+<li><p>GBK 收录6763个汉字，覆盖了中国大陆99.75%的使用频率，但不支持古汉语及繁体字  </p>
+</li>
+<li><p>GB18030 在GBK基础上增加了CJK中日韩统一表意文字扩充A的汉字  </p>
+</li>
+<li><p>Big5 繁体汉字编码方案，港澳台地区使用  </p>
+<p><img src="/2022/05/06/charset/ascii.png" alt>  </p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>最后，Unicode一统天下。由多语言软件制造商组成了统一码联盟(The Unicode Consortium)，然后于1991年发布了The Unicode Standard(统一码标准)，定义了一个全球统一的通用字符集，习惯简称为Unicode字符集。注意，这是一个编号字符集，尚未经过字符编码方式CEF和字符编码模式CES进行编码）。它是一个开放的字符集，是可以不断增加字符，理论上支持的字符数量是没有上限  </p>
+<h3 id="UCS"><a href="#UCS" class="headerlink" title="UCS"></a>UCS</h3><p>ISO及IEC于1993年联合发布了称之为Universal Multiple-Octet Coded Character Set、简称为UCS、标准号为ISO/IEC 10646-1的全球统一的通用字符集。后来，统一码联盟与ISO/IEC双方都意识到世界上没有必要存在两套全球统一的通用字符集，于是进行整合，并为创立一个单一的全球统一的通用字符集而协同工作。到Unicode 2.0时，Unicode字符集和UCS字符集(ISO/IEC 10646-1)基本保持了一致。  </p>
+<h2 id="Unicode编码"><a href="#Unicode编码" class="headerlink" title="Unicode编码"></a>Unicode编码</h2><p>再次提醒，<strong>Unicode指的是字符集</strong>。根据字符编码方式可以将Unicode细分为UTF-8、UTF-16等。<br>目前Unicode标准中，将字符按照一定的类别划分到0~16这17个平面中，每个平面中拥有2^16 = 65536个码点。因此，目前Unicode字符集所拥有的码点总数，也就是Unicode的编号空间为17*65536=1114112。<br><img src="/2022/05/06/charset/utf-plane.png" alt><br>这些平面主要分为下面几个区：</p>
+<ul>
+<li>BMP<br>Basic Multilingual Plane基本多语言平面。日常使用的Unicode字符都位于这个平面上  </li>
+<li>SIP<br>Supplementary Ideographic Plane增补平面。表示一些特殊的字符（如象形文字），或留作扩展之用</li>
+<li>Private Use Zone<br>0xE000~0xF8FF，共6400个码点，被保留为专用，因而永远不会被分配给任何字符</li>
+<li>Surrogate Zone<br>0xD800-0xDFFF，目的是用基本平面BMP中的两个码点“代理”表示BMP以外的其他增补平面的字符  </li>
+</ul>
+<h3 id="UTF-32"><a href="#UTF-32" class="headerlink" title="UTF-32"></a>UTF-32</h3><p>UTF-32是固定长度的编码，始终占用4个字节，足以容纳所有的 Unicode 字符，所以直接存储Unicode编号即可，不需要任何编码转换。浪费了空间，提高了效率。  </p>
+<h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h3><p>UTF-16是可变长度的编码，使用2个或者4个字节来存储。<br>对于 Unicode 编号范围在 0 ~ FFFF 之间的字符，UTF-16 使用两个字节存储，并且直接存储 Unicode 编号，不用进行编码转换，这跟 UTF-32 非常类似。<br>对于 Unicode 编号范围在 10000~10FFFF 之间的字符，UTF-16 使用四个字节存储。  </p>
+<table>
+<thead>
+<tr>
+<th>Unicode 编号范围（十六进制）</th>
+<th>具体的 Unicode 编号（二进制）</th>
+<th>UTF-16 编码</th>
+<th>编码后的字节数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0000 0000 ~ 0000 FFFF</td>
+<td>xxxxxxxx xxxxxxxx</td>
+<td>xxxxxxxx xxxxxxxx</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0001 0000 ~ 0010 FFFF</td>
+<td>yyyy yyyy yyxx xxxx xxxx</td>
+<td>110110yy yyyyyyyy 110111xx xxxxxxxx</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h3 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a>UTF-8</h3><p>UTF-8是变长编码，使用最少1个字节，最多无限个字节来存储。目前最长使用了4个字节<br>从首字节就能判断UTF-8编码有几个字节：</p>
+<ul>
+<li>首字节以0开头，是单字节编码  </li>
+<li>首字节以110开头，是双字节编码  </li>
+<li>首字节以1110开头，是三字节编码，以此类推  </li>
+<li>其他字节以10开头，是多字节编码中的某个字节  </li>
+</ul>
+<p><img src="/2022/05/06/charset/utf-8.jpg" alt></p>
+<h3 id="BOM（Byte-Order-Mark）"><a href="#BOM（Byte-Order-Mark）" class="headerlink" title="BOM（Byte-Order Mark）"></a>BOM（Byte-Order Mark）</h3><p>我们可以看到，UTF-16与UTF-32都属于多字节的编码。因此在不同的平台里面，根据平台大小端的不同，也会延伸出编码字节序的问题。因此在Unicode中，使用字节顺序标记（BOM）来解决这个问题。  </p>
+<p><strong>它选用了码点值为FEFF的字符来进行标记：</strong>  </p>
+<ul>
+<li>当这个字符出现在字节流的开头时，则用来标识字节序</li>
+<li>当这个字符出现在字节流的中间时，则表示字符的原意：<em>零宽度不中断空格</em>（ZERO WIDTH NO-BREAK SPACE）  </li>
+</ul>
+<p>不同编码的字节序列中所使用的字节序标记BOM本身的字节序列呈现：<br><img src="/2022/05/06/charset/bom.png" alt>  </p>
+<p>另外，UTF-8编码本身没有字节序的问题，但仍然有可能会用到BOM——有时被用来标示某文本是UTF-8编码格式的文本。所以说，<strong>在UFT-8编码格式的文本中，如果添加了BOM，则只用它来标示该文本是由UTF-8编码方式编码的，而不用来说明字节序，因为UTF-8编码不存在字节序问题。</strong>  </p>
+<p>关于UTF-16BE、UTF-16LE、UTF-32BE和UTF-32LE，这些字符编码已经在IANA注册，不可使用BOM，因为其名称本身已经决定其字节顺序。而UTF-16和UTF-32编码，必须在文本开头使用BOM。</p>
+<h2 id="Windows中的字符编码"><a href="#Windows中的字符编码" class="headerlink" title="Windows中的字符编码"></a>Windows中的字符编码</h2><h3 id="代码页（Code-Page）"><a href="#代码页（Code-Page）" class="headerlink" title="代码页（Code Page）"></a>代码页（Code Page）</h3><p>代码页主要用于字符在计算机中的存储和显示，比如，计算机读取了一个二进制字节，那这个字节到底代表哪个字符，就需要到指定的代码页中查找，这个查找的过程就被称为查表。<br><img src="/2022/05/06/charset/codepage.png" alt></p>
+<h3 id="OEM"><a href="#OEM" class="headerlink" title="OEM"></a>OEM</h3><p>OEM（Original Equipment Manufacturer原始设备制造商）。在早期没有图形操作系统的时代，操作系统依靠主板BIOS提供的VGA功能来显示字符，因此字符的编码也只能依靠BIOS的编码。而这BIOS代码页被称为OEM代码页。现代的图形操作系统解决了此问题，可以自行渲染各种字符。</p>
+<h3 id="ANSI编码"><a href="#ANSI编码" class="headerlink" title="ANSI编码"></a>ANSI编码</h3><p>ANSI的字面意思并非字符编码，而是美国的一个非营利组织——美国国家标准学会(American National Standards Institute)的缩写。ANSI这个组织做了很多标准制定工作，包括C语言规范ANSI C，还有各国字符编码对应的代码页标准  </p>
+<p>Windows XP的“区域和语言选项”高级页面的“代码页转换表”中可看到各个语种的代码页</p>
+<blockquote>
+<p>·874 (ANSI/OEM -泰文)<br>·932 (ANSI/OEM -日文Shift-JIS)<br>·936 (ANSI/OEM -简体中文GBK)<br>·949 (ANSI/OEM -韩文)  </p>
+</blockquote>
+<h3 id="Unicode编码-1"><a href="#Unicode编码-1" class="headerlink" title="Unicode编码"></a>Unicode编码</h3><p>在Unicode标准出现之后，微软从Windows NT开始，趁机把操作系统改了一遍，把所有的核心代码都改成了采用Unicode标准的版本。使用的字符编码方式是UTF-16。<br>Windows API中对ANSI编码以及Unicode编码的兼容</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> UNICODE</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> GetFileVersionInfo  GetFileVersionInfoW</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> GetFileVersionInfo  GetFileVersionInfoA</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// !UNICODE</span></span></span><br><span class="line">```  </span><br><span class="line">### ANSI编码与Unicode编码的转换</span><br><span class="line">```c++</span><br><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function">WINAPI</span></span><br><span class="line"><span class="function"><span class="title">MultiByteToWideChar</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ UINT CodePage,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ DWORD dwFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_NLS_string_(cbMultiByte) LPCCH lpMultiByteStr,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ <span class="type">int</span> cbMultiByte,</span></span></span><br><span class="line"><span class="params"><span class="function">    _Out_writes_to_opt_(cchWideChar,<span class="keyword">return</span>) LPWSTR lpWideCharStr,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ <span class="type">int</span> cchWideChar</span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WINBASEAPI</span><br><span class="line">_Success_(<span class="keyword">return</span> != <span class="number">0</span>)</span><br><span class="line">         _When_((cchWideChar == <span class="number">-1</span>) &amp;&amp; (cbMultiByte != <span class="number">0</span>), _Post_equal_to_(_String_length_(lpMultiByteStr)+<span class="number">1</span>))</span><br><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function">WINAPI</span></span><br><span class="line"><span class="function"><span class="title">WideCharToMultiByte</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ UINT CodePage,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ DWORD dwFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_NLS_string_(cchWideChar) LPCWCH lpWideCharStr,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ <span class="type">int</span> cchWideChar,</span></span></span><br><span class="line"><span class="params"><span class="function">    _Out_writes_bytes_to_opt_(cbMultiByte,<span class="keyword">return</span>) LPSTR lpMultiByteStr,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_ <span class="type">int</span> cbMultiByte,</span></span></span><br><span class="line"><span class="params"><span class="function">    _In_opt_ LPCCH lpDefaultChar,</span></span></span><br><span class="line"><span class="params"><span class="function">    _Out_opt_ LPBOOL lpUsedDefaultChar</span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>窄字符除了可以是ANSI编码以外，还可以是以下编码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Code Page Default Values.</span></span><br><span class="line"><span class="comment">//  Please Use Unicode, either UTF-16 (as in WCHAR) or UTF-8 (code page CP_ACP)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_ACP                    0           <span class="comment">// default to ANSI code page</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_OEMCP                  1           <span class="comment">// default to OEM  code page</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_MACCP                  2           <span class="comment">// default to MAC  code page</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_THREAD_ACP             3           <span class="comment">// current thread&#x27;s ANSI code page</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_SYMBOL                 42          <span class="comment">// SYMBOL translations</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_UTF7                   65000       <span class="comment">// UTF-7 translation</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CP_UTF8                   65001       <span class="comment">// UTF-8 translation</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Linux下的字符编码"><a href="#Linux下的字符编码" class="headerlink" title="Linux下的字符编码"></a>Linux下的字符编码</h2><h3 id="地区与编码"><a href="#地区与编码" class="headerlink" title="地区与编码"></a>地区与编码</h3><p>通过<code>locale</code>命令来查看当前程序运行的语言环境<br><img src="/2022/05/06/charset/locale.png" alt><br>可以通过修改<code>\etc\locale.gen</code>文件切换locale  </p>
+<h2 id="宽窄字符的表示"><a href="#宽窄字符的表示" class="headerlink" title="宽窄字符的表示"></a>宽窄字符的表示</h2><p>在C++98中，为了支持Unicode字符，使用<code>wchar_t</code>类型表示宽字符。但并没有严格规定位宽，而是让<code>wchar_t</code>的宽度由编译器实现。因此不同的编译器有着不同的实现方式：</p>
+<ul>
+<li>GNU C++ 规定<code>wchar_t</code>为32位  </li>
+<li>Visual C++规定<code>wchar_t</code>为16位  </li>
+</ul>
+<p>因此对应的字符串在不同平台下面也会有不同的长度</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">std::string                 <span class="comment">// 都为1字节，窄字符</span></span><br><span class="line">std::wstring                <span class="comment">// Windows下2字节，Unix下4字节</span></span><br></pre></td></tr></table></figure>
+
+<p>后续考虑到平台移植性，C++11统一了存储类型：</p>
+<ul>
+<li><code>char16_t</code>用于存储UTF16</li>
+<li><code>char32_t</code>用于存储UTF32</li>
+</ul>
+<h2 id="C语言下的字符编码"><a href="#C语言下的字符编码" class="headerlink" title="C语言下的字符编码"></a>C语言下的字符编码</h2><h3 id="设置地区"><a href="#设置地区" class="headerlink" title="设置地区"></a>设置地区</h3><p>使用<code>setlocale</code>设置当前当前程序运行的语言环境  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setlocale(LC_COLLATE, <span class="string">&quot;zh_CN&quot;</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="宽窄字符的转换"><a href="#宽窄字符的转换" class="headerlink" title="宽窄字符的转换"></a>宽窄字符的转换</h3><p>使用<code>mbstowcs</code>进行窄字符到宽字符之间的转换；使用<code>wcstombs</code>进行宽字符到窄字符之间的转换</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">__DEFINE_CPP_OVERLOAD_STANDARD_NFUNC_0_2_SIZE(</span><br><span class="line">    _ACRTIMP, mbstowcs,</span><br><span class="line">    _Out_writes_opt_z_(_MaxCount), <span class="type">wchar_t</span>,     _Dest,</span><br><span class="line">    _In_z_                         <span class="type">char</span> <span class="type">const</span>*, _Source,</span><br><span class="line">    _In_                           <span class="type">size_t</span>,      _MaxCount</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">__DEFINE_CPP_OVERLOAD_STANDARD_NFUNC_0_2_SIZE(</span><br><span class="line">    _ACRTIMP, wcstombs,</span><br><span class="line">    _Out_writes_opt_(_MaxCount),   <span class="type">char</span>,           _Dest,</span><br><span class="line">    _In_z_                         <span class="type">wchar_t</span> <span class="type">const</span>*, _Source,</span><br><span class="line">    _In_                           <span class="type">size_t</span>,         _MaxCount</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+<p>窄字符编码由地区设定，宽字符编码由编译器决定  </p>
+<h2 id="C-下的字符编码"><a href="#C-下的字符编码" class="headerlink" title="C++下的字符编码"></a>C++下的字符编码</h2><h3 id="设置地区-1"><a href="#设置地区-1" class="headerlink" title="设置地区"></a>设置地区</h3><p>使用<code>std::locale</code>类表示某个地区；使用<code>std::locale::global</code>函数设置地区</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">std::locale::<span class="built_in">global</span>(std::<span class="built_in">locale</span>(<span class="string">&quot;&quot;</span>));            <span class="comment">// 使用系统区域化设置</span></span><br><span class="line">std::locale::<span class="built_in">global</span>(std::<span class="built_in">locale</span>(<span class="string">&quot;zh_CN.gbk&quot;</span>))    <span class="comment">// 中文gbk编码</span></span><br><span class="line">std::locale::<span class="built_in">global</span>(std::<span class="built_in">locale</span>(<span class="string">&quot;zh_CN.utf8&quot;</span>))   <span class="comment">// 中文utf8编码</span></span><br></pre></td></tr></table></figure>
+<h3 id="宽窄字符的转换-1"><a href="#宽窄字符的转换-1" class="headerlink" title="宽窄字符的转换"></a>宽窄字符的转换</h3><p>在标准库中，宽窄字符的转换使用<code>std::wstring_convert</code>实现</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Windows</span></span><br><span class="line">CHAR* ansi_str = <span class="string">&quot;这是ANSI编码&quot;</span>;</span><br><span class="line">WCHAR* u16_str = <span class="string">L&quot;这是UTF-16编码&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Linux</span></span><br><span class="line"><span class="type">char</span>* u8_str = <span class="string">u8&quot;这是UTF-8编码&quot;</span>;</span><br><span class="line"><span class="type">char16_t</span>* u16_str = <span class="string">u&quot;这是UTF-16编码&quot;</span>;</span><br><span class="line"><span class="type">char32_t</span>* u32_str = <span class="string">U&quot;这是UTF-32编码&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/benbenalin/category/1005679.html">刨根问底字符串</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"># 基础知识</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/06/ios-orientation/" rel="prev" title="iOS屏幕旋转">
+      <i class="fa fa-chevron-left"></i> iOS屏幕旋转
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E6%9C%AF%E8%AF%AD%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">关键术语介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">字符编码模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82-%E6%8A%BD%E8%B1%A1%E5%AD%97%E7%AC%A6%E8%A1%A8ACR%EF%BC%88Abstract-Character-Repertoire%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">第一层 抽象字符表ACR（Abstract Character Repertoire）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82-%E7%BC%96%E5%8F%B7%E5%AD%97%E7%AC%A6%E9%9B%86CCS%EF%BC%88Coded-Character-Set%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">第二层 编号字符集CCS（Coded Character Set）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82-%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81%E6%96%B9%E5%BC%8FCEF%EF%BC%88Character-Encoding-Form%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">第三层 字符编码方式CEF（Character Encoding Form）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E5%B1%82-%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81%E6%A8%A1%E5%BC%8FCES%EF%BC%88Character-Encoding-Scheme%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">第四层 字符编码模式CES（Character Encoding Scheme）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E5%B1%82-%E4%BC%A0%E8%BE%93%E7%BC%96%E7%A0%81%E8%AF%AD%E6%B3%95TES%EF%BC%88Ttransfer-Encoding-Syntax%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">第五层 传输编码语法TES（Ttransfer Encoding Syntax）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%86%E5%8F%B2%E5%8F%91%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">历史发展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EBCDIC"><span class="nav-number">3.1.</span> <span class="nav-text">EBCDIC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII"><span class="nav-number">3.2.</span> <span class="nav-text">ASCII</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII%E6%89%A9%E5%B1%95"><span class="nav-number">3.3.</span> <span class="nav-text">ASCII扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode"><span class="nav-number">3.4.</span> <span class="nav-text">Unicode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UCS"><span class="nav-number">3.5.</span> <span class="nav-text">UCS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unicode%E7%BC%96%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">Unicode编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-32"><span class="nav-number">4.1.</span> <span class="nav-text">UTF-32</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-16"><span class="nav-number">4.2.</span> <span class="nav-text">UTF-16</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-8"><span class="nav-number">4.3.</span> <span class="nav-text">UTF-8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BOM%EF%BC%88Byte-Order-Mark%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">BOM（Byte-Order Mark）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">Windows中的字符编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E9%A1%B5%EF%BC%88Code-Page%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">代码页（Code Page）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OEM"><span class="nav-number">5.2.</span> <span class="nav-text">OEM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ANSI%E7%BC%96%E7%A0%81"><span class="nav-number">5.3.</span> <span class="nav-text">ANSI编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode%E7%BC%96%E7%A0%81-1"><span class="nav-number">5.4.</span> <span class="nav-text">Unicode编码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E4%B8%8B%E7%9A%84%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">Linux下的字符编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%8C%BA%E4%B8%8E%E7%BC%96%E7%A0%81"><span class="nav-number">6.1.</span> <span class="nav-text">地区与编码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%BD%E7%AA%84%E5%AD%97%E7%AC%A6%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="nav-number">7.</span> <span class="nav-text">宽窄字符的表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E8%AF%AD%E8%A8%80%E4%B8%8B%E7%9A%84%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-number">8.</span> <span class="nav-text">C语言下的字符编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%9C%B0%E5%8C%BA"><span class="nav-number">8.1.</span> <span class="nav-text">设置地区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%BD%E7%AA%84%E5%AD%97%E7%AC%A6%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-number">8.2.</span> <span class="nav-text">宽窄字符的转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-%E4%B8%8B%E7%9A%84%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-number">9.</span> <span class="nav-text">C++下的字符编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%9C%B0%E5%8C%BA-1"><span class="nav-number">9.1.</span> <span class="nav-text">设置地区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%BD%E7%AA%84%E5%AD%97%E7%AC%A6%E7%9A%84%E8%BD%AC%E6%8D%A2-1"><span class="nav-number">9.2.</span> <span class="nav-text">宽窄字符的转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

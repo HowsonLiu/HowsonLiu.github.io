@@ -288,7 +288,7 @@
 <p>IP(Instruction Pointer)</p>
 </blockquote>
 <h3 id="BP-Base-Pointer-的特殊作用"><a href="#BP-Base-Pointer-的特殊作用" class="headerlink" title="BP(Base Pointer)的特殊作用"></a>BP(Base Pointer)的特殊作用</h3><p>如果寻址操作的偏移地址为BP且段地址不给出，则段地址默认为SS</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MOV AX, [BP]        ; equal MOV AX, SS:[BP]</span><br><span class="line">MOV AX, CS:[BP]</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MOV AX, [BP]        ; equal MOV AX, SS:[BP]</span><br><span class="line">MOV AX, CS:[BP]</span><br></pre></td></tr></table></figure>
 <h3 id="SP-Stack-Pointer-的特殊作用"><a href="#SP-Stack-Pointer-的特殊作用" class="headerlink" title="SP(Stack Pointer)的特殊作用"></a>SP(Stack Pointer)的特殊作用</h3><p><code>SS:[SP]</code>永远指向栈顶</p>
 <h2 id="控制寄存器-Control-Registers"><a href="#控制寄存器-Control-Registers" class="headerlink" title="控制寄存器(Control Registers)"></a>控制寄存器(Control Registers)</h2><p>IP与FL(Flag Registers)相结合被认为是控制寄存器<br>FL上的标志位通常有:</p>
 <ul>
@@ -360,7 +360,7 @@
 <ul>
 <li><strong>数据段(data section)</strong><br>  数据段用于声明初始化的变量或者常量，其内容不会在运行的时候改变。声明的语句为：<br>  <code>section .data</code></li>
 <li><strong>bss段(bss section)</strong><br>  bss段用于声明变量。声明语法为：<br>  <code>section .bss</code></li>
-<li><strong>代码段(text section)</strong><br>  代码段用于保存实际的代码。必须以<code>global _start</code>告诉内核程序的执行位置。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">    global _start</span><br><span class="line">_start:</span><br></pre></td></tr></table></figure></li>
+<li><strong>代码段(text section)</strong><br>  代码段用于保存实际的代码。必须以<code>global _start</code>告诉内核程序的执行位置。  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">section .text</span><br><span class="line">    global _start</span><br><span class="line">_start:</span><br></pre></td></tr></table></figure></li>
 <li><strong>注释</strong><br>  以<code>;</code>开头</li>
 </ul>
 <p>汇编语句由有三种类型</p>
@@ -373,7 +373,7 @@
 <blockquote>
 <p>[label] mnemonic [operands] [;comment]<br>[标签] 指令 [操作数] [注释]</p>
 </blockquote>
-<h1 id="Hello-world"><a href="#Hello-world" class="headerlink" title="Hello world"></a>Hello world</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">section	.text</span><br><span class="line">	global _start       ;must be declared for using gcc</span><br><span class="line">_start:                     ;tell linker entry point</span><br><span class="line">	mov	edx, len    ;message length</span><br><span class="line">	mov	ecx, msg    ;message to write</span><br><span class="line">	mov	ebx, 1	    ;file descriptor (stdout)</span><br><span class="line">	mov	eax, 4	    ;system call number (sys_write)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line">	mov	eax, 1	    ;system call number (sys_exit)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line"></span><br><span class="line">section	.data</span><br><span class="line"></span><br><span class="line">msg	db	&#39;Hello, world!&#39;,0xa	;our dear string</span><br><span class="line">len	equ	$ - msg			;length of our dear string</span><br></pre></td></tr></table></figure>
+<h1 id="Hello-world"><a href="#Hello-world" class="headerlink" title="Hello world"></a>Hello world</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">section	.text</span><br><span class="line">	global _start       ;must be declared for using gcc</span><br><span class="line">_start:                     ;tell linker entry point</span><br><span class="line">	mov	edx, len    ;message length</span><br><span class="line">	mov	ecx, msg    ;message to write</span><br><span class="line">	mov	ebx, 1	    ;file descriptor (stdout)</span><br><span class="line">	mov	eax, 4	    ;system call number (sys_write)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line">	mov	eax, 1	    ;system call number (sys_exit)</span><br><span class="line">	int	0x80        ;call kernel</span><br><span class="line"></span><br><span class="line">section	.data</span><br><span class="line"></span><br><span class="line">msg	db	&#x27;Hello, world!&#x27;,0xa	;our dear string</span><br><span class="line">len	equ	$ - msg			;length of our dear string</span><br></pre></td></tr></table></figure>
 
 <h1 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h1><p>系统调用是从用户态切换到内核态的一组API。调用步骤如下：</p>
 <ol>
@@ -451,8 +451,8 @@
 </tr>
 </tbody></table>
 <h1 id="寻址方法"><a href="#寻址方法" class="headerlink" title="寻址方法"></a>寻址方法</h1><ul>
-<li><strong>寄存器寻址(Register Addressing)</strong><br>  操作数已经在寄存器里面。源和目的数都可以是寄存器。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov dx, second_parm</span><br><span class="line">mov first_parm, cx</span><br><span class="line">mov eax, ebx</span><br></pre></td></tr></table></figure></li>
-<li><strong>立即寻址(Immediate Addressing)</strong><br>  立即数可以为8位或者16位。源可以为寄存器或者储存器位置，目的数为立即数。速度最快。  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">byte_val db 150 ;定义byte类型变量</span><br><span class="line">add byte_val, 65</span><br><span class="line">add ax, 45h</span><br></pre></td></tr></table></figure>
+<li><strong>寄存器寻址(Register Addressing)</strong><br>  操作数已经在寄存器里面。源和目的数都可以是寄存器。  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov dx, second_parm</span><br><span class="line">mov first_parm, cx</span><br><span class="line">mov eax, ebx</span><br></pre></td></tr></table></figure></li>
+<li><strong>立即寻址(Immediate Addressing)</strong><br>  立即数可以为8位或者16位。源可以为寄存器或者储存器位置，目的数为立即数。速度最快。  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">byte_val db 150 ;定义byte类型变量</span><br><span class="line">add byte_val, 65</span><br><span class="line">add ax, 45h</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
@@ -609,16 +609,16 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>

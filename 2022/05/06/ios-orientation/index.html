@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="被UINavigationController的旋转恶心吐了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS屏幕旋转">
+<meta property="og:url" content="http://yoursite.com/2022/05/06/ios-orientation/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="被UINavigationController的旋转恶心吐了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/ios-orientation/project.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/06/ios-orientation/plist.png">
+<meta property="article:published_time" content="2022-05-06T08:16:34.000Z">
+<meta property="article:modified_time" content="2022-05-06T08:34:49.717Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2022/05/06/ios-orientation/project.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/05/06/ios-orientation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS屏幕旋转 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/06/ios-orientation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS屏幕旋转
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-05-06 16:16:34 / 修改时间：16:34:49" itemprop="dateCreated datePublished" datetime="2022-05-06T16:16:34+08:00">2022-05-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">被UINavigationController的旋转恶心吐了</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="设备物理方向"><a href="#设备物理方向" class="headerlink" title="设备物理方向"></a>设备物理方向</h1><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">NS_ENUM</span>(<span class="built_in">NSInteger</span>, <span class="built_in">UIDeviceOrientation</span>) &#123;</span><br><span class="line">    <span class="built_in">UIDeviceOrientationUnknown</span>,</span><br><span class="line">    <span class="built_in">UIDeviceOrientationPortrait</span>,            <span class="comment">// Device oriented vertically, home button on the bottom</span></span><br><span class="line">    <span class="built_in">UIDeviceOrientationPortraitUpsideDown</span>,  <span class="comment">// Device oriented vertically, home button on the top</span></span><br><span class="line">    <span class="built_in">UIDeviceOrientationLandscapeLeft</span>,       <span class="comment">// Device oriented horizontally, home button on the right</span></span><br><span class="line">    <span class="built_in">UIDeviceOrientationLandscapeRight</span>,      <span class="comment">// Device oriented horizontally, home button on the left</span></span><br><span class="line">    <span class="built_in">UIDeviceOrientationFaceUp</span>,              <span class="comment">// Device oriented flat, face up</span></span><br><span class="line">    <span class="built_in">UIDeviceOrientationFaceDown</span>             <span class="comment">// Device oriented flat, face down</span></span><br><span class="line">&#125; API_UNAVAILABLE(tvos);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过<code>[UIDevice currentDevice].orientation</code>获取</li>
+<li>Readonly</li>
+<li>当打开系统的锁屏开关时，值只为<code>UIDeviceOrientationPortrait</code></li>
+</ul>
+<h1 id="界面显示方向"><a href="#界面显示方向" class="headerlink" title="界面显示方向"></a>界面显示方向</h1><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Note that UIInterfaceOrientationLandscapeLeft is equal to UIDeviceOrientationLandscapeRight (and vice versa).</span></span><br><span class="line"><span class="comment">// This is because rotating the device to the left requires rotating the content to the right.</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="built_in">NS_ENUM</span>(<span class="built_in">NSInteger</span>, <span class="built_in">UIInterfaceOrientation</span>) &#123;</span><br><span class="line">    <span class="built_in">UIInterfaceOrientationUnknown</span>            = <span class="built_in">UIDeviceOrientationUnknown</span>,</span><br><span class="line">    <span class="built_in">UIInterfaceOrientationPortrait</span>           = <span class="built_in">UIDeviceOrientationPortrait</span>,</span><br><span class="line">    <span class="built_in">UIInterfaceOrientationPortraitUpsideDown</span> = <span class="built_in">UIDeviceOrientationPortraitUpsideDown</span>,</span><br><span class="line">    <span class="built_in">UIInterfaceOrientationLandscapeLeft</span>      = <span class="built_in">UIDeviceOrientationLandscapeRight</span>,</span><br><span class="line">    <span class="built_in">UIInterfaceOrientationLandscapeRight</span>     = <span class="built_in">UIDeviceOrientationLandscapeLeft</span></span><br><span class="line">&#125; API_UNAVAILABLE(tvos);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过<code>[UIApplication sharedApplication].statusBarOrientation</code>获取</li>
+<li><code>UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight</code>：设备向右旋转，界面向左旋转</li>
+</ul>
+<h1 id="控制界面旋转方向"><a href="#控制界面旋转方向" class="headerlink" title="控制界面旋转方向"></a>控制界面旋转方向</h1><h2 id="1-配置"><a href="#1-配置" class="headerlink" title="1. 配置"></a>1. 配置</h2><ol>
+<li>项目配置<br> <img src="/2022/05/06/ios-orientation/project.png" alt></li>
+<li>plist配置<br> <img src="/2022/05/06/ios-orientation/plist.png" alt></li>
+</ol>
+<h2 id="2-AppDelegate设置"><a href="#2-AppDelegate设置" class="headerlink" title="2. AppDelegate设置"></a>2. <code>AppDelegate</code>设置</h2><p>实现下面接口：  </p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">application</span>(<span class="keyword">_</span> <span class="params">application</span>: <span class="type">UIApplication</span>, <span class="params">supportedInterfaceOrientationsFor</span> <span class="params">window</span>: <span class="type">UIWindow</span>?) -&gt; <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> .allButUpsideDown</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-UIViewController设置"><a href="#3-UIViewController设置" class="headerlink" title="3. UIViewController设置"></a>3. <code>UIViewController</code>设置</h2><p>重写下面属性： </p>
+<ul>
+<li><code>shouldAutorotate</code>   <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  Interface方向是否跟随设备方向自动旋转，如果false，则后面两个方法不会掉用</li>
+<li><code>supportedInterfaceOrientations</code>  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .portrait</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  返回支持的方向，iPhone默认值为<code>UIInterfaceOrientationMaskAllButUpsideDown</code>，iPad默认值为<code>UIInterfaceOrientationMaskAll</code></li>
+<li><code>preferredInterfaceOrientationForPresentation</code>  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> .portrait</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  返回最优先显示的屏幕方向</li>
+</ul>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><ul>
+<li><code>UIViewController</code>的方向为这三个设置的交集</li>
+<li>设置3仅在以下两种情况才会生效：<ul>
+<li>当前<code>viewController</code>为<code>window</code>的<code>rootViewController</code></li>
+<li>当前<code>viewController</code>被<code>presentModalViewController</code>出来  </li>
+</ul>
+</li>
+</ul>
+<h1 id="特殊VC的界面旋转方向"><a href="#特殊VC的界面旋转方向" class="headerlink" title="特殊VC的界面旋转方向"></a>特殊VC的界面旋转方向</h1><h2 id="UINavigationController"><a href="#UINavigationController" class="headerlink" title="UINavigationController"></a><code>UINavigationController</code></h2><p>当<code>rootViewController</code>为<code>UINavigationController</code>时，界面的旋转方向由<code>UINavigationController</code>控制而并非由push到里面的VC控制</p>
+<ul>
+<li>网络上面提供的解决方案<br>  继承<code>UINavigationController</code>，重写其三个方法  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> shouldAutorotate: <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.topViewController<span class="operator">?</span>.shouldAutorotate <span class="operator">??</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> supportedInterfaceOrientations: <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.topViewController<span class="operator">?</span>.supportedInterfaceOrientations <span class="operator">??</span> .portrait</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> preferredInterfaceOrientationForPresentation: <span class="type">UIInterfaceOrientation</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.topViewController<span class="operator">?</span>.preferredInterfaceOrientationForPresentation <span class="operator">??</span> .portrait</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Apple提供的方案<br>  实现<code>UINavigationControllerDelegate</code>  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">navigationControllerSupportedInterfaceOrientations</span>(<span class="keyword">_</span> <span class="params">navigationController</span>: <span class="type">UINavigationController</span>) -&gt; <span class="type">UIInterfaceOrientationMask</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.topViewController<span class="operator">?</span>.supportedInterfaceOrientations <span class="operator">??</span> .portrait</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>两种方案的原理实际上是一样的，但是实际展现的效果都有缺陷</p>
+<blockquote>
+<p>例如，先往navigationController推一个只支持.landscape的viewController A，然后再推一个只支持.portrait的viewController B。这时候界面并不会在push B的时候立刻变成.portrait，需要旋转一下设备，触发一下系统的回调，才能跑到设置3的回调里面去。pop的时候亦是如此</p>
+</blockquote>
+<h1 id="目前的解决方案"><a href="#目前的解决方案" class="headerlink" title="目前的解决方案"></a>目前的解决方案</h1><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">viewDidLoad</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">    <span class="keyword">let</span> value <span class="operator">=</span> <span class="type">UIInterfaceOrientation</span>.portrait.rawValue</span><br><span class="line">    <span class="type">UIDevice</span>.current.setValue(value, forKey: <span class="string">&quot;orientation&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>强制旋转</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/06/ios-certificate/" rel="prev" title="iOS证书总结">
+      <i class="fa fa-chevron-left"></i> iOS证书总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/05/06/charset/" rel="next" title="字符串编码研究">
+      字符串编码研究 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%89%A9%E7%90%86%E6%96%B9%E5%90%91"><span class="nav-number">1.</span> <span class="nav-text">设备物理方向</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%95%8C%E9%9D%A2%E6%98%BE%E7%A4%BA%E6%96%B9%E5%90%91"><span class="nav-number">2.</span> <span class="nav-text">界面显示方向</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E7%95%8C%E9%9D%A2%E6%97%8B%E8%BD%AC%E6%96%B9%E5%90%91"><span class="nav-number">3.</span> <span class="nav-text">控制界面旋转方向</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">1. 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-AppDelegate%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2. AppDelegate设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-UIViewController%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3. UIViewController设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number">3.4.</span> <span class="nav-text">结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E6%AE%8AVC%E7%9A%84%E7%95%8C%E9%9D%A2%E6%97%8B%E8%BD%AC%E6%96%B9%E5%90%91"><span class="nav-number">4.</span> <span class="nav-text">特殊VC的界面旋转方向</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UINavigationController"><span class="nav-number">4.1.</span> <span class="nav-text">UINavigationController</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%89%8D%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">目前的解决方案</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
