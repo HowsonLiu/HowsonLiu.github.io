@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近需要对RxSwift的项目调优。之前对于RxSwift订阅的实现原理，实在是一窍不通。只知道这样子能发，这样子能收，但是却不知道发送代码合适执行，接收代码如何联动。这种非线性的执行逻辑实在是太难理解了！刚好今天有空，跟着网上文章缕了一通，发现里面涉及了是十多个类，每个类都有自己的职责，不得不感叹这框架设计模式能力之强呀">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxSwift 订阅原理">
+<meta property="og:url" content="http://yoursite.com/2023/03/13/rxswift-principle/index.html">
+<meta property="og:site_name" content="HowsonLiu">
+<meta property="og:description" content="最近需要对RxSwift的项目调优。之前对于RxSwift订阅的实现原理，实在是一窍不通。只知道这样子能发，这样子能收，但是却不知道发送代码合适执行，接收代码如何联动。这种非线性的执行逻辑实在是太难理解了！刚好今天有空，跟着网上文章缕了一通，发现里面涉及了是十多个类，每个类都有自己的职责，不得不感叹这框架设计模式能力之强呀">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-13T12:01:52.000Z">
+<meta property="article:modified_time" content="2023-03-13T12:08:36.697Z">
+<meta property="article:author" content="HowsonLiu">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="Swift">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2023/03/13/rxswift-principle/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>RxSwift 订阅原理 | HowsonLiu</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  <!-- mouse effect explosion -->
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/mouse_effect_explosion.js"></script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HowsonLiu</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/03/13/rxswift-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HowsonLiu">
+      <meta itemprop="description" content="Qt Duilib">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HowsonLiu">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RxSwift 订阅原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-03-13 20:01:52 / 修改时间：20:08:36" itemprop="dateCreated datePublished" datetime="2023-03-13T20:01:52+08:00">2023-03-13</time>
+            </span>
+
+          
+            <div class="post-description">最近需要对RxSwift的项目调优。之前对于RxSwift订阅的实现原理，实在是一窍不通。只知道这样子能发，这样子能收，但是却不知道发送代码合适执行，接收代码如何联动。这种非线性的执行逻辑实在是太难理解了！刚好今天有空，跟着网上文章缕了一通，发现里面涉及了是十多个类，每个类都有自己的职责，不得不感叹这框架设计模式能力之强呀</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从一段很简单的代码开始</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="keyword">let</span> observable <span class="operator">=</span> <span class="type">Observable</span>&lt;<span class="keyword">Any</span>&gt;.create &#123; observer -&gt; <span class="type">Disposable</span> <span class="keyword">in</span></span><br><span class="line">    observer.onNext(<span class="string">&quot;hello&quot;</span>)</span><br><span class="line">    observer.onCompleted()</span><br><span class="line">    <span class="keyword">return</span> <span class="type">Disposables</span>.create()</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line">observable.subscribe(onNext: &#123; text <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;recv <span class="subst">\(text)</span>&quot;</span>)</span><br><span class="line">&#125;, onCompleted: &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;completed&quot;</span>)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+<p>发出一个事件有很多种方法，我们选择最简单的<code>Observable.create</code>方法，它接受一个回调函数，用这个回调函数创建出一个序列  </p>
+<p>我们需要思考以下问题  </p>
+<ul>
+<li>序列的事件是什么时候发送的？(1 or 2 or 3)</li>
+<li>观察者的代码是什么时候执行的？(1 or 2 or 3)</li>
+</ul>
+<h2 id="Observable-create"><a href="#Observable-create" class="headerlink" title="Observable.create"></a>Observable.create</h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">create</span>(<span class="keyword">_</span> <span class="params">subscribe</span>: <span class="keyword">@escaping</span> (<span class="type">AnyObserver</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="comment">// 看这里↓</span></span><br><span class="line">        <span class="keyword">return</span> <span class="type">AnonymousObservable</span>(subscribe)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>create的代码很简单，他把功能转到<code>AnonymousObservable</code>中实现了</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">AnonymousObservable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">Producer</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">SubscribeHandler</span> <span class="operator">=</span> (<span class="type">AnyObserver</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _subscribeHandler: <span class="type">SubscribeHandler</span>     <span class="comment">// 看这里</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">subscribeHandler</span>: <span class="keyword">@escaping</span> <span class="type">SubscribeHandler</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>._subscribeHandler <span class="operator">=</span> subscribeHandler   <span class="comment">// 看这里</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>, <span class="params">cancel</span>: <span class="type">Cancelable</span>) -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> sink <span class="operator">=</span> <span class="type">AnonymousObservableSink</span>(observer: observer, cancel: cancel)</span><br><span class="line">        <span class="keyword">let</span> subscription <span class="operator">=</span> sink.run(<span class="keyword">self</span>)</span><br><span class="line">        <span class="keyword">return</span> (sink: sink, subscription: subscription)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>AnonymousObservable</code>存下了创建序列的回调，并在后续的<code>run</code>方法使用到了他</p>
+<h2 id="Observable-subscribe"><a href="#Observable-subscribe" class="headerlink" title="Observable.subscribe"></a>Observable.subscribe</h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">subscribe</span>(<span class="params">onNext</span>: ((<span class="type">Element</span>) -&gt; <span class="type">Void</span>)<span class="operator">?</span> <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">onError</span>: ((<span class="type">Swift</span>.<span class="type">Error</span>) -&gt; <span class="type">Void</span>)<span class="operator">?</span> <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">onCompleted</span>: (() -&gt; <span class="type">Void</span>)<span class="operator">?</span> <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">onDisposed</span>: (() -&gt; <span class="type">Void</span>)<span class="operator">?</span> <span class="operator">=</span> <span class="literal">nil</span>)</span><br><span class="line">    -&gt; <span class="type">Disposable</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> disposable: <span class="type">Disposable</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> disposed <span class="operator">=</span> onDisposed &#123;</span><br><span class="line">            disposable <span class="operator">=</span> <span class="type">Disposables</span>.create(with: disposed)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            disposable <span class="operator">=</span> <span class="type">Disposables</span>.create()</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">            <span class="keyword">let</span> synchronizationTracker <span class="operator">=</span> <span class="type">SynchronizationTracker</span>()</span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> callStack <span class="operator">=</span> <span class="type">Hooks</span>.recordCallStackOnError <span class="operator">?</span> <span class="type">Hooks</span>.customCaptureSubscriptionCallstack() : []</span><br><span class="line">        <span class="comment">// 看这里↓</span></span><br><span class="line">        <span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">AnonymousObserver</span>&lt;<span class="type">Element</span>&gt; &#123; event <span class="keyword">in</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">                synchronizationTracker.register(synchronizationErrorMessage: .default)</span><br><span class="line">                <span class="keyword">defer</span> &#123; synchronizationTracker.unregister() &#125;</span><br><span class="line">            <span class="keyword">#endif</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">switch</span> event &#123;</span><br><span class="line">            <span class="keyword">case</span> .next(<span class="keyword">let</span> value):</span><br><span class="line">                onNext<span class="operator">?</span>(value)</span><br><span class="line">            <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">let</span> onError <span class="operator">=</span> onError &#123;</span><br><span class="line">                    onError(error)</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="type">Hooks</span>.defaultErrorHandler(callStack, error)</span><br><span class="line">                &#125;</span><br><span class="line">                disposable.dispose()</span><br><span class="line">            <span class="keyword">case</span> .completed:</span><br><span class="line">                onCompleted<span class="operator">?</span>()</span><br><span class="line">                disposable.dispose()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">Disposables</span>.create(</span><br><span class="line">            <span class="keyword">self</span>.asObservable().subscribe(observer),</span><br><span class="line">            disposable</span><br><span class="line">        )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总的来说，<code>subscribe</code>函数创建了一个<code>AnonymousObserver</code>，在他的事件处理函数里面对四个回调进行分发处理。并且后续调用了<code>self.asObservable().subscribe(observer)</code><br>从这里能看得出来，示例代码都是方便我们使用的扩展，其本质是创建出<code>AnonymousObservable</code>与<code>AnonymousObserver</code>，并且使用<code>AnonymousObservable.subscribe(observer:)</code>使他们链接，所以我们后续关注这三个点就好了  </p>
+<h2 id="AnonymousObserver"><a href="#AnonymousObserver" class="headerlink" title="AnonymousObserver"></a>AnonymousObserver</h2><p>观察者，他的作用就是对不同的事件进行处理，可以简单理解成按钮的点击事件。<br>因此他的实现也特别简单，我们从他的继承链出发，剖析他的作用：<br><code>AnonymousObserver</code> -&gt; <code>ObserverBase</code> -&gt; <code>Disposable</code> &amp; <code>ObserverType</code>  </p>
+<ol>
+<li><code>Disposable</code> &amp; <code>ObserverType</code>   <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>()      <span class="comment">// 看这里</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">@available</span>(<span class="operator">*</span>, deprecated, renamed: <span class="string">&quot;Element&quot;</span>)</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">E</span> <span class="operator">=</span> <span class="type">Element</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;)        <span class="comment">// 看这里</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <code>Disposable</code>就是RAII，用变量的生命周期绑定回调事件生效的生命周期；<code>ObserverType</code>定义了何为观察者，观察者必须实现其<code>on</code>函数，对不同的事件进行处理  </li>
+<li><code>ObserverBase</code> <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">class</span> <span class="title class_">ObserverBase</span>&lt;<span class="title class_">Element</span>&gt; : <span class="title class_">Disposable</span>, <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">let</span> _isStopped <span class="operator">=</span> <span class="type">AtomicInt</span>(<span class="number">0</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;      <span class="comment">// 看这里</span></span><br><span class="line">            <span class="keyword">switch</span> event &#123;</span><br><span class="line">            <span class="keyword">case</span> .next:</span><br><span class="line">                <span class="keyword">if</span> load(<span class="keyword">self</span>._isStopped) <span class="operator">==</span> <span class="number">0</span> &#123;</span><br><span class="line">                    <span class="keyword">self</span>.onCore(event)</span><br><span class="line">                &#125;</span><br><span class="line">            <span class="keyword">case</span> .error, .completed:</span><br><span class="line">                <span class="keyword">if</span> fetchOr(<span class="keyword">self</span>._isStopped, <span class="number">1</span>) <span class="operator">==</span> <span class="number">0</span> &#123;</span><br><span class="line">                    <span class="keyword">self</span>.onCore(event)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">func</span> <span class="title function_">onCore</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">            rxAbstractMethod()</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">            fetchOr(<span class="keyword">self</span>._isStopped, <span class="number">1</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ```  </span><br><span class="line">    `ObserverBase`简单实现了两个协议，并定义了一个原子变量，标识事件之后可否继续，对事件上报到`onCore`函数处理  </span><br><span class="line"><span class="number">3</span>. `AnonymousObserver`</span><br><span class="line">    ```swift</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">AnonymousObserver</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObserverBase</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">EventHandler</span> <span class="operator">=</span> (<span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _eventHandler : <span class="type">EventHandler</span>        <span class="comment">// 看这里</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">eventHandler</span>: <span class="keyword">@escaping</span> <span class="type">EventHandler</span>) &#123;</span><br><span class="line">    <span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">            <span class="keyword">_</span> <span class="operator">=</span> <span class="type">Resources</span>.incrementTotal()</span><br><span class="line">    <span class="keyword">#endif</span></span><br><span class="line">            <span class="keyword">self</span>._eventHandler <span class="operator">=</span> eventHandler</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">onCore</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;     <span class="comment">// 看这里</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>._eventHandler(event)</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">        <span class="keyword">deinit</span> &#123;</span><br><span class="line">            <span class="keyword">_</span> <span class="operator">=</span> <span class="type">Resources</span>.decrementTotal()</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">#endif</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+ <code>AnonymousObserver</code>保存用户传进来的<code>eventHandler</code>，并于<code>onCore</code>函数交予其处理  </li>
+</ol>
+<p>总结：<code>AnonymousObserver</code>保存用户的事件处理函数，并用<code>Dispose</code>管理生命周期  </p>
+<h2 id="AnonymousObservable"><a href="#AnonymousObservable" class="headerlink" title="AnonymousObservable"></a><code>AnonymousObservable</code></h2><p>序列，也称为被观察者，他的作用就是产生一系列的事件，并且可被观察者订阅<br>他的继承链如下：<br><code>AnonymousObservable</code> -&gt; <code>Producer</code> -&gt; <code>Observable</code> -&gt; <code>ObservableType</code>  </p>
+<ol>
+<li><code>ObservableType</code> <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">ObservableType</span>: <span class="title class_">ObservableConvertibleType</span> &#123;</span><br><span class="line">    <span class="comment">// 看这里</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">asObservable</span>() -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">Observable</span>.create &#123; o <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>.subscribe(o)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <code>ObservableType</code>定义了何谓序列：可以被订阅的称之为序列。因此需要自行实现<code>subscribe</code>函数</li>
+<li><code>Observable</code> <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt; : <span class="title class_">ObservableType</span> &#123;</span><br><span class="line"><span class="keyword">init</span>() &#123;</span><br><span class="line"><span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">    <span class="keyword">_</span> <span class="operator">=</span> <span class="type">Resources</span>.incrementTotal()</span><br><span class="line"><span class="keyword">#endif</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        rxAbstractMethod()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">asObservable</span>() -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">deinit</span> &#123;</span><br><span class="line"><span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">        <span class="keyword">_</span> <span class="operator">=</span> <span class="type">Resources</span>.decrementTotal()</span><br><span class="line"><span class="keyword">#endif</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <code>Observable</code>只实现了<code>asObservable</code>，返回为self，其他的并没有处理</li>
+<li><code>Producer</code> <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Producer</span>&lt;<span class="title class_">Element</span>&gt; : <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="operator">!</span><span class="type">CurrentThreadScheduler</span>.isScheduleRequired &#123;</span><br><span class="line">            <span class="keyword">let</span> disposer <span class="operator">=</span> <span class="type">SinkDisposer</span>()</span><br><span class="line">            <span class="keyword">let</span> sinkAndSubscription <span class="operator">=</span> <span class="keyword">self</span>.run(observer, cancel: disposer)  <span class="comment">// 看这里</span></span><br><span class="line">            disposer.setSinkAndSubscription(sink: sinkAndSubscription.sink, subscription: sinkAndSubscription.subscription)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> disposer</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="type">CurrentThreadScheduler</span>.instance.schedule(()) &#123; <span class="keyword">_</span> <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">let</span> disposer <span class="operator">=</span> <span class="type">SinkDisposer</span>()</span><br><span class="line">                <span class="keyword">let</span> sinkAndSubscription <span class="operator">=</span> <span class="keyword">self</span>.run(observer, cancel: disposer)  <span class="comment">// 看这里</span></span><br><span class="line">                disposer.setSinkAndSubscription(sink: sinkAndSubscription.sink, subscription: sinkAndSubscription.subscription)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> disposer</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>, <span class="params">cancel</span>: <span class="type">Cancelable</span>) -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        rxAbstractMethod()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <code>Producer</code>实现了<code>subscribe</code>函数，他在里面判断了一下是否需要切换线程，然后将<code>observer</code>作为参数，委托到<code>run</code>函数处理。同时他自己声明了<code>run</code>函数，但保留实现</li>
+<li><code>AnonymousObservable</code>   <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">AnonymousObservable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">Producer</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">SubscribeHandler</span> <span class="operator">=</span> (<span class="type">AnyObserver</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _subscribeHandler: <span class="type">SubscribeHandler</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">subscribeHandler</span>: <span class="keyword">@escaping</span> <span class="type">SubscribeHandler</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>._subscribeHandler <span class="operator">=</span> subscribeHandler</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>, <span class="params">cancel</span>: <span class="type">Cancelable</span>) -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> sink <span class="operator">=</span> <span class="type">AnonymousObservableSink</span>(observer: observer, cancel: cancel)  <span class="comment">// 看这里***</span></span><br><span class="line">        <span class="keyword">let</span> subscription <span class="operator">=</span> sink.run(<span class="keyword">self</span>)   <span class="comment">// 看这里***</span></span><br><span class="line">        <span class="keyword">return</span> (sink: sink, subscription: subscription)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <code>AnonymousObservable</code>作为其中一种序列，他选择了使用回调的方式创建序列，因此他保存了用户传进来的<code>subscribeHandler</code>，同时他实现了<code>run</code>函数，在内部使用了<code>AnonymousObservableSink</code>对observer进行处理</li>
+</ol>
+<p>总结：<code>AnonymousObservable</code>是一个序列，他内部拥有切换线程的逻辑，他实现了<code>subscribe</code>函数，不过具体实现交给了<code>AnonymousObservableSink.run</code>处理  </p>
+<h2 id="AnonymousObservableSink"><a href="#AnonymousObservableSink" class="headerlink" title="AnonymousObservableSink"></a><code>AnonymousObservableSink</code></h2><p>终于来到了<code>AnonymousObservableSink</code>，上面的类实际上都是回调的封装，还加上一点线程切换以及生命周期的管理，真正决定运行时机的<code>subscribe</code>原理，就隐藏在这个类中<br>先看看他的继承链：<br><code>AnonymousObservableSink</code> -&gt; <code>ObserverType</code> &amp; <code>Sink</code><br><code>Sink</code> -&gt; <code>Disposable</code><br>先记住，下面我们直接看他们的源码</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">AnonymousObservableSink</span>&lt;<span class="title class_">Observer</span>: <span class="title class_">ObserverType</span>&gt;: <span class="title class_">Sink</span>&lt;<span class="title class_">Observer</span>&gt;, <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> <span class="operator">=</span> <span class="type">Observer</span>.<span class="type">Element</span> </span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Parent</span> <span class="operator">=</span> <span class="type">AnonymousObservable</span>&lt;<span class="type">Element</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// state</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _isStopped <span class="operator">=</span> <span class="type">AtomicInt</span>(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">let</span> _synchronizationTracker <span class="operator">=</span> <span class="type">SynchronizationTracker</span>()</span><br><span class="line">    <span class="keyword">#endif</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>(<span class="params">observer</span>: <span class="type">Observer</span>, <span class="params">cancel</span>: <span class="type">Cancelable</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(observer: observer, cancel: cancel)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">            <span class="keyword">self</span>._synchronizationTracker.register(synchronizationErrorMessage: .default)</span><br><span class="line">            <span class="keyword">defer</span> &#123; <span class="keyword">self</span>._synchronizationTracker.unregister() &#125;</span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .next:</span><br><span class="line">            <span class="keyword">if</span> load(<span class="keyword">self</span>._isStopped) <span class="operator">==</span> <span class="number">1</span> &#123;</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">self</span>.forwardOn(event)</span><br><span class="line">        <span class="keyword">case</span> .error, .completed:</span><br><span class="line">            <span class="keyword">if</span> fetchOr(<span class="keyword">self</span>._isStopped, <span class="number">1</span>) <span class="operator">==</span> <span class="number">0</span> &#123;</span><br><span class="line">                <span class="keyword">self</span>.forwardOn(event)</span><br><span class="line">                <span class="keyword">self</span>.dispose()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">run</span>(<span class="keyword">_</span> <span class="params">parent</span>: <span class="type">Parent</span>) -&gt; <span class="type">Disposable</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> parent._subscribeHandler(<span class="type">AnyObserver</span>(<span class="keyword">self</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sink</span>&lt;<span class="title class_">Observer</span>: <span class="title class_">ObserverType</span>&gt; : <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="keyword">fileprivate</span> <span class="keyword">let</span> _observer: <span class="type">Observer</span></span><br><span class="line">    <span class="keyword">fileprivate</span> <span class="keyword">let</span> _cancel: <span class="type">Cancelable</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _disposed <span class="operator">=</span> <span class="type">AtomicInt</span>(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">let</span> _synchronizationTracker <span class="operator">=</span> <span class="type">SynchronizationTracker</span>()</span><br><span class="line">    <span class="keyword">#endif</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">observer</span>: <span class="type">Observer</span>, <span class="params">cancel</span>: <span class="type">Cancelable</span>) &#123;</span><br><span class="line"><span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">        <span class="keyword">_</span> <span class="operator">=</span> <span class="type">Resources</span>.incrementTotal()</span><br><span class="line"><span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">self</span>._observer <span class="operator">=</span> observer</span><br><span class="line">        <span class="keyword">self</span>._cancel <span class="operator">=</span> cancel</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">func</span> <span class="title function_">forwardOn</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Observer</span>.<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">            <span class="keyword">self</span>._synchronizationTracker.register(synchronizationErrorMessage: .default)</span><br><span class="line">            <span class="keyword">defer</span> &#123; <span class="keyword">self</span>._synchronizationTracker.unregister() &#125;</span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">if</span> isFlagSet(<span class="keyword">self</span>._disposed, <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>._observer.on(event)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">func</span> <span class="title function_">forwarder</span>() -&gt; <span class="type">SinkForward</span>&lt;<span class="type">Observer</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">SinkForward</span>(forward: <span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">var</span> disposed: <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> isFlagSet(<span class="keyword">self</span>._disposed, <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">        fetchOr(<span class="keyword">self</span>._disposed, <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">self</span>._cancel.dispose()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">deinit</span> &#123;</span><br><span class="line"><span class="keyword">#if</span> <span class="type">TRACE_RESOURCES</span></span><br><span class="line">       <span class="keyword">_</span> <span class="operator">=</span>  <span class="type">Resources</span>.decrementTotal()</span><br><span class="line"><span class="keyword">#endif</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>整理一下，整个<code>subscribe</code>的关键就在于<code>AnonymousObservable.run</code>函数，在<code>run</code>函数中，他先创建了<code>AnonymousObservableSink</code>，并把<code>observer</code>传给了他</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> sink <span class="operator">=</span> <span class="type">AnonymousObservableSink</span>(observer: observer, cancel: cancel)</span><br></pre></td></tr></table></figure>
+<p>而<code>AnonymousObservableSink</code>是继承了<code>Sink</code>，实际上他把<code>observer</code>又传给了<code>Sink</code><br>同时注意看！<code>AnonymousObservableSink</code>遵循了<code>ObserverType</code>协议，他实现了<code>on</code>方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">            <span class="keyword">self</span>._synchronizationTracker.register(synchronizationErrorMessage: .default)</span><br><span class="line">            <span class="keyword">defer</span> &#123; <span class="keyword">self</span>._synchronizationTracker.unregister() &#125;</span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .next:</span><br><span class="line">            <span class="keyword">if</span> load(<span class="keyword">self</span>._isStopped) <span class="operator">==</span> <span class="number">1</span> &#123;</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">self</span>.forwardOn(event)</span><br><span class="line">        <span class="keyword">case</span> .error, .completed:</span><br><span class="line">            <span class="keyword">if</span> fetchOr(<span class="keyword">self</span>._isStopped, <span class="number">1</span>) <span class="operator">==</span> <span class="number">0</span> &#123;</span><br><span class="line">                <span class="keyword">self</span>.forwardOn(event)</span><br><span class="line">                <span class="keyword">self</span>.dispose()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>on</code>方法里面，他实际调用的是<code>Sink.forwardOn</code>方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">func</span> <span class="title function_">forwardOn</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Observer</span>.<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">            <span class="keyword">self</span>._synchronizationTracker.register(synchronizationErrorMessage: .default)</span><br><span class="line">            <span class="keyword">defer</span> &#123; <span class="keyword">self</span>._synchronizationTracker.unregister() &#125;</span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">if</span> isFlagSet(<span class="keyword">self</span>._disposed, <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>._observer.on(event)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而<code>Sink.forwardOn</code>方法调用的是构造函数传进来的<code>observer</code>，这里接通了，也就是说现在<code>AnonymousObservableSink</code>已经传上了传进来的<code>observer</code>的衣服，调<code>AnonymousObservableSink</code>就等于调<code>AnonymousObserver</code><br>最后看，创建完<code>AnonymousObservableSink</code>后一句！</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subscription <span class="operator">=</span> sink.run(<span class="keyword">self</span>)</span><br></pre></td></tr></table></figure>
+<p>而<code>AnonymousObservableSink.run</code>为：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">run</span>(<span class="keyword">_</span> <span class="params">parent</span>: <span class="type">Parent</span>) -&gt; <span class="type">Disposable</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> parent._subscribeHandler(<span class="type">AnyObserver</span>(<span class="keyword">self</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>终于！在这里接通了！parent是<code>AnonymousObservable</code>，也就是序列，<code>_subscribeHandler</code>是序列里面用户传进来的创建序列的回调。<code>AnyObserver(self)</code>也就是说<code>AnonymousObservableSink</code>自己是被观察者，上面说到<code>AnonymousObservableSink</code>已经传上了<code>AnonymousObserver</code>的衣服，调他就等于调<code>AnonymousObserver</code>。因此在这里，一切都接通了！<br>所以回顾一下，本质上上面做的一切操作，到最后简化下来其实就是执行一次这样的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(onNext: (<span class="keyword">Any</span>)-&gt;<span class="type">Void</span>, onCompleted: ()-&gt;<span class="type">Void</span>, onError: ()-&gt;<span class="type">Void</span>, onDisposed: ()-&gt;<span class="type">Void</span>) -&gt; <span class="type">Void</span> &#123;</span><br><span class="line">    onNext(<span class="string">&quot;hello&quot;</span>)</span><br><span class="line">    onCompleted()</span><br><span class="line">&#125; ( &#123;<span class="built_in">print</span>(<span class="string">&quot;recv <span class="subst">\(<span class="variable">$0</span>)</span>&quot;</span>)&#125;, &#123;<span class="built_in">print</span>(<span class="string">&quot;complete&quot;</span>)&#125;, &#123;&#125;, &#123;&#125; )</span><br></pre></td></tr></table></figure>
+<p>这代码执行的时机是 <code>AnonymousObservableSink.run</code> -&gt; <code>AnonymousObservable.run</code> -&gt; <code>Producer.subscribe</code> -&gt; <code>AnonymousObservable.subscribe</code> -&gt; <code>observable.subscribe</code></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>序列的事件发送与观察者的代码是同时执行的</li>
+<li>他们执行的时机在subscribe上</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/Swift/" rel="tag"># Swift</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/28/swift-rxswift/" rel="prev" title="从RxSwift开始学习ReactiveX">
+      <i class="fa fa-chevron-left"></i> 从RxSwift开始学习ReactiveX
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Observable-create"><span class="nav-number">1.</span> <span class="nav-text">Observable.create</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Observable-subscribe"><span class="nav-number">2.</span> <span class="nav-text">Observable.subscribe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnonymousObserver"><span class="nav-number">3.</span> <span class="nav-text">AnonymousObserver</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnonymousObservable"><span class="nav-number">4.</span> <span class="nav-text">AnonymousObservable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnonymousObservableSink"><span class="nav-number">5.</span> <span class="nav-text">AnonymousObservableSink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HowsonLiu</p>
+  <div class="site-description" itemprop="description">Qt Duilib</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HowsonLiu</span>
+</div>
+
+<div class="busuanzi">
+<span>
+    <span id="busuanzi_value_site_uv"></span> people browse 
+	<span id="busuanzi_value_site_pv"></span> times
+</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
